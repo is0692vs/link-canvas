@@ -57,35 +57,32 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
     pan
   );
 
-  const handleTitleBarMouseDown = (e: React.MouseEvent) => {
-    // 閉じるボタンの場合はドラッグしない
-    if (
-      (e.target as HTMLElement).classList.contains("code-window__close-btn")
-    ) {
-      return;
-    }
+  const handleWindowMouseDown = (e: React.MouseEvent) => {
+    // リサイズハンドルやコンテンツのクリックは無視
+    if (e.target !== e.currentTarget) return;
 
-    // 四隅のリサイズハンドル領域（20px）を除外
+    // タイトルバー領域のクリック
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    const isInCorner = (
+    // タイトルバー内かチェック (y <= 32)
+    if (y > 32) return; // タイトルバー外
+
+    // 四隅除外
+    const isInCorner =
       (x <= 20 && y <= 20) || // nw
       (x >= rect.width - 20 && y <= 20) || // ne
-      (x <= 20 && y >= rect.height - 20) || // sw
-      (x >= rect.width - 20 && y >= rect.height - 20) // se
-    );
+      (x <= 20 && y >= 32 - 20) || // sw (タイトルバー下)
+      (x >= rect.width - 20 && y >= 32 - 20); // se
 
-    if (isInCorner) {
-      console.log("[Link Canvas] タイトルバー四隅クリック - ドラッグ無効");
-      return;
-    }
+    if (isInCorner) return;
 
+    // タイトルバー中央クリック - ドラッグ開始
     e.preventDefault();
     e.stopPropagation();
 
-    console.log("[Link Canvas] タイトルバードラッグ開始:", data.fileName);
+    console.log("[Link Canvas] タイトルバー中央ドラッグ開始:", data.fileName);
     onDragStart?.(e.clientX, e.clientY);
   };
 
@@ -115,11 +112,11 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
         height: `${height}px`,
         touchAction: "none",
       }}
+      onMouseDown={handleWindowMouseDown}
     >
       {/* タイトルバー（ドラッグハンドル） */}
       <div
         className="code-window__title-bar"
-        onMouseDown={handleTitleBarMouseDown}
         style={{ cursor: "move" }}
       >
         <div className="code-window__title">{data.fileName}</div>

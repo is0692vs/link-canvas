@@ -23,7 +23,7 @@
   border-bottom: 1px solid #e0e0e0;
   user-select: none;
   flex-shrink: 0;
-  pointer-events: auto; /* タイトルバーでイベント受け取り */
+  pointer-events: none; /* ウィンドウのonMouseDownで制御 */
 }
 
 .code-window__title {
