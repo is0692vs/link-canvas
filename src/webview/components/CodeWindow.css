@@ -70,7 +70,7 @@
   z-index: 1;
 }
 
-/* Monaco Editor内の要素が確実にマウスイベントを受け取れるようにする */
+/* Ensure Monaco Editor elements reliably receive mouse events */
 .code-window__content * {
   pointer-events: auto;
 }
