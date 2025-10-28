@@ -81,7 +81,7 @@
   background-color: #fafafa;
 }
 
-/* リサイズハンドル */
+/* リサイズハンドルコンテナ */
 .code-window__resize-handles {
   position: absolute;
   width: 100%;
@@ -89,68 +89,86 @@
   top: 0;
   left: 0;
   pointer-events: none;
-  z-index: 1000 !important;
+  z-index: 1000; /* 大幅に上げる */
 }
 
+/* リサイズハンドル共通 */
 .code-window__resize-handle {
   position: absolute;
-  pointer-events: auto;
-  background-color: red !important; /* 完全に赤く */
-  border: 2px solid blue !important; /* 青いボーダー */
-  z-index: 1001 !important;
+  pointer-events: auto !important; /* 強制的に有効化 */
+  z-index: 1001; /* さらに上げる */
+  /* デバッグ用：一時的に可視化 */
+  background-color: rgba(255, 0, 0, 0.3);
+  transition: background-color 0.2s;
 }
 
-/* 四隅 */
+/* ホバー時 */
+.code-window__resize-handle:hover {
+  background-color: rgba(0, 122, 204, 0.5);
+}
+
+/* 四隅のハンドル - サイズをさらに拡大してクリックしやすく */
 .code-window__resize-handle--nw {
-  top: 0;
+  top: 0; /* 境界に配置 */
   left: 0;
-  width: 20px !important;
-  height: 20px !important;
+  width: 20px; /* クリックしやすく */
+  height: 20px;
   cursor: nw-resize;
 }
 
 .code-window__resize-handle--ne {
   top: 0;
   right: 0;
-  width: 20px !important;
-  height: 20px !important;
+  width: 20px;
+  height: 20px;
   cursor: ne-resize;
 }
 
 .code-window__resize-handle--sw {
   bottom: 0;
   left: 0;
-  width: 20px !important;
-  height: 20px !important;
+  width: 20px;
+  height: 20px;
   cursor: sw-resize;
 }
 
 .code-window__resize-handle--se {
   bottom: 0;
   right: 0;
-  width: 20px !important;
-  height: 20px !important;
+  width: 20px;
+  height: 20px;
   cursor: se-resize;
 }
 
-/* 四辺 */
-.code-window__resize-handle--n,
-.code-window__resize-handle--s,
-.code-window__resize-handle--w,
+/* 四辺のハンドル - サイズを拡大 */
+.code-window__resize-handle--n {
+  top: 0;
+  left: 16px; /* 隅と重ならないように */
+  right: 16px;
+  height: 8px; /* 4px → 8px */
+  cursor: n-resize;
+}
+
+.code-window__resize-handle--s {
+  bottom: 0;
+  left: 16px;
+  right: 16px;
+  height: 8px;
+  cursor: s-resize;
+}
+
+.code-window__resize-handle--w {
+  top: 16px;
+  left: 0;
+  bottom: 16px;
+  width: 8px; /* 4px → 8px */
+  cursor: w-resize;
+}
+
 .code-window__resize-handle--e {
-  display: none !important; /* 四辺は非表示 */
-}
-
-/* リサイズハンドルのホバー効果 */
-.code-window__resize-handle:hover {
-  background-color: red !important; /* 完全に赤く */
-  border: 2px solid darkblue !important; /* 濃い青いボーダー */
-}
-
-.code-window__resize-handle--nw:hover,
-.code-window__resize-handle--ne:hover,
-.code-window__resize-handle--sw:hover,
-.code-window__resize-handle--se:hover {
-  background-color: red !important; /* 完全に赤く */
-  border: 2px solid darkblue !important; /* 濃い青いボーダー */
+  top: 16px;
+  right: 0;
+  bottom: 16px;
+  width: 8px;
+  cursor: e-resize;
 }
