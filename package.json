@@ -1,0 +1,60 @@
+{
+  "name": "link-canvas",
+  "displayName": "Link Canvas",
+  "description": "Visualize code dependencies on infinite canvas",
+  "version": "0.1.0",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Visualization"
+  ],
+  "activationEvents": [
+    "onView:linkCanvas.fileTree"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "linkCanvas",
+          "title": "Link Canvas",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "linkCanvas": [
+        {
+          "id": "linkCanvas.fileTree",
+          "name": "Files"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "linkCanvas.openCanvas",
+        "title": "Open Canvas"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "node build.js",
+    "watch": "node build.js --watch",
+    "vscode:prepublish": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@types/vscode": "^1.80.0",
+    "esbuild": "^0.19.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@monaco-editor/react": "^4.5.0",
+    "@xyflow/react": "^12.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

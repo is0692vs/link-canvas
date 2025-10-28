@@ -1,0 +1,15 @@
+{
+  "version": "0.4.0",
+  "rootPath": "${workspaceFolder}",
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true
+    }
+  }
+}
