@@ -90,6 +90,32 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
     return () => document.removeEventListener("wheel", handleWheel);
   }, [zoom, pan, onZoomChange, onPanChange]);
 
+  // DEBUG: グローバル pointerdown を捕捉して、クリックがブラウザに到達しているか確認
+  React.useEffect(() => {
+    const debugHandler = (e: PointerEvent) => {
+      try {
+        const target = e.target as HTMLElement | null;
+        const className = target?.className ?? null;
+        const id = target?.id ?? null;
+        const rect = target?.getBoundingClientRect ? target.getBoundingClientRect() : null;
+        console.log('[Link Canvas][GLOBAL] pointerdown', {
+          pointerType: e.pointerType,
+          clientX: e.clientX,
+          clientY: e.clientY,
+          targetClass: className,
+          targetId: id,
+          targetRect: rect,
+        });
+      } catch (err) {
+        console.log('[Link Canvas][GLOBAL] pointerdown error', err);
+      }
+    };
+
+    // capture フェーズで拾うことで、他のハンドラで stopPropagation される前に検出できる
+    document.addEventListener('pointerdown', debugHandler, true);
+    return () => document.removeEventListener('pointerdown', debugHandler, true);
+  }, []);
+
   // マウスドラッグでパン
   const handleMouseDown = (e: React.MouseEvent) => {
     // ウィンドウ外をクリックした場合のみパン開始
