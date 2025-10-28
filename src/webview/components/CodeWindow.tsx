@@ -146,6 +146,7 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
           className="code-window__resize-handle code-window__resize-handle--nw"
           onMouseDown={(e) => {
             console.log("[Link Canvas] リサイズハンドルクリック: nw");
+            e.stopPropagation();
             handleResizeStart(e, "nw");
           }}
           onClick={() =>
@@ -156,6 +157,7 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
           className="code-window__resize-handle code-window__resize-handle--ne"
           onMouseDown={(e) => {
             console.log("[Link Canvas] リサイズハンドルクリック: ne");
+            e.stopPropagation();
             handleResizeStart(e, "ne");
           }}
           onClick={() =>
@@ -166,6 +168,7 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
           className="code-window__resize-handle code-window__resize-handle--sw"
           onMouseDown={(e) => {
             console.log("[Link Canvas] リサイズハンドルクリック: sw");
+            e.stopPropagation();
             handleResizeStart(e, "sw");
           }}
           onClick={() =>
@@ -176,6 +179,7 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
           className="code-window__resize-handle code-window__resize-handle--se"
           onMouseDown={(e) => {
             console.log("[Link Canvas] リサイズハンドルクリック: se");
+            e.stopPropagation();
             handleResizeStart(e, "se");
           }}
           onClick={() =>
