@@ -1,25 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import {
-  ReactFlow,
-  ReactFlowProvider,
-  Background,
-  Controls,
-  applyNodeChanges,
-  applyEdgeChanges,
-  useReactFlow,
-  type Node,
-  type Edge,
-  type NodeChange,
-  type EdgeChange,
-} from "@xyflow/react";
-import "@xyflow/react/dist/style.css";
-import { CodeWindowNode } from "./nodes/CodeWindowNode";
+import { InfiniteCanvas } from "./components/InfiniteCanvas";
 import type { CodeWindowData } from "./components/CodeWindow";
-
-const nodeTypes = {
-  codeWindow: CodeWindowNode,
-};
 
 interface FileMessage {
   type: string;
@@ -32,140 +14,56 @@ interface ZoomMessage {
   type: "zoomIn" | "zoomOut";
 }
 
-function CanvasContent() {
-  // テスト用のノードデータ
-  const testNodeData: CodeWindowData = {
-    filePath:
-      "/Users/hirokimukai/Cloudprojects/link-canvas/test-workspace/src/main.ts",
-    fileName: "main.ts",
-    content: `import { Calculator } from './calculator';
-import { Logger } from '../components/logger';
+function App() {
+  const [windows, setWindows] = React.useState<
+    Array<CodeWindowData & { id: string; position: { x: number; y: number } }>
+  >([]);
+  const [zoom, setZoom] = React.useState(0.5);
+  const [pan, setPan] = React.useState({ x: 0, y: 0 });
 
-const calc = new Calculator();
-const logger = new Logger('main');
+  console.log("[Link Canvas] Appコンポーネント レンダリング");
 
-logger.log('Application started');
+  const handleZoomChange = React.useCallback((newZoom: number) => {
+    setZoom(newZoom);
+    console.log("[Link Canvas] ズーム変更:", newZoom.toFixed(3));
+  }, []);
 
-const result1 = calc.add(5, 3);
-logger.log(\`5 + 3 = \${result1}\`);
-
-const result2 = calc.multiply(4, 7);
-logger.log(\`4 * 7 = \${result2}\`);
-
-export function main() {
-  return {
-    result1,
-    result2,
-  };
-}`,
-    width: 400,
-    height: 300,
-    classes: [],
-    functions: ["main"],
-  };
-
-  const initialNodes: Node[] = [
-    {
-      id: "1",
-      data: testNodeData,
-      position: { x: 250, y: 100 },
-      type: "codeWindow",
+  const handlePanChange = React.useCallback(
+    (newPan: { x: number; y: number }) => {
+      setPan(newPan);
+      console.log(
+        "[Link Canvas] パン変更:",
+        newPan.x.toFixed(1),
+        newPan.y.toFixed(1)
+      );
     },
-  ];
-
-  const initialEdges: Edge[] = [];
-
-  const [nodes, setNodes] = React.useState(initialNodes);
-  const [edges, setEdges] = React.useState(initialEdges);
-
-  // useReactFlowはReactFlowProvider配下で呼び出す
-  const { getZoom, getViewport, setViewport } = useReactFlow();
-
-  const applyZoom = React.useCallback(
-    (targetZoom: number) => {
-      const viewport = getViewport();
-      setViewport({
-        x: viewport.x,
-        y: viewport.y,
-        zoom: targetZoom,
-      });
-    },
-    [getViewport, setViewport]
+    []
   );
 
-  console.log("[Link Canvas] CanvasContentコンポーネント レンダリング");
-
-  // ノード変更ハンドラ（useCallbackで最適化）
-  const handleNodesChange = React.useCallback((changes: NodeChange[]) => {
-    console.log("[Link Canvas] ノード変更", changes);
-    setNodes((prevNodes) => applyNodeChanges(changes, prevNodes));
-  }, []);
-
-  // エッジ変更ハンドラ（useCallbackで最適化）
-  const handleEdgesChange = React.useCallback((changes: EdgeChange[]) => {
-    console.log("[Link Canvas] エッジ変更", changes);
-    setEdges((prevEdges) => applyEdgeChanges(changes, prevEdges));
-  }, []);
-
-  // ビューポート変更監視
-  const handleMove = React.useCallback((event: any, viewport: any) => {
-    console.log(
-      "[Link Canvas] ビューポート変更 - Zoom:",
-      viewport.zoom.toFixed(3),
-      "Pan:",
-      viewport.x.toFixed(1),
-      viewport.y.toFixed(1)
-    );
-  }, []);
-
-  // Shift + マウスホイール ズーム処理（useCallbackで最適化）
-  const handleWheelZoom = React.useCallback(
-    (event: WheelEvent) => {
-      if (!event.shiftKey) {
-        return;
-      }
-
-      event.preventDefault();
-
-      const currentZoom = getZoom();
-      const zoomDelta = 0.1;
-      const dominantDelta =
-        Math.abs(event.deltaY) > Math.abs(event.deltaX)
-          ? event.deltaY
-          : event.deltaX;
-
-      if (dominantDelta === 0) {
-        return;
-      }
-
-      let newZoom = currentZoom;
-
-      if (dominantDelta < 0) {
-        // スクロールアップ = ズームイン
-        newZoom = Math.min(currentZoom + zoomDelta, 1.0);
-        console.log(
-          "[Link Canvas] Shift+ホイール ズームイン:",
-          currentZoom.toFixed(3),
-          "→",
-          newZoom.toFixed(3)
-        );
-      } else {
-        // スクロールダウン = ズームアウト
-        newZoom = Math.max(currentZoom - zoomDelta, 0.1);
-        console.log(
-          "[Link Canvas] Shift+ホイール ズームアウト:",
-          currentZoom.toFixed(3),
-          "→",
-          newZoom.toFixed(3)
-        );
-      }
-
-      applyZoom(newZoom);
+  const handleWindowMove = React.useCallback(
+    (id: string, position: { x: number; y: number }) => {
+      setWindows((prev) =>
+        prev.map((w) => (w.id === id ? { ...w, position } : w))
+      );
     },
-    [applyZoom, getZoom]
+    []
   );
 
-  // postMessageリスナーと wheel イベントのセットアップ
+  const handleWindowResize = React.useCallback(
+    (id: string, width: number, height: number) => {
+      setWindows((prev) =>
+        prev.map((w) => (w.id === id ? { ...w, width, height } : w))
+      );
+    },
+    []
+  );
+
+  const handleWindowClose = React.useCallback((id: string) => {
+    setWindows((prev) => prev.filter((w) => w.id !== id));
+    console.log("[Link Canvas] ウィンドウ削除:", id);
+  }, []);
+
+  // postMessageリスナーのセットアップ
   React.useEffect(() => {
     console.log("[Link Canvas] イベントリスナー セットアップ開始");
 
@@ -216,7 +114,11 @@ export function main() {
             functions
           );
 
-          const newNodeData: CodeWindowData = {
+          const newWindow: CodeWindowData & {
+            id: string;
+            position: { x: number; y: number };
+          } = {
+            id: `window-${fileMsg.filePath.replace(/[^a-zA-Z0-9]/g, "-")}`,
             filePath: fileMsg.filePath,
             fileName: fileMsg.fileName,
             content: fileMsg.content,
@@ -224,107 +126,71 @@ export function main() {
             height: 300,
             classes,
             functions,
+            position: { x: windows.length * 450 + 50, y: 100 },
           };
 
-          setNodes((prevNodes) => {
-            // ノード位置を計算（既存ノード数に基づいて配置）
-            const xPos = prevNodes.length * 450 + 50;
-            const yPos = 100;
-
-            const newNode: Node = {
-              id: nodeId,
-              data: newNodeData,
-              position: { x: xPos, y: yPos },
-              type: "codeWindow",
-            };
-
-            // 既存ノードの重複チェック
-            if (prevNodes.some((n) => n.id === nodeId)) {
+          setWindows((prev) => {
+            if (prev.some((w) => w.id === newWindow.id)) {
               console.log(
-                "[Link Canvas] 既存ノードのため追加スキップ:",
-                nodeId
+                "[Link Canvas] 既存ウィンドウのため追加スキップ:",
+                newWindow.id
               );
-              return prevNodes;
+              return prev;
             }
-
-            const updated = [...prevNodes, newNode];
-            console.log("[Link Canvas] 新規ノード作成:", nodeId);
-            console.log("[Link Canvas] 現在のノード数:", updated.length);
+            const updated = [...prev, newWindow];
+            console.log("[Link Canvas] 新規ウィンドウ作成:", newWindow.id);
+            console.log("[Link Canvas] 現在のウィンドウ数:", updated.length);
             return updated;
           });
         } else if (message.type === "zoomIn" || message.type === "zoomOut") {
           const zoomMsg = message as ZoomMessage;
-          const currentZoom = getZoom();
           const zoomDelta = 0.1;
-          let newZoom = currentZoom;
+          let newZoom = zoom;
 
           if (zoomMsg.type === "zoomIn") {
-            newZoom = Math.min(currentZoom + zoomDelta, 1.0);
+            newZoom = Math.min(zoom + zoomDelta, 1.0);
             console.log(
               "[Link Canvas] ボタン ズームイン:",
-              currentZoom.toFixed(3),
+              zoom.toFixed(3),
               "→",
               newZoom.toFixed(3)
             );
           } else {
-            newZoom = Math.max(currentZoom - zoomDelta, 0.1);
+            newZoom = Math.max(zoom - zoomDelta, 0.1);
             console.log(
               "[Link Canvas] ボタン ズームアウト:",
-              currentZoom.toFixed(3),
+              zoom.toFixed(3),
               "→",
               newZoom.toFixed(3)
             );
           }
 
-          applyZoom(newZoom);
+          handleZoomChange(newZoom);
         }
       }
     };
 
-    // window に message リスナーを登録（マウント時のみ）
     window.addEventListener("message", messageHandler);
-
-    // wheel イベントは document に登録（passive: false でpreventDefault許可）
-    document.addEventListener("wheel", handleWheelZoom, { passive: false });
 
     return () => {
       console.log("[Link Canvas] イベントリスナー クリーンアップ");
       window.removeEventListener("message", messageHandler);
-      document.removeEventListener("wheel", handleWheelZoom);
     };
-  }, [applyZoom, handleWheelZoom, getZoom]);
+  }, [windows, zoom, handleZoomChange]);
 
   return (
-    <div style={{ width: "100vw", height: "100vh" }}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={handleNodesChange}
-        onEdgesChange={handleEdgesChange}
-        onMove={handleMove}
-        fitView
-        minZoom={0.1}
-        maxZoom={1.0}
-        defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
-        zoomOnScroll={true}
-        zoomOnPinch={true}
-        panOnScroll={false}
-        panOnDrag={true}
-        nodeTypes={nodeTypes}
-        noDragClassName="nodrag"
-      >
-        <Background />
-        <Controls showInteractive={false} />
-      </ReactFlow>
+    <div style={{ width: "100vw", height: "100vh", overflow: "hidden" }}>
+      <InfiniteCanvas
+        windows={windows}
+        zoom={zoom}
+        pan={pan}
+        onZoomChange={handleZoomChange}
+        onPanChange={handlePanChange}
+        onWindowMove={handleWindowMove}
+        onWindowResize={handleWindowResize}
+        onWindowClose={handleWindowClose}
+      />
     </div>
-  );
-}
-
-function App() {
-  return (
-    <ReactFlowProvider>
-      <CanvasContent />
-    </ReactFlowProvider>
   );
 }
 

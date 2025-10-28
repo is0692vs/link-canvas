@@ -1,5 +1,4 @@
 import React from "react";
-import { useZoomLevel } from "../hooks/useZoomLevel";
 import { useResize } from "../hooks/useResize";
 import { FilePreview } from "./FilePreview";
 import { MonacoEditorComponent } from "./MonacoEditor";
@@ -18,8 +17,11 @@ export interface CodeWindowData {
 
 interface CodeWindowProps {
   data: CodeWindowData;
+  zoom: number;
+  pan: { x: number; y: number };
   onClose?: () => void;
   onResize?: (width: number, height: number) => void;
+  onDragStart?: (startX: number, startY: number) => void;
 }
 
 /**
@@ -28,12 +30,14 @@ interface CodeWindowProps {
  */
 export const CodeWindow: React.FC<CodeWindowProps> = ({
   data,
+  zoom,
+  pan,
   onClose,
   onResize,
+  onDragStart,
 }) => {
   const [width, setWidth] = React.useState(data.width);
   const [height, setHeight] = React.useState(data.height);
-  const zoomLevel = useZoomLevel();
 
   const handleResize = React.useCallback(
     (newWidth: number, newHeight: number) => {
@@ -45,13 +49,34 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
     [onResize]
   );
 
-  const { handleResizeStart } = useResize(handleResize, width, height);
+  const { handleResizeStart } = useResize(
+    handleResize,
+    width,
+    height,
+    zoom,
+    pan
+  );
 
-  const isPreviewMode = zoomLevel < 1.0;
+  const handleTitleBarMouseDown = (e: React.MouseEvent) => {
+    // 閉じるボタンの場合はドラッグしない
+    if (
+      (e.target as HTMLElement).classList.contains("code-window__close-btn")
+    ) {
+      return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    console.log("[Link Canvas] タイトルバードラッグ開始:", data.fileName);
+    onDragStart?.(e.clientX, e.clientY);
+  };
+
+  const isPreviewMode = zoom < 1.0;
   console.log("[Link Canvas] CodeWindow レンダリング", {
     fileName: data.fileName,
     isPreviewMode,
-    zoomLevel,
+    zoom,
   });
 
   const contentHeight = Math.max(height - 32, 0);
@@ -75,20 +100,27 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
       }}
     >
       {/* タイトルバー（ドラッグハンドル） */}
-      <div className="code-window__title-bar">
+      <div
+        className="code-window__title-bar"
+        onMouseDown={handleTitleBarMouseDown}
+        style={{ cursor: "move" }}
+      >
         <div className="code-window__title">{data.fileName}</div>
         <button
-          className="code-window__close-btn nodrag"
-          onClick={onClose}
+          className="code-window__close-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose?.();
+          }}
           title="ウィンドウを閉じる"
         >
           ✕
         </button>
       </div>
 
-      {/* コンテンツ（ドラッグ不可） */}
+      {/* コンテンツ */}
       <div
-        className={`code-window__content nodrag ${
+        className={`code-window__content ${
           isPreviewMode ? "code-window__content--preview" : ""
         }`}
         style={!isPreviewMode ? { height: `${contentHeight}px` } : undefined}
@@ -111,38 +143,20 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
       <div className="code-window__resize-handles">
         {/* 四隅 */}
         <div
-          className="code-window__resize-handle code-window__resize-handle--nw nodrag"
+          className="code-window__resize-handle code-window__resize-handle--nw"
           onMouseDown={(e) => handleResizeStart(e, "nw")}
         />
         <div
-          className="code-window__resize-handle code-window__resize-handle--ne nodrag"
+          className="code-window__resize-handle code-window__resize-handle--ne"
           onMouseDown={(e) => handleResizeStart(e, "ne")}
         />
         <div
-          className="code-window__resize-handle code-window__resize-handle--sw nodrag"
+          className="code-window__resize-handle code-window__resize-handle--sw"
           onMouseDown={(e) => handleResizeStart(e, "sw")}
         />
         <div
-          className="code-window__resize-handle code-window__resize-handle--se nodrag"
+          className="code-window__resize-handle code-window__resize-handle--se"
           onMouseDown={(e) => handleResizeStart(e, "se")}
-        />
-
-        {/* 四辺 */}
-        <div
-          className="code-window__resize-handle code-window__resize-handle--n nodrag"
-          onMouseDown={(e) => handleResizeStart(e, "n")}
-        />
-        <div
-          className="code-window__resize-handle code-window__resize-handle--s nodrag"
-          onMouseDown={(e) => handleResizeStart(e, "s")}
-        />
-        <div
-          className="code-window__resize-handle code-window__resize-handle--w nodrag"
-          onMouseDown={(e) => handleResizeStart(e, "w")}
-        />
-        <div
-          className="code-window__resize-handle code-window__resize-handle--e nodrag"
-          onMouseDown={(e) => handleResizeStart(e, "e")}
         />
       </div>
     </div>

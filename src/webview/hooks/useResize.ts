@@ -23,7 +23,9 @@ const MIN_HEIGHT = 150;
 export const useResize = (
     onResize: (width: number, height: number) => void,
     initialWidth: number,
-    initialHeight: number
+    initialHeight: number,
+    zoom: number,
+    pan: { x: number; y: number }
 ) => {
     const resizeStateRef = useRef<ResizeState | null>(null);
 
@@ -32,12 +34,17 @@ export const useResize = (
         direction: ResizeDirection
     ) => {
         e.preventDefault();
+        e.stopPropagation(); // キャンバスのパンイベントへの伝播を防ぐ
         console.log('[Link Canvas] リサイズ開始:', direction);
+
+        // スクリーン座標をキャンバス座標に変換
+        const canvasX = (e.clientX - pan.x) / zoom;
+        const canvasY = (e.clientY - pan.y) / zoom;
 
         resizeStateRef.current = {
             isResizing: true,
-            startX: e.clientX,
-            startY: e.clientY,
+            startX: canvasX,
+            startY: canvasY,
             startWidth: initialWidth,
             startHeight: initialHeight,
             direction,
@@ -47,8 +54,12 @@ export const useResize = (
             if (!resizeStateRef.current) return;
 
             const state = resizeStateRef.current;
-            const deltaX = moveEvent.clientX - state.startX;
-            const deltaY = moveEvent.clientY - state.startY;
+            // マウス移動量もキャンバス座標に変換
+            const currentCanvasX = (moveEvent.clientX - pan.x) / zoom;
+            const currentCanvasY = (moveEvent.clientY - pan.y) / zoom;
+
+            const deltaX = currentCanvasX - state.startX;
+            const deltaY = currentCanvasY - state.startY;
 
             let newWidth = state.startWidth;
             let newHeight = state.startHeight;
@@ -79,7 +90,7 @@ export const useResize = (
 
         document.addEventListener('mousemove', handleMouseMove);
         document.addEventListener('mouseup', handleMouseUp);
-    }, [initialWidth, initialHeight, onResize]);
+    }, [initialWidth, initialHeight, onResize, zoom, pan]);
 
     return { handleResizeStart };
 };

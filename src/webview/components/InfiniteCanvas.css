@@ -1,0 +1,23 @@
+.infinite-canvas-viewport {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  background: #1e1e1e;
+  /* グリッドパターン（オプション） */
+  background-image: linear-gradient(
+      rgba(255, 255, 255, 0.05) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+.infinite-canvas {
+  pointer-events: none; /* キャンバス自体はイベントを受け取らない */
+}
+
+.window-wrapper {
+  pointer-events: auto; /* ウィンドウはイベントを受け取る */
+  transition: z-index 0.1s ease-in-out;
+}

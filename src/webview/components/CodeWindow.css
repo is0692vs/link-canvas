@@ -9,6 +9,7 @@
   position: relative;
   min-width: 200px;
   min-height: 150px;
+  pointer-events: auto; /* ウィンドウ全体でイベント受け取り */
 }
 
 /* タイトルバー */
@@ -22,6 +23,7 @@
   border-bottom: 1px solid #e0e0e0;
   user-select: none;
   flex-shrink: 0;
+  pointer-events: auto; /* タイトルバーでイベント受け取り */
 }
 
 .code-window__title {
@@ -65,12 +67,12 @@
   transition: opacity 0.3s ease-in-out;
   user-select: text;
   cursor: default;
-  pointer-events: auto;
+  pointer-events: auto; /* コンテンツエリアでイベント受け取り */
   position: relative;
   z-index: 1;
 }
 
-/* Ensure Monaco Editor elements reliably receive mouse events */
+/* Monaco Editor内の要素すべてでイベント受け取り */
 .code-window__content * {
   pointer-events: auto;
 }
@@ -87,90 +89,68 @@
   top: 0;
   left: 0;
   pointer-events: none;
-  z-index: 10;
+  z-index: 1000 !important;
 }
 
 .code-window__resize-handle {
   position: absolute;
   pointer-events: auto;
-  background-color: transparent;
-  z-index: 10;
+  background-color: red !important; /* 完全に赤く */
+  border: 2px solid blue !important; /* 青いボーダー */
+  z-index: 1001 !important;
 }
 
 /* 四隅 */
 .code-window__resize-handle--nw {
   top: 0;
   left: 0;
-  width: 8px;
-  height: 8px;
+  width: 20px !important;
+  height: 20px !important;
   cursor: nw-resize;
 }
 
 .code-window__resize-handle--ne {
   top: 0;
   right: 0;
-  width: 8px;
-  height: 8px;
+  width: 20px !important;
+  height: 20px !important;
   cursor: ne-resize;
 }
 
 .code-window__resize-handle--sw {
   bottom: 0;
   left: 0;
-  width: 8px;
-  height: 8px;
+  width: 20px !important;
+  height: 20px !important;
   cursor: sw-resize;
 }
 
 .code-window__resize-handle--se {
   bottom: 0;
   right: 0;
-  width: 8px;
-  height: 8px;
+  width: 20px !important;
+  height: 20px !important;
   cursor: se-resize;
 }
 
 /* 四辺 */
-.code-window__resize-handle--n {
-  top: 0;
-  left: 8px;
-  right: 8px;
-  height: 4px;
-  cursor: n-resize;
-}
-
-.code-window__resize-handle--s {
-  bottom: 0;
-  left: 8px;
-  right: 8px;
-  height: 4px;
-  cursor: s-resize;
-}
-
-.code-window__resize-handle--w {
-  top: 8px;
-  left: 0;
-  bottom: 8px;
-  width: 4px;
-  cursor: w-resize;
-}
-
+.code-window__resize-handle--n,
+.code-window__resize-handle--s,
+.code-window__resize-handle--w,
 .code-window__resize-handle--e {
-  top: 8px;
-  right: 0;
-  bottom: 8px;
-  width: 4px;
-  cursor: e-resize;
+  display: none !important; /* 四辺は非表示 */
 }
 
 /* リサイズハンドルのホバー効果 */
 .code-window__resize-handle:hover {
-  background-color: rgba(0, 122, 204, 0.1);
+  background-color: red !important; /* 完全に赤く */
+  border: 2px solid darkblue !important; /* 濃い青いボーダー */
 }
 
 .code-window__resize-handle--nw:hover,
 .code-window__resize-handle--ne:hover,
 .code-window__resize-handle--sw:hover,
 .code-window__resize-handle--se:hover {
-  background-color: rgba(0, 122, 204, 0.2);
+  background-color: red !important; /* 完全に赤く */
+  border: 2px solid darkblue !important; /* 濃い青いボーダー */
 }
