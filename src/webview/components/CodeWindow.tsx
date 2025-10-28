@@ -65,6 +65,23 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
       return;
     }
 
+    // 四隅のリサイズハンドル領域（20px）を除外
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const isInCorner = (
+      (x <= 20 && y <= 20) || // nw
+      (x >= rect.width - 20 && y <= 20) || // ne
+      (x <= 20 && y >= rect.height - 20) || // sw
+      (x >= rect.width - 20 && y >= rect.height - 20) // se
+    );
+
+    if (isInCorner) {
+      console.log("[Link Canvas] タイトルバー四隅クリック - ドラッグ無効");
+      return;
+    }
+
     e.preventDefault();
     e.stopPropagation();
 
