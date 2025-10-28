@@ -65,6 +65,14 @@
   transition: opacity 0.3s ease-in-out;
   user-select: text;
   cursor: default;
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* Ensure Monaco Editor elements reliably receive mouse events */
+.code-window__content * {
+  pointer-events: auto;
 }
 
 .code-window__content--preview {
@@ -79,12 +87,14 @@
   top: 0;
   left: 0;
   pointer-events: none;
+  z-index: 10;
 }
 
 .code-window__resize-handle {
   position: absolute;
   pointer-events: auto;
   background-color: transparent;
+  z-index: 10;
 }
 
 /* 四隅 */

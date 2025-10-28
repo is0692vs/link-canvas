@@ -111,37 +111,37 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
       <div className="code-window__resize-handles">
         {/* 四隅 */}
         <div
-          className="code-window__resize-handle code-window__resize-handle--nw"
+          className="code-window__resize-handle code-window__resize-handle--nw nodrag"
           onMouseDown={(e) => handleResizeStart(e, "nw")}
         />
         <div
-          className="code-window__resize-handle code-window__resize-handle--ne"
+          className="code-window__resize-handle code-window__resize-handle--ne nodrag"
           onMouseDown={(e) => handleResizeStart(e, "ne")}
         />
         <div
-          className="code-window__resize-handle code-window__resize-handle--sw"
+          className="code-window__resize-handle code-window__resize-handle--sw nodrag"
           onMouseDown={(e) => handleResizeStart(e, "sw")}
         />
         <div
-          className="code-window__resize-handle code-window__resize-handle--se"
+          className="code-window__resize-handle code-window__resize-handle--se nodrag"
           onMouseDown={(e) => handleResizeStart(e, "se")}
         />
 
         {/* 四辺 */}
         <div
-          className="code-window__resize-handle code-window__resize-handle--n"
+          className="code-window__resize-handle code-window__resize-handle--n nodrag"
           onMouseDown={(e) => handleResizeStart(e, "n")}
         />
         <div
-          className="code-window__resize-handle code-window__resize-handle--s"
+          className="code-window__resize-handle code-window__resize-handle--s nodrag"
           onMouseDown={(e) => handleResizeStart(e, "s")}
         />
         <div
-          className="code-window__resize-handle code-window__resize-handle--w"
+          className="code-window__resize-handle code-window__resize-handle--w nodrag"
           onMouseDown={(e) => handleResizeStart(e, "w")}
         />
         <div
-          className="code-window__resize-handle code-window__resize-handle--e"
+          className="code-window__resize-handle code-window__resize-handle--e nodrag"
           onMouseDown={(e) => handleResizeStart(e, "e")}
         />
       </div>
