@@ -58,9 +58,6 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
   );
 
   const handleWindowMouseDown = (e: React.MouseEvent) => {
-    // リサイズハンドルやコンテンツのクリックは無視
-    if (e.target !== e.currentTarget) return;
-
     // タイトルバー領域のクリック
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -115,10 +112,7 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
       onMouseDown={handleWindowMouseDown}
     >
       {/* タイトルバー（ドラッグハンドル） */}
-      <div
-        className="code-window__title-bar"
-        style={{ cursor: "move" }}
-      >
+      <div className="code-window__title-bar" style={{ cursor: "move" }}>
         <div className="code-window__title">{data.fileName}</div>
         <button
           className="code-window__close-btn"
