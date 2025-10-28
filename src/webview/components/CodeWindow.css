@@ -118,32 +118,32 @@
 .code-window__resize-handle--nw {
   top: 0; /* 境界に配置 */
   left: 0;
-  width: 20px; /* クリックしやすく */
-  height: 20px;
+  width: 32px; /* クリックしやすく（検証用に拡大） */
+  height: 32px;
   cursor: nw-resize;
 }
 
 .code-window__resize-handle--ne {
   top: 0;
   right: 0;
-  width: 20px;
-  height: 20px;
+  width: 32px;
+  height: 32px;
   cursor: ne-resize;
 }
 
 .code-window__resize-handle--sw {
   bottom: 0;
   left: 0;
-  width: 20px;
-  height: 20px;
+  width: 32px;
+  height: 32px;
   cursor: sw-resize;
 }
 
 .code-window__resize-handle--se {
   bottom: 0;
   right: 0;
-  width: 20px;
-  height: 20px;
+  width: 32px;
+  height: 32px;
   cursor: se-resize;
 }
 

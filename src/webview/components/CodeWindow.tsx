@@ -153,46 +153,79 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
         <div
           className="code-window__resize-handle code-window__resize-handle--nw"
           onMouseDown={(e) => {
-            console.log("[Link Canvas] リサイズハンドルクリック: nw");
+            console.log("[Link Canvas] リサイズハンドルクリック: nw (mouse)");
+            console.log(" target/currentTarget", e.target, e.currentTarget);
             e.stopPropagation();
             handleResizeStart(e, "nw");
           }}
-          onClick={() =>
-            console.log("[Link Canvas] リサイズハンドル onClick: nw")
-          }
+          onPointerDown={(e) => {
+            console.log("[Link Canvas] リサイズハンドルクリック: nw (pointer)", {
+              pointerType: (e as React.PointerEvent).pointerType,
+              clientX: e.clientX,
+              clientY: e.clientY,
+            });
+            (e as React.PointerEvent).stopPropagation();
+            // pass through to existing handler (cast for compatibility)
+            handleResizeStart(e as unknown as React.MouseEvent, "nw");
+          }}
+          onClick={() => console.log("[Link Canvas] リサイズハンドル onClick: nw")}
         />
         <div
           className="code-window__resize-handle code-window__resize-handle--ne"
           onMouseDown={(e) => {
-            console.log("[Link Canvas] リサイズハンドルクリック: ne");
+            console.log("[Link Canvas] リサイズハンドルクリック: ne (mouse)");
+            console.log(" target/currentTarget", e.target, e.currentTarget);
             e.stopPropagation();
             handleResizeStart(e, "ne");
           }}
-          onClick={() =>
-            console.log("[Link Canvas] リサイズハンドル onClick: ne")
-          }
+          onPointerDown={(e) => {
+            console.log("[Link Canvas] リサイズハンドルクリック: ne (pointer)", {
+              pointerType: (e as React.PointerEvent).pointerType,
+              clientX: e.clientX,
+              clientY: e.clientY,
+            });
+            (e as React.PointerEvent).stopPropagation();
+            handleResizeStart(e as unknown as React.MouseEvent, "ne");
+          }}
+          onClick={() => console.log("[Link Canvas] リサイズハンドル onClick: ne")}
         />
         <div
           className="code-window__resize-handle code-window__resize-handle--sw"
           onMouseDown={(e) => {
-            console.log("[Link Canvas] リサイズハンドルクリック: sw");
+            console.log("[Link Canvas] リサイズハンドルクリック: sw (mouse)");
+            console.log(" target/currentTarget", e.target, e.currentTarget);
             e.stopPropagation();
             handleResizeStart(e, "sw");
           }}
-          onClick={() =>
-            console.log("[Link Canvas] リサイズハンドル onClick: sw")
-          }
+          onPointerDown={(e) => {
+            console.log("[Link Canvas] リサイズハンドルクリック: sw (pointer)", {
+              pointerType: (e as React.PointerEvent).pointerType,
+              clientX: e.clientX,
+              clientY: e.clientY,
+            });
+            (e as React.PointerEvent).stopPropagation();
+            handleResizeStart(e as unknown as React.MouseEvent, "sw");
+          }}
+          onClick={() => console.log("[Link Canvas] リサイズハンドル onClick: sw")}
         />
         <div
           className="code-window__resize-handle code-window__resize-handle--se"
           onMouseDown={(e) => {
-            console.log("[Link Canvas] リサイズハンドルクリック: se");
+            console.log("[Link Canvas] リサイズハンドルクリック: se (mouse)");
+            console.log(" target/currentTarget", e.target, e.currentTarget);
             e.stopPropagation();
             handleResizeStart(e, "se");
           }}
-          onClick={() =>
-            console.log("[Link Canvas] リサイズハンドル onClick: se")
-          }
+          onPointerDown={(e) => {
+            console.log("[Link Canvas] リサイズハンドルクリック: se (pointer)", {
+              pointerType: (e as React.PointerEvent).pointerType,
+              clientX: e.clientX,
+              clientY: e.clientY,
+            });
+            (e as React.PointerEvent).stopPropagation();
+            handleResizeStart(e as unknown as React.MouseEvent, "se");
+          }}
+          onClick={() => console.log("[Link Canvas] リサイズハンドル onClick: se")}
         />
       </div>
     </div>
