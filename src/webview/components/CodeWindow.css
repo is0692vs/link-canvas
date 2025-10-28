@@ -1,0 +1,166 @@
+.code-window {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  position: relative;
+  min-width: 200px;
+  min-height: 150px;
+}
+
+/* タイトルバー */
+.code-window__title-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 32px;
+  padding: 0 12px;
+  background-color: #f0f0f0;
+  border-bottom: 1px solid #e0e0e0;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.code-window__title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.code-window__close-btn {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background-color: transparent;
+  color: #666;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease-in-out;
+  flex-shrink: 0;
+}
+
+.code-window__close-btn:hover {
+  background-color: #e81123;
+  color: white;
+}
+
+/* コンテンツ */
+.code-window__content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  transition: opacity 0.3s ease-in-out;
+  user-select: text;
+  cursor: default;
+}
+
+.code-window__content--preview {
+  background-color: #fafafa;
+}
+
+/* リサイズハンドル */
+.code-window__resize-handles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.code-window__resize-handle {
+  position: absolute;
+  pointer-events: auto;
+  background-color: transparent;
+}
+
+/* 四隅 */
+.code-window__resize-handle--nw {
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  cursor: nw-resize;
+}
+
+.code-window__resize-handle--ne {
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  cursor: ne-resize;
+}
+
+.code-window__resize-handle--sw {
+  bottom: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  cursor: sw-resize;
+}
+
+.code-window__resize-handle--se {
+  bottom: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  cursor: se-resize;
+}
+
+/* 四辺 */
+.code-window__resize-handle--n {
+  top: 0;
+  left: 8px;
+  right: 8px;
+  height: 4px;
+  cursor: n-resize;
+}
+
+.code-window__resize-handle--s {
+  bottom: 0;
+  left: 8px;
+  right: 8px;
+  height: 4px;
+  cursor: s-resize;
+}
+
+.code-window__resize-handle--w {
+  top: 8px;
+  left: 0;
+  bottom: 8px;
+  width: 4px;
+  cursor: w-resize;
+}
+
+.code-window__resize-handle--e {
+  top: 8px;
+  right: 0;
+  bottom: 8px;
+  width: 4px;
+  cursor: e-resize;
+}
+
+/* リサイズハンドルのホバー効果 */
+.code-window__resize-handle:hover {
+  background-color: rgba(0, 122, 204, 0.1);
+}
+
+.code-window__resize-handle--nw:hover,
+.code-window__resize-handle--ne:hover,
+.code-window__resize-handle--sw:hover,
+.code-window__resize-handle--se:hover {
+  background-color: rgba(0, 122, 204, 0.2);
+}

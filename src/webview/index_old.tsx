@@ -2,7 +2,6 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import {
   ReactFlow,
-  ReactFlowProvider,
   Background,
   Controls,
   applyNodeChanges,
@@ -32,7 +31,7 @@ interface ZoomMessage {
   type: "zoomIn" | "zoomOut";
 }
 
-function CanvasContent() {
+function AppContent() {
   // テスト用のノードデータ
   const testNodeData: CodeWindowData = {
     filePath:
@@ -77,23 +76,10 @@ export function main() {
 
   const [nodes, setNodes] = React.useState(initialNodes);
   const [edges, setEdges] = React.useState(initialEdges);
+  const { getZoom, setZoom } = useReactFlow();
+  const wheelListenerRef = React.useRef<((event: WheelEvent) => void) | null>(null);
 
-  // useReactFlowはReactFlowProvider配下で呼び出す
-  const { getZoom, getViewport, setViewport } = useReactFlow();
-
-  const applyZoom = React.useCallback(
-    (targetZoom: number) => {
-      const viewport = getViewport();
-      setViewport({
-        x: viewport.x,
-        y: viewport.y,
-        zoom: targetZoom,
-      });
-    },
-    [getViewport, setViewport]
-  );
-
-  console.log("[Link Canvas] CanvasContentコンポーネント レンダリング");
+  console.log("[Link Canvas] AppContentコンポーネント レンダリング");
 
   // ノード変更ハンドラ（useCallbackで最適化）
   const handleNodesChange = React.useCallback((changes: NodeChange[]) => {
@@ -118,56 +104,9 @@ export function main() {
     );
   }, []);
 
-  // Shift + マウスホイール ズーム処理（useCallbackで最適化）
-  const handleWheelZoom = React.useCallback(
-    (event: WheelEvent) => {
-      if (!event.shiftKey) {
-        return;
-      }
-
-      event.preventDefault();
-
-      const currentZoom = getZoom();
-      const zoomDelta = 0.1;
-      const dominantDelta =
-        Math.abs(event.deltaY) > Math.abs(event.deltaX)
-          ? event.deltaY
-          : event.deltaX;
-
-      if (dominantDelta === 0) {
-        return;
-      }
-
-      let newZoom = currentZoom;
-
-      if (dominantDelta < 0) {
-        // スクロールアップ = ズームイン
-        newZoom = Math.min(currentZoom + zoomDelta, 1.0);
-        console.log(
-          "[Link Canvas] Shift+ホイール ズームイン:",
-          currentZoom.toFixed(3),
-          "→",
-          newZoom.toFixed(3)
-        );
-      } else {
-        // スクロールダウン = ズームアウト
-        newZoom = Math.max(currentZoom - zoomDelta, 0.1);
-        console.log(
-          "[Link Canvas] Shift+ホイール ズームアウト:",
-          currentZoom.toFixed(3),
-          "→",
-          newZoom.toFixed(3)
-        );
-      }
-
-      applyZoom(newZoom);
-    },
-    [applyZoom, getZoom]
-  );
-
-  // postMessageリスナーと wheel イベントのセットアップ
+  // postMessageリスナーとwheel イベントをセットアップ
   React.useEffect(() => {
-    console.log("[Link Canvas] イベントリスナー セットアップ開始");
+    console.log("[Link Canvas] postMessageリスナー セットアップ開始");
 
     const messageHandler = (event: MessageEvent) => {
       const message = event.data as FileMessage | ZoomMessage;
@@ -276,23 +215,58 @@ export function main() {
             );
           }
 
-          applyZoom(newZoom);
+          setZoom(newZoom);
         }
       }
     };
 
-    // window に message リスナーを登録（マウント時のみ）
-    window.addEventListener("message", messageHandler);
+    // Shift + ホイール処理（一度だけ登録）
+    const handleWheel = (event: WheelEvent) => {
+      if (!event.shiftKey) {
+        return;
+      }
 
-    // wheel イベントは document に登録（passive: false でpreventDefault許可）
-    document.addEventListener("wheel", handleWheelZoom, { passive: false });
+      event.preventDefault();
+
+      const currentZoom = getZoom();
+      const zoomDelta = 0.1;
+      let newZoom = currentZoom;
+
+      if (event.deltaY < 0) {
+        // スクロールアップ = ズームイン
+        newZoom = Math.min(currentZoom + zoomDelta, 1.0);
+        console.log(
+          "[Link Canvas] Shift+ホイール ズームイン:",
+          currentZoom.toFixed(3),
+          "→",
+          newZoom.toFixed(3)
+        );
+      } else {
+        // スクロールダウン = ズームアウト
+        newZoom = Math.max(currentZoom - zoomDelta, 0.1);
+        console.log(
+          "[Link Canvas] Shift+ホイール ズームアウト:",
+          currentZoom.toFixed(3),
+          "→",
+          newZoom.toFixed(3)
+        );
+      }
+
+      setZoom(newZoom);
+    };
+
+    wheelListenerRef.current = handleWheel;
+    window.addEventListener("message", messageHandler);
+    window.addEventListener("wheel", handleWheel, { passive: false });
 
     return () => {
-      console.log("[Link Canvas] イベントリスナー クリーンアップ");
+      console.log("[Link Canvas] postMessageリスナー クリーンアップ");
       window.removeEventListener("message", messageHandler);
-      document.removeEventListener("wheel", handleWheelZoom);
+      if (wheelListenerRef.current) {
+        window.removeEventListener("wheel", wheelListenerRef.current);
+      }
     };
-  }, [applyZoom, handleWheelZoom, getZoom]);
+  }, [getZoom, setZoom]);
 
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
@@ -311,7 +285,6 @@ export function main() {
         panOnScroll={false}
         panOnDrag={true}
         nodeTypes={nodeTypes}
-        noDragClassName="nodrag"
       >
         <Background />
         <Controls showInteractive={false} />
@@ -322,9 +295,9 @@ export function main() {
 
 function App() {
   return (
-    <ReactFlowProvider>
-      <CanvasContent />
-    </ReactFlowProvider>
+    <ReactFlow nodes={[]} edges={[]}>
+      <AppContent />
+    </ReactFlow>
   );
 }
 

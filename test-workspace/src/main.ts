@@ -13,8 +13,8 @@ const result2 = calc.multiply(4, 7);
 logger.log(`4 * 7 = ${result2}`);
 
 export function main() {
-  return {
-    result1,
-    result2,
-  };
+    return {
+        result1,
+        result2,
+    };
 }

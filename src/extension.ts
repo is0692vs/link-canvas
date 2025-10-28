@@ -12,19 +12,23 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Open Canvas Command
     const openCanvasCommand = vscode.commands.registerCommand('linkCanvas.openCanvas', async (fileUri: vscode.Uri) => {
-        const panel = vscode.window.createWebviewPanel(
-            'linkCanvas',
-            'Link Canvas',
-            vscode.ViewColumn.One,
-            {
-                enableScripts: true,
-                retainContextWhenHidden: true,
-            }
-        );
-        canvasProvider.resolveWebviewView(panel, fileUri);
+        console.log('[Link Canvas] openCanvasコマンド実行:', fileUri.fsPath);
+        await canvasProvider.openOrAddFile(fileUri);
     });
 
-    context.subscriptions.push(openCanvasCommand);
+    // Zoom In Command
+    const zoomInCommand = vscode.commands.registerCommand('linkCanvas.zoomIn', () => {
+        console.log('[Link Canvas] Zoom In コマンド実行');
+        canvasProvider.sendZoomCommand('zoomIn');
+    });
+
+    // Zoom Out Command
+    const zoomOutCommand = vscode.commands.registerCommand('linkCanvas.zoomOut', () => {
+        console.log('[Link Canvas] Zoom Out コマンド実行');
+        canvasProvider.sendZoomCommand('zoomOut');
+    });
+
+    context.subscriptions.push(openCanvasCommand, zoomInCommand, zoomOutCommand);
 }
 
 export function deactivate() { }

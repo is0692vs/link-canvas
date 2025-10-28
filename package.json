@@ -35,8 +35,34 @@
       {
         "command": "linkCanvas.openCanvas",
         "title": "Open Canvas"
+      },
+      {
+        "command": "linkCanvas.zoomIn",
+        "title": "Zoom In",
+        "category": "Link Canvas",
+        "icon": "$(zoom-in)"
+      },
+      {
+        "command": "linkCanvas.zoomOut",
+        "title": "Zoom Out",
+        "category": "Link Canvas",
+        "icon": "$(zoom-out)"
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "linkCanvas.zoomIn",
+          "when": "view == linkCanvas.fileTree",
+          "group": "navigation@1"
+        },
+        {
+          "command": "linkCanvas.zoomOut",
+          "when": "view == linkCanvas.fileTree",
+          "group": "navigation@2"
+        }
+      ]
+    }
   },
   "scripts": {
     "build": "node build.js",
