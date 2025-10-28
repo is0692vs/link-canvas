@@ -33,6 +33,13 @@ export const useResize = (
         e: React.MouseEvent,
         direction: ResizeDirection
     ) => {
+        console.log('[Link Canvas] handleResizeStart 呼び出し', {
+            direction,
+            clientX: e.clientX,
+            clientY: e.clientY,
+            zoom,
+            pan
+        });
         e.preventDefault();
         e.stopPropagation(); // キャンバスのパンイベントへの伝播を防ぐ
         console.log('[Link Canvas] リサイズ開始:', direction);

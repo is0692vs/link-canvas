@@ -144,19 +144,43 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
         {/* 四隅 */}
         <div
           className="code-window__resize-handle code-window__resize-handle--nw"
-          onMouseDown={(e) => handleResizeStart(e, "nw")}
+          onMouseDown={(e) => {
+            console.log("[Link Canvas] リサイズハンドルクリック: nw");
+            handleResizeStart(e, "nw");
+          }}
+          onClick={() =>
+            console.log("[Link Canvas] リサイズハンドル onClick: nw")
+          }
         />
         <div
           className="code-window__resize-handle code-window__resize-handle--ne"
-          onMouseDown={(e) => handleResizeStart(e, "ne")}
+          onMouseDown={(e) => {
+            console.log("[Link Canvas] リサイズハンドルクリック: ne");
+            handleResizeStart(e, "ne");
+          }}
+          onClick={() =>
+            console.log("[Link Canvas] リサイズハンドル onClick: ne")
+          }
         />
         <div
           className="code-window__resize-handle code-window__resize-handle--sw"
-          onMouseDown={(e) => handleResizeStart(e, "sw")}
+          onMouseDown={(e) => {
+            console.log("[Link Canvas] リサイズハンドルクリック: sw");
+            handleResizeStart(e, "sw");
+          }}
+          onClick={() =>
+            console.log("[Link Canvas] リサイズハンドル onClick: sw")
+          }
         />
         <div
           className="code-window__resize-handle code-window__resize-handle--se"
-          onMouseDown={(e) => handleResizeStart(e, "se")}
+          onMouseDown={(e) => {
+            console.log("[Link Canvas] リサイズハンドルクリック: se");
+            handleResizeStart(e, "se");
+          }}
+          onClick={() =>
+            console.log("[Link Canvas] リサイズハンドル onClick: se")
+          }
         />
       </div>
     </div>
