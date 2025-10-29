@@ -62,50 +62,32 @@ function App() {
 
   const handleWindowClose = React.useCallback((id: string) => {
     setWindows((prev) => prev.filter((w) => w.id !== id));
-    console.log("[Link Canvas] ウィンドウ削除:", id);
+    // console.log("[Link Canvas] ウィンドウ削除:", id);
   }, []);
 
   const handleContextMenu = React.useCallback(
     (filePath: string, line: number, column: number, selectedText: string) => {
-      console.log("[Link Canvas] ✓ handleContextMenu 発火", {
-        filePath,
-        line,
-        column,
-        selectedText,
-      });
+      console.log("[Link Canvas] コンテキストメニュー呼び出し:", selectedText);
 
-      // 拡張機能へリクエスト送信
       try {
         const vscodeApi = (window as any).acquireVsCodeApi?.();
         if (vscodeApi) {
-          console.log("[Link Canvas] VSCode API 取得成功");
-
-          const definitionMessage = {
+          vscodeApi.postMessage({
             type: "showDefinition",
             filePath: filePath,
             line: line,
             column: column,
-          };
+          });
 
-          const referencesMessage = {
+          vscodeApi.postMessage({
             type: "showReferences",
             filePath: filePath,
             line: line,
             column: column,
-          };
-
-          console.log("[Link Canvas] 定義メッセージ送信:", definitionMessage);
-          vscodeApi.postMessage(definitionMessage);
-
-          console.log("[Link Canvas] 参照メッセージ送信:", referencesMessage);
-          vscodeApi.postMessage(referencesMessage);
-
-          console.log("[Link Canvas] ✓ 定義/参照リクエスト拡張機能に転送完了");
-        } else {
-          console.log("[Link Canvas] ✗ VSCode API が取得できません");
+          });
         }
       } catch (error) {
-        console.error("[Link Canvas] ✗ handleContextMenu エラー:", error);
+        console.error("[Link Canvas] エラー:", error);
       }
     },
     []
@@ -113,7 +95,7 @@ function App() {
 
   // postMessageリスナーのセットアップ
   React.useEffect(() => {
-    console.log("[Link Canvas] イベントリスナー セットアップ開始");
+    // console.log("[Link Canvas] イベントリスナー セットアップ開始");
 
     const messageHandler = (event: MessageEvent) => {
       const message = event.data as FileMessage | ZoomMessage;
@@ -121,12 +103,12 @@ function App() {
       if ("type" in message) {
         if (message.type === "addFile") {
           const fileMsg = message as FileMessage;
-          console.log(
-            "[Link Canvas] ファイル受信:",
-            fileMsg.fileName,
-            "サイズ:",
-            fileMsg.content.length
-          );
+          // console.log(
+          //   "[Link Canvas] ファイル受信:",
+          //   fileMsg.fileName,
+          //   "サイズ:",
+          //   fileMsg.content.length
+          // );
 
           // ユニークなノードIDを生成（ファイルパスをベースに）
           const nodeId = `node-${fileMsg.filePath.replace(
@@ -155,17 +137,14 @@ function App() {
             }
           }
 
-          console.log(
-            "[Link Canvas] 抽出結果 - クラス:",
-            classes,
-            "関数:",
-            functions
-          );
+          // console.log(
+          //   "[Link Canvas] 抽出結果 - クラス:",
+          //   classes,
+          //   "関数:",
+          //   functions
+          // );
 
-          const newWindow: CodeWindowData & {
-            id: string;
-            position: { x: number; y: number };
-          } = {
+          const newWindow: CodeWindowData = {
             id: `window-${fileMsg.filePath.replace(/[^a-zA-Z0-9]/g, "-")}`,
             filePath: fileMsg.filePath,
             fileName: fileMsg.fileName,

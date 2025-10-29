@@ -34,33 +34,33 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
   const monacoRef = React.useRef<Monaco | null>(null);
 
   const handleEditorMount = (editor: any, monaco: Monaco) => {
-    console.log("[Link Canvas] Monaco Editor マウント:", fileName);
+    // console.log("[Link Canvas] Monaco Editor マウント:", fileName);
     editorRef.current = editor;
     monacoRef.current = monaco;
 
     const domNode = editor.getDomNode();
     if (domNode) {
       const rect = domNode.getBoundingClientRect();
-      console.log("[Link Canvas] Monaco DOM サイズ（マウント時）", {
-        fileName,
-        width: rect.width,
-        height: rect.height,
-      });
+      // console.log("[Link Canvas] Monaco DOM サイズ（マウント時）", {
+      //   fileName,
+      //   width: rect.width,
+      //   height: rect.height,
+      // });
 
       // DOM サイズが小さすぎる場合は再レイアウトを実行
       if (rect.width < 100 || rect.height < 100) {
-        console.log("[Link Canvas] DOM サイズが小さいため再レイアウト予定");
+        // console.log("[Link Canvas] DOM サイズが小さいため再レイアウト予定");
         setTimeout(() => {
-          console.log("[Link Canvas] Monaco 再レイアウト実行");
+          // console.log("[Link Canvas] Monaco 再レイアウト実行");
           editor.layout();
 
           // レイアウト後のサイズを確認
-          const updatedRect = domNode.getBoundingClientRect();
-          console.log("[Link Canvas] Monaco DOM サイズ（レイアウト後）", {
-            fileName,
-            width: updatedRect.width,
-            height: updatedRect.height,
-          });
+          // const updatedRect = domNode.getBoundingClientRect();
+          // console.log("[Link Canvas] Monaco DOM サイズ（レイアウト後）", {
+          //   fileName,
+          //   width: updatedRect.width,
+          //   height: updatedRect.height,
+          // });
         }, 100);
       }
     }
@@ -70,19 +70,19 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
       const currentSize = editor.getOption(monaco.editor.EditorOption.fontSize);
       const newSize = Math.min(currentSize + 2, 32);
       editor.updateOptions({ fontSize: newSize });
-      console.log("[Link Canvas] フォントサイズ増加:", newSize);
+      // console.log("[Link Canvas] フォントサイズ増加:", newSize);
     });
 
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Minus, () => {
       const currentSize = editor.getOption(monaco.editor.EditorOption.fontSize);
       const newSize = Math.max(currentSize - 2, 8);
       editor.updateOptions({ fontSize: newSize });
-      console.log("[Link Canvas] フォントサイズ減少:", newSize);
+      // console.log("[Link Canvas] フォントサイズ減少:", newSize);
     });
 
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Digit0, () => {
       editor.updateOptions({ fontSize: 14 });
-      console.log("[Link Canvas] フォントサイズリセット: 14px");
+      // console.log("[Link Canvas] フォントサイズリセット: 14px");
     });
   };
 
@@ -93,8 +93,8 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
   React.useEffect(() => {
     if (!editorRef.current || !monacoRef.current) return;
 
-    console.log("[Link Canvas] useEffect: アクション再登録開始 -", filePath);
-    console.log("[Link Canvas] onContextMenu 定義状態:", !!onContextMenu);
+    // console.log("[Link Canvas] useEffect: アクション再登録開始 -", filePath);
+    // console.log("[Link Canvas] onContextMenu 定義状態:", !!onContextMenu);
     
     registerCustomContextMenuActions(
       editorRef.current,
@@ -103,10 +103,8 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
       onContextMenu
     );
     
-    console.log("[Link Canvas] useEffect: アクション再登録完了 -", filePath);
-  }, [filePath, onContextMenu]);
-
-  /**
+    // console.log("[Link Canvas] useEffect: アクション再登録完了 -", filePath);
+  }, [filePath, onContextMenu]);  /**
    * ハイライト機能: highlightLine が変わったときに、該当行を視認しやすくハイライト
    */
   React.useEffect(() => {
@@ -122,12 +120,12 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
 
     const lineNumber = highlightLine + 1; // 0-based → 1-based
 
-    console.log("[Link Canvas] ハイライト適用:", {
-      fileName,
-      highlightLine,
-      highlightColumn,
-      monacoLineNumber: lineNumber,
-    });
+    // console.log("[Link Canvas] ハイライト適用:", {
+    //   fileName,
+    //   highlightLine,
+    //   highlightColumn,
+    //   monacoLineNumber: lineNumber,
+    // });
 
     // 装飾定義
     const decorations = [
@@ -253,26 +251,24 @@ function registerCustomContextMenuActions(
     selectedText: string
   ) => void
 ) {
-  console.log(
-    "[Link Canvas] registerCustomContextMenuActions 呼び出し開始:",
-    filePath
-  );
-  console.log("[Link Canvas] onContextMenu 存在:", !!onContextMenu);
+  // console.log(
+  //   "[Link Canvas] registerCustomContextMenuActions 呼び出し開始:",
+  //   filePath
+  // );
+  // console.log("[Link Canvas] onContextMenu 存在:", !!onContextMenu);
 
   if (!onContextMenu) {
     console.warn(
-      "[Link Canvas] ⚠️ WARNING: onContextMenu が undefined です - メニュー項目がクリックされても動作しません"
+      "[Link Canvas] ⚠️ WARNING: onContextMenu が undefined です"
     );
+    return;
   }
 
   // コンテキストメニューアクション実行用の共通関数
   const executeAction = (actionName: string) => {
-    console.log(`[Link Canvas] ✓ アクション '${actionName}' 実行`);
+    console.log(`[Link Canvas] ${actionName}`);
     const position = editor.getPosition();
-    if (!position) {
-      console.log("[Link Canvas] ✗ position が取得できません");
-      return;
-    }
+    if (!position) return;
 
     const model = editor.getModel();
     const selection = editor.getSelection();
@@ -285,62 +281,35 @@ function registerCustomContextMenuActions(
       selectedText = wordInfo?.word || "";
     }
 
-    console.log(
-      `[Link Canvas] コンテキストメニュー アクション: ${actionName}`,
-      {
-        filePath,
-        line: position.lineNumber - 1,
-        column: position.column - 1,
-        selectedText,
-      }
+    onContextMenu(
+      filePath,
+      position.lineNumber - 1,
+      position.column - 1,
+      selectedText
     );
-
-    if (onContextMenu) {
-      console.log("[Link Canvas] onContextMenu コールバック実行");
-      onContextMenu(
-        filePath,
-        position.lineNumber - 1,
-        position.column - 1,
-        selectedText
-      );
-    } else {
-      console.log(
-        "[Link Canvas] ✗ onContextMenu コールバックが定義されていません"
-      );
-    }
   };
 
   // 定義を表示アクション
   editor.addAction({
     id: "link-canvas.showDefinition",
     label: "[Canvas] 定義を表示",
-    contextMenuGroupId: "9_canvas",
-    contextMenuOrder: 1,
+    contextMenuGroupId: "navigation",
+    contextMenuOrder: 1.5,
     keybindings: [
       monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyD,
     ],
-    run: () => {
-      console.log("[Link Canvas] アクション実行: showDefinition");
-      executeAction("定義を表示");
-    },
+    run: () => executeAction("定義を表示"),
   });
 
   // 参照を表示アクション
   editor.addAction({
     id: "link-canvas.showReferences",
     label: "[Canvas] 参照を表示",
-    contextMenuGroupId: "9_canvas",
-    contextMenuOrder: 2,
+    contextMenuGroupId: "navigation",
+    contextMenuOrder: 1.6,
     keybindings: [
       monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyR,
     ],
-    run: () => {
-      console.log("[Link Canvas] アクション実行: showReferences");
-      executeAction("参照を表示");
-    },
+    run: () => executeAction("参照を表示"),
   });
-
-  console.log(
-    "[Link Canvas] registerCustomContextMenuActions 完了 - keybindings: Cmd+Shift+D, Cmd+Shift+R"
-  );
 }
