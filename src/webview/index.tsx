@@ -67,7 +67,7 @@ function App() {
 
   const handleContextMenu = React.useCallback(
     (filePath: string, line: number, column: number, selectedText: string) => {
-      console.log("[Link Canvas] コンテキストメニュー発火:", {
+      console.log("[Link Canvas] ✓ handleContextMenu 発火", {
         filePath,
         line,
         column,
@@ -75,23 +75,37 @@ function App() {
       });
 
       // 拡張機能へリクエスト送信
-      const vscodeApi = (window as any).acquireVsCodeApi?.();
-      if (vscodeApi) {
-        vscodeApi.postMessage({
-          type: "showDefinition",
-          filePath: filePath,
-          line: line,
-          column: column,
-        });
+      try {
+        const vscodeApi = (window as any).acquireVsCodeApi?.();
+        if (vscodeApi) {
+          console.log("[Link Canvas] VSCode API 取得成功");
 
-        vscodeApi.postMessage({
-          type: "showReferences",
-          filePath: filePath,
-          line: line,
-          column: column,
-        });
+          const definitionMessage = {
+            type: "showDefinition",
+            filePath: filePath,
+            line: line,
+            column: column,
+          };
 
-        console.log("[Link Canvas] 定義/参照リクエスト拡張機能に転送");
+          const referencesMessage = {
+            type: "showReferences",
+            filePath: filePath,
+            line: line,
+            column: column,
+          };
+
+          console.log("[Link Canvas] 定義メッセージ送信:", definitionMessage);
+          vscodeApi.postMessage(definitionMessage);
+
+          console.log("[Link Canvas] 参照メッセージ送信:", referencesMessage);
+          vscodeApi.postMessage(referencesMessage);
+
+          console.log("[Link Canvas] ✓ 定義/参照リクエスト拡張機能に転送完了");
+        } else {
+          console.log("[Link Canvas] ✗ VSCode API が取得できません");
+        }
+      } catch (error) {
+        console.error("[Link Canvas] ✗ handleContextMenu エラー:", error);
       }
     },
     []

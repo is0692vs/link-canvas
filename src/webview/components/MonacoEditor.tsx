@@ -84,10 +84,23 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
       editor.updateOptions({ fontSize: 14 });
       console.log("[Link Canvas] フォントサイズリセット: 14px");
     });
-
-    // カスタムコンテキストメニューアクション登録
-    registerCustomContextMenuActions(editor, monaco, filePath, onContextMenu);
   };
+
+  /**
+   * コンテキストメニューアクション登録用 useEffect
+   * onContextMenu が変わるたびに再登録
+   */
+  React.useEffect(() => {
+    if (!editorRef.current || !monacoRef.current) return;
+
+    console.log("[Link Canvas] useEffect: アクション再登録 -", filePath);
+    registerCustomContextMenuActions(
+      editorRef.current,
+      monacoRef.current,
+      filePath,
+      onContextMenu
+    );
+  }, [filePath, onContextMenu]);
 
   /**
    * ハイライト機能: highlightLine が変わったときに、該当行を視認しやすくハイライト
