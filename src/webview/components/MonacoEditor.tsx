@@ -34,36 +34,31 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
   const monacoRef = React.useRef<Monaco | null>(null);
 
   const handleEditorMount = (editor: any, monaco: Monaco) => {
-    // console.log("[Link Canvas] Monaco Editor マウント:", fileName);
     editorRef.current = editor;
     monacoRef.current = monaco;
 
     const domNode = editor.getDomNode();
     if (domNode) {
       const rect = domNode.getBoundingClientRect();
-      // console.log("[Link Canvas] Monaco DOM サイズ（マウント時）", {
-      //   fileName,
-      //   width: rect.width,
-      //   height: rect.height,
-      // });
-
-      // DOM サイズが小さすぎる場合は再レイアウトを実行
       if (rect.width < 100 || rect.height < 100) {
-        // console.log("[Link Canvas] DOM サイズが小さいため再レイアウト予定");
         setTimeout(() => {
-          // console.log("[Link Canvas] Monaco 再レイアウト実行");
           editor.layout();
-
-          // レイアウト後のサイズを確認
-          // const updatedRect = domNode.getBoundingClientRect();
-          // console.log("[Link Canvas] Monaco DOM サイズ（レイアウト後）", {
-          //   fileName,
-          //   width: updatedRect.width,
-          //   height: updatedRect.height,
-          // });
         }, 100);
       }
+      
+      // DOM要素にcontextmenuイベントリスナーを追加
+      domNode.addEventListener('contextmenu', (e: MouseEvent) => {
+        handleEditorContextMenu(e, editor);
+      });
     }
+
+    // コンテキストメニューアクション登録（メニュー項目を表示）
+    registerCustomContextMenuActions(
+      editor,
+      monaco,
+      filePath,
+      onContextMenu
+    );
 
     // Cmd +/- でフォントサイズ変更するコマンドを追加
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Equal, () => {
@@ -86,25 +81,8 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
     });
   };
 
-  /**
-   * コンテキストメニューアクション登録用 useEffect
-   * onContextMenu が変わるたびに再登録
-   */
-  React.useEffect(() => {
-    if (!editorRef.current || !monacoRef.current) return;
 
-    // console.log("[Link Canvas] useEffect: アクション再登録開始 -", filePath);
-    // console.log("[Link Canvas] onContextMenu 定義状態:", !!onContextMenu);
-    
-    registerCustomContextMenuActions(
-      editorRef.current,
-      monacoRef.current,
-      filePath,
-      onContextMenu
-    );
-    
-    // console.log("[Link Canvas] useEffect: アクション再登録完了 -", filePath);
-  }, [filePath, onContextMenu]);  /**
+  /**
    * ハイライト機能: highlightLine が変わったときに、該当行を視認しやすくハイライト
    */
   React.useEffect(() => {
@@ -251,22 +229,17 @@ function registerCustomContextMenuActions(
     selectedText: string
   ) => void
 ) {
-  // console.log(
-  //   "[Link Canvas] registerCustomContextMenuActions 呼び出し開始:",
-  //   filePath
-  // );
-  // console.log("[Link Canvas] onContextMenu 存在:", !!onContextMenu);
-
-  if (!onContextMenu) {
-    console.warn(
-      "[Link Canvas] ⚠️ WARNING: onContextMenu が undefined です"
-    );
-    return;
+  // 既にアクションが登録されているかチェック
+  try {
+    if (editor.getAction && editor.getAction("link-canvas.showDefinition")) {
+      return; // 既に登録されている場合はスキップ
+    }
+  } catch (e) {
+    // getAction がない場合はそのまま登録
   }
 
   // コンテキストメニューアクション実行用の共通関数
   const executeAction = (actionName: string) => {
-    console.log(`[Link Canvas] ${actionName}`);
     const position = editor.getPosition();
     if (!position) return;
 
@@ -281,12 +254,14 @@ function registerCustomContextMenuActions(
       selectedText = wordInfo?.word || "";
     }
 
-    onContextMenu(
-      filePath,
-      position.lineNumber - 1,
-      position.column - 1,
-      selectedText
-    );
+    if (onContextMenu) {
+      onContextMenu(
+        filePath,
+        position.lineNumber - 1,
+        position.column - 1,
+        selectedText
+      );
+    }
   };
 
   // 定義を表示アクション
