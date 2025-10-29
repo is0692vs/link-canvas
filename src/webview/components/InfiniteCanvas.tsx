@@ -61,6 +61,14 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
   // Shift + マウスホイールでズーム
   React.useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
+      // debug: log wheel events to help diagnose shift+wheel not firing
+      console.log("[Link Canvas] wheel event", {
+        shiftKey: e.shiftKey,
+        deltaX: e.deltaX,
+        deltaY: e.deltaY,
+        clientX: e.clientX,
+        clientY: e.clientY,
+      });
       if (!e.shiftKey) return;
 
       e.preventDefault();
@@ -358,17 +366,45 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
                 {windows.map((w) => {
                   const wrapper = windowRefs.current[w.id];
                   if (!wrapper) return null;
-                  // prefer the actual .code-window element rect (reflects preview vs code modes)
-                  const inner =
+                  // prefer the white code content area rect so handles align to code region
+                  // try to find the content area inside the code window
+                  const contentEl =
                     (wrapper.querySelector &&
-                      (wrapper.querySelector(".code-window") as HTMLElement)) ||
+                      (wrapper.querySelector(
+                        ".code-window__content"
+                      ) as HTMLElement)) ||
                     null;
-                  const rect = inner
-                    ? inner.getBoundingClientRect()
-                    : wrapper.getBoundingClientRect();
-                  // explicit handle size in screen pixels (must match CSS)
-                  const HANDLE = 44; // larger hit area for easier grabbing
-                  // compute screen coordinates for each corner handle
+                  const wrapperRect = wrapper.getBoundingClientRect();
+                  // If content area exists, use its rect. Otherwise, treat the
+                  // wrapper minus titlebar as the virtual content area so handles
+                  // avoid overlapping the close button / titlebar area.
+                  const TITLEBAR_HEIGHT = 32;
+                  const rect = contentEl
+                    ? contentEl.getBoundingClientRect()
+                    : ({
+                        left: wrapperRect.left,
+                        top: wrapperRect.top + TITLEBAR_HEIGHT,
+                        width: wrapperRect.width,
+                        height: Math.max(
+                          0,
+                          wrapperRect.height - TITLEBAR_HEIGHT
+                        ),
+                        right: wrapperRect.right,
+                        bottom: wrapperRect.bottom - TITLEBAR_HEIGHT,
+                      } as DOMRect);
+                  // Compute handle size relative to window so zoom/resize don't break hit areas
+                  const MIN_HANDLE = 28;
+                  const MAX_HANDLE = 72;
+                  const HANDLE_PCT = 0.08; // 8% of min(width,height)
+                  const base = Math.min(rect.width, rect.height);
+                  const HANDLE = Math.max(
+                    MIN_HANDLE,
+                    Math.min(MAX_HANDLE, Math.round(base * HANDLE_PCT))
+                  );
+
+                  // Anchor handles so they align to edges/corners of the code content area.
+                  // NW/NE are aligned to the top-left / top-right of the white code area
+                  // (or the virtual content area if the content element isn't present).
                   const handles = {
                     nw: { left: rect.left, top: rect.top },
                     ne: {
