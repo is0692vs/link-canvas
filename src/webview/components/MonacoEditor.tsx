@@ -13,6 +13,8 @@ interface MonacoEditorProps {
     column: number,
     selectedText: string
   ) => void;
+  highlightLine?: number;
+  highlightColumn?: number;
 }
 
 /**
@@ -25,6 +27,8 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
   filePath,
   onChange,
   onContextMenu,
+  highlightLine,
+  highlightColumn,
 }) => {
   const editorRef = React.useRef<any>(null);
   const monacoRef = React.useRef<Monaco | null>(null);
@@ -84,6 +88,50 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
     // カスタムコンテキストメニューアクション登録
     registerCustomContextMenuActions(editor, monaco, filePath, onContextMenu);
   };
+
+  /**
+   * ハイライト機能: highlightLine が変わったときに、該当行を視認しやすくハイライト
+   */
+  React.useEffect(() => {
+    if (!editorRef.current || typeof highlightLine !== "number") {
+      // ハイライトがない場合は装飾を削除
+      editorRef.current?.createDecorationsCollection([]);
+      return;
+    }
+
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+    if (!monaco) return;
+
+    const lineNumber = highlightLine + 1; // 0-based → 1-based
+
+    console.log("[Link Canvas] ハイライト適用:", {
+      fileName,
+      highlightLine,
+      highlightColumn,
+      monacoLineNumber: lineNumber,
+    });
+
+    // 装飾定義
+    const decorations = [
+      {
+        range: new monaco.Range(lineNumber, 1, lineNumber, 1000),
+        options: {
+          isWholeLine: true,
+          backgroundColor: "rgba(255, 200, 0, 0.2)", // 黄色の背景
+          borderColor: "rgba(255, 150, 0, 0.5)",
+          borderStyle: "solid",
+          borderWidth: "1px",
+        },
+      },
+    ];
+
+    // 装飾を適用
+    editor.createDecorationsCollection(decorations);
+
+    // エディタをハイライト行までスクロール
+    editor.revealLineInCenter(lineNumber);
+  }, [highlightLine, highlightColumn, fileName]);
 
   /**
    * Monaco Editor のコンテキストメニューハンドラ

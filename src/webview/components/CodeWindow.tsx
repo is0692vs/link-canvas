@@ -12,6 +12,8 @@ export interface CodeWindowData {
   height: number;
   classes?: string[];
   functions?: string[];
+  highlightLine?: number;
+  highlightColumn?: number;
   [key: string]: unknown;
 }
 
@@ -161,6 +163,8 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
             fileName={data.fileName}
             filePath={data.filePath}
             onContextMenu={onContextMenu}
+            highlightLine={data.highlightLine}
+            highlightColumn={data.highlightColumn}
           />
         )}
       </div>
