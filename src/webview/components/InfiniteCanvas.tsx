@@ -14,6 +14,7 @@ interface InfiniteCanvasProps {
   onWindowMove: (id: string, position: { x: number; y: number }) => void;
   onWindowResize: (id: string, width: number, height: number) => void;
   onWindowClose: (id: string) => void;
+  onContextMenu?: (filePath: string, line: number, column: number, selectedText: string) => void;
 }
 
 /**
@@ -29,6 +30,7 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
   onWindowMove,
   onWindowResize,
   onWindowClose,
+  onContextMenu,
 }) => {
   const canvasRef = React.useRef<HTMLDivElement>(null);
   const viewportRef = React.useRef<HTMLDivElement>(null);
@@ -342,6 +344,7 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
               onDragStart={(startX, startY) =>
                 handleWindowDragStart(window.id, startX, startY)
               }
+              onContextMenu={onContextMenu}
               zoom={zoom}
               pan={pan}
             />

@@ -81,6 +81,38 @@ function App() {
     console.log("[Link Canvas] ウィンドウ削除:", id);
   }, []);
 
+  const handleContextMenu = React.useCallback(
+    (filePath: string, line: number, column: number, selectedText: string) => {
+      console.log('[Link Canvas] コンテキストメニュー発火:', {
+        filePath,
+        line,
+        column,
+        selectedText,
+      });
+
+      // 拡張機能へリクエスト送信
+      const vscodeApi = (window as any).acquireVsCodeApi?.();
+      if (vscodeApi) {
+        vscodeApi.postMessage({
+          type: "showDefinition",
+          filePath: filePath,
+          line: line,
+          column: column,
+        });
+
+        vscodeApi.postMessage({
+          type: "showReferences",
+          filePath: filePath,
+          line: line,
+          column: column,
+        });
+
+        console.log('[Link Canvas] 定義/参照リクエスト拡張機能に転送');
+      }
+    },
+    []
+  );
+
   // postMessageリスナーのセットアップ
   React.useEffect(() => {
     console.log("[Link Canvas] イベントリスナー セットアップ開始");
@@ -289,6 +321,7 @@ function App() {
         onWindowMove={handleWindowMove}
         onWindowResize={handleWindowResize}
         onWindowClose={handleWindowClose}
+        onContextMenu={handleContextMenu}
       />
     </div>
   );

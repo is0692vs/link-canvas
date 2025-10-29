@@ -7,6 +7,7 @@ interface MonacoEditorProps {
   fileName: string;
   filePath: string;
   onChange?: (value: string | undefined) => void;
+  onContextMenu?: (filePath: string, line: number, column: number, selectedText: string) => void;
 }
 
 /**
@@ -18,6 +19,7 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
   fileName,
   filePath,
   onChange,
+  onContextMenu,
 }) => {
   const editorRef = React.useRef<any>(null);
   const monacoRef = React.useRef<Monaco | null>(null);
@@ -114,31 +116,13 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
         selectedText,
       });
 
-      // VSCodeAPI で Webview に通知
-      const vscodeApi = (window as any).acquireVsCodeApi?.();
-      if (vscodeApi) {
-        vscodeApi.postMessage({
-          type: 'requestDefinition',
-          filePath: filePath,
-          line: position.lineNumber - 1,
-          column: position.column - 1,
-          selectedText: selectedText,
-        });
-
-        vscodeApi.postMessage({
-          type: 'requestReferences',
-          filePath: filePath,
-          line: position.lineNumber - 1,
-          column: position.column - 1,
-          selectedText: selectedText,
-        });
-
-        console.log('[Link Canvas] 定義/参照リクエスト送信:', {
-          filePath,
-          line: position.lineNumber - 1,
-          column: position.column - 1,
-        });
-      }
+      // 親コンポーネント (CodeWindow) にコールバック経由で通知
+      onContextMenu?.(
+        filePath,
+        position.lineNumber - 1,  // 0-based
+        position.column - 1,      // 0-based
+        selectedText
+      );
     } catch (error) {
       console.error('[Link Canvas] コンテキストメニュー処理エラー:', error);
     }
