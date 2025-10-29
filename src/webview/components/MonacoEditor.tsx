@@ -93,13 +93,17 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
   React.useEffect(() => {
     if (!editorRef.current || !monacoRef.current) return;
 
-    console.log("[Link Canvas] useEffect: アクション再登録 -", filePath);
+    console.log("[Link Canvas] useEffect: アクション再登録開始 -", filePath);
+    console.log("[Link Canvas] onContextMenu 定義状態:", !!onContextMenu);
+    
     registerCustomContextMenuActions(
       editorRef.current,
       monacoRef.current,
       filePath,
       onContextMenu
     );
+    
+    console.log("[Link Canvas] useEffect: アクション再登録完了 -", filePath);
   }, [filePath, onContextMenu]);
 
   /**
@@ -249,7 +253,17 @@ function registerCustomContextMenuActions(
     selectedText: string
   ) => void
 ) {
-  console.log("[Link Canvas] registerCustomContextMenuActions 呼び出し開始:", filePath);
+  console.log(
+    "[Link Canvas] registerCustomContextMenuActions 呼び出し開始:",
+    filePath
+  );
+  console.log("[Link Canvas] onContextMenu 存在:", !!onContextMenu);
+
+  if (!onContextMenu) {
+    console.warn(
+      "[Link Canvas] ⚠️ WARNING: onContextMenu が undefined です - メニュー項目がクリックされても動作しません"
+    );
+  }
 
   // コンテキストメニューアクション実行用の共通関数
   const executeAction = (actionName: string) => {
@@ -271,12 +285,15 @@ function registerCustomContextMenuActions(
       selectedText = wordInfo?.word || "";
     }
 
-    console.log(`[Link Canvas] コンテキストメニュー アクション: ${actionName}`, {
-      filePath,
-      line: position.lineNumber - 1,
-      column: position.column - 1,
-      selectedText,
-    });
+    console.log(
+      `[Link Canvas] コンテキストメニュー アクション: ${actionName}`,
+      {
+        filePath,
+        line: position.lineNumber - 1,
+        column: position.column - 1,
+        selectedText,
+      }
+    );
 
     if (onContextMenu) {
       console.log("[Link Canvas] onContextMenu コールバック実行");
@@ -287,7 +304,9 @@ function registerCustomContextMenuActions(
         selectedText
       );
     } else {
-      console.log("[Link Canvas] ✗ onContextMenu コールバックが定義されていません");
+      console.log(
+        "[Link Canvas] ✗ onContextMenu コールバックが定義されていません"
+      );
     }
   };
 
@@ -297,8 +316,13 @@ function registerCustomContextMenuActions(
     label: "[Canvas] 定義を表示",
     contextMenuGroupId: "9_canvas",
     contextMenuOrder: 1,
-    keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyD],
-    run: () => executeAction("定義を表示"),
+    keybindings: [
+      monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyD,
+    ],
+    run: () => {
+      console.log("[Link Canvas] アクション実行: showDefinition");
+      executeAction("定義を表示");
+    },
   });
 
   // 参照を表示アクション
@@ -307,9 +331,16 @@ function registerCustomContextMenuActions(
     label: "[Canvas] 参照を表示",
     contextMenuGroupId: "9_canvas",
     contextMenuOrder: 2,
-    keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyR],
-    run: () => executeAction("参照を表示"),
+    keybindings: [
+      monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyR,
+    ],
+    run: () => {
+      console.log("[Link Canvas] アクション実行: showReferences");
+      executeAction("参照を表示");
+    },
   });
 
-  console.log("[Link Canvas] registerCustomContextMenuActions 完了 - keybindings: Cmd+Shift+D, Cmd+Shift+R");
+  console.log(
+    "[Link Canvas] registerCustomContextMenuActions 完了 - keybindings: Cmd+Shift+D, Cmd+Shift+R"
+  );
 }

@@ -2,22 +2,23 @@
 
 ## 概要
 
-Canvas内のMonaco Editorで右クリックすると、Canvas固有のコンテキストメニュー項目が表示され、クリックすると定義/参照をCanvasに新しいウィンドウで表示します。
+Canvas 内の Monaco Editor で右クリックすると、Canvas 固有のコンテキストメニュー項目が表示され、クリックすると定義/参照を Canvas に新しいウィンドウで表示します。
 
 ## 実装完了項目
 
-### ✅ 1. Monaco Editor コンテキストメニュー（Webview側）
+### ✅ 1. Monaco Editor コンテキストメニュー（Webview 側）
 
 **ファイル**: `src/webview/components/MonacoEditor.tsx`
 
 - ✅ `editor.addAction()` でカスタムアクション登録
-- ✅ 2つのアクション:
+- ✅ 2 つのアクション:
   - `[Canvas] 定義を表示` (Cmd+Shift+D)
   - `[Canvas] 参照を表示` (Cmd+Shift+R)
 - ✅ `contextMenuGroupId: "9_canvas"` でコンテキストメニューに表示
 - ✅ `useEffect` でアクション登録（クロージャ問題解決）
 
 **キー実装**:
+
 ```typescript
 React.useEffect(() => {
   if (!editorRef.current || !monacoRef.current) return;
@@ -30,17 +31,18 @@ React.useEffect(() => {
 }, [filePath, onContextMenu]);
 ```
 
-### ✅ 2. Webviewメッセージング（index.tsx）
+### ✅ 2. Webview メッセージング（index.tsx）
 
 **ファイル**: `src/webview/index.tsx`
 
 - ✅ `handleContextMenu()` コールバック実装
-- ✅ `acquireVsCodeApi().postMessage()` で2つのメッセージ送信:
-  - `showDefinition` - VSCode標準API実行
-  - `showReferences` - VSCode標準API実行
+- ✅ `acquireVsCodeApi().postMessage()` で 2 つのメッセージ送信:
+  - `showDefinition` - VSCode 標準 API 実行
+  - `showReferences` - VSCode 標準 API 実行
 - ✅ 詳細なデバッグログ出力
 
 **メッセージ形式**:
+
 ```typescript
 {
   type: "showDefinition" | "showReferences",
@@ -56,16 +58,17 @@ React.useEffect(() => {
 
 - ✅ `onDidReceiveMessage` でメッセージ処理
 - ✅ `handleDefinitionRequest()` 実装:
-  - `vscode.executeDefinitionProvider` でVSCode標準API実行
+  - `vscode.executeDefinitionProvider` で VSCode 標準 API 実行
   - Location[] を取得
   - 各定義を `addDefinitionToCanvas()` でキャンバスに追加
 - ✅ `handleReferencesRequest()` 実装:
-  - `vscode.executeReferenceProvider` でVSCode標準API実行
+  - `vscode.executeReferenceProvider` で VSCode 標準 API 実行
   - Location[] を取得
   - 各参照を `addReferenceToCanvas()` でキャンバスに追加
-- ✅ 詳細なデバッグログ（API実行結果の可視化）
+- ✅ 詳細なデバッグログ（API 実行結果の可視化）
 
 **Location データ構造**:
+
 ```typescript
 Location {
   uri: Uri,              // ファイルURI
@@ -87,6 +90,7 @@ Location {
   - `editor.revealLineInCenter()` で対象行へスクロール
 
 **実装**:
+
 ```typescript
 React.useEffect(() => {
   if (!editorRef.current || typeof highlightLine !== "number") {
@@ -119,19 +123,22 @@ React.useEffect(() => {
 ## テスト手順
 
 ### 前提条件
+
 - Link Canvas Webview パネルが開いている
-- 複数のCodeWindowが表示されている
-- Canvas内でズームイン状態（Monaco Editor が表示されている）
+- 複数の CodeWindow が表示されている
+- Canvas 内でズームイン状態（Monaco Editor が表示されている）
 
 ### テストステップ
 
 1. **コンテキストメニュー表示確認**
-   - Canvasのコード部分で右クリック
+
+   - Canvas のコード部分で右クリック
    - 期待値: "[Canvas] 定義を表示" と "[Canvas] 参照を表示" が表示される
 
 2. **メニュー実行確認**
+
    - "[Canvas] 定義を表示" をクリック
-   - F5開発者ツール (デバッグコンソール) でログ確認
+   - F5 開発者ツール (デバッグコンソール) でログ確認
    - 期待ログ:
      ```
      [Link Canvas] ✓ handleContextMenu 発火
@@ -140,8 +147,9 @@ React.useEffect(() => {
      [Link Canvas] ✓ 定義/参照リクエスト拡張機能に転送完了
      ```
 
-3. **VSCode API実行確認**
-   - F5開発者ツール (拡張ホストデバッグコンソール) でログ確認
+3. **VSCode API 実行確認**
+
+   - F5 開発者ツール (拡張ホストデバッグコンソール) でログ確認
    - 期待ログ:
      ```
      [Link Canvas] 定義リクエスト処理開始: { filePath, line, column }
@@ -150,8 +158,9 @@ React.useEffect(() => {
      [Link Canvas] 定義をキャンバスに追加 (数: X)
      ```
 
-4. **新しいCodeWindow作成確認**
-   - Canvasに新しいウィンドウが表示される
+4. **新しい CodeWindow 作成確認**
+
+   - Canvas に新しいウィンドウが表示される
    - 期待: 既存ウィンドウの隣に位置
 
 5. **ハイライト表示確認**
@@ -164,11 +173,13 @@ React.useEffect(() => {
 ### コンソールログフィルタリング
 
 **Webview デバッグコンソール** でフィルタ:
+
 ```
 [Link Canvas]
 ```
 
 **拡張ホスト デバッグコンソール** でフィルタ:
+
 ```
 [Link Canvas]
 ```
@@ -176,34 +187,38 @@ React.useEffect(() => {
 ### キーボードショートカット
 
 開発中のテスト用:
+
 - **Cmd+Shift+D**: Canvas 定義を表示 (キーバインディング)
 - **Cmd+Shift+R**: Canvas 参照を表示 (キーバインディング)
 
 ### よくある問題と解決策
 
 **Q: コンテキストメニューが表示されない**
+
 - A: `contextMenuGroupId: "9_canvas"` が設定されているか確認
 - A: Monaco Editor がマウントされているか確認 (ズームイン状態)
 - A: Webview コンソールで "[Link Canvas] registerCustomContextMenuActions 完了" ログがあるか確認
 
 **Q: メニュー をクリックしても何も起こらない**
+
 - A: `useEffect` で `onContextMenu` コールバックが再登録されているか確認
 - A: VSCode API `acquireVsCodeApi()` が正しく初期化されているか確認
 - A: Webview デバッグコンソールで "✓ handleContextMenu 発火" ログがあるか確認
 
 **Q: 定義/参照が見つからない**
+
 - A: 拡張ホスト デバッグコンソールで API 実行結果を確認
 - A: 言語サーバーが有効になっているか確認 (TypeScript, Python など)
 - A: ファイルがプロジェクトルートに含まれているか確認
 
 ## ファイル変更一覧
 
-| ファイル | 変更内容 |
-|---------|--------|
+| ファイル                                  | 変更内容                                               |
+| ----------------------------------------- | ------------------------------------------------------ |
 | `src/webview/components/MonacoEditor.tsx` | コンテキストメニューアクション登録（useEffect で管理） |
-| `src/webview/components/CodeWindow.tsx` | CodeWindowData にハイライトプロパティ追加、props 渡し |
-| `src/webview/index.tsx` | handleContextMenu 拡張、VSCode API メッセージング |
-| `src/CanvasViewProvider.ts` | メッセージハンドラ実装、詳細ログ追加 |
+| `src/webview/components/CodeWindow.tsx`   | CodeWindowData にハイライトプロパティ追加、props 渡し  |
+| `src/webview/index.tsx`                   | handleContextMenu 拡張、VSCode API メッセージング      |
+| `src/CanvasViewProvider.ts`               | メッセージハンドラ実装、詳細ログ追加                   |
 
 ## 関連するコミット
 
@@ -218,16 +233,19 @@ c07460c feat: MonacoEditor ハイライト機能実装 - 対象行を黄色で�
 ## 技術仕様
 
 ### Monaco Editor API
+
 - `editor.addAction()` - カスタムアクション登録
 - `editor.createDecorationsCollection()` - 装飾（ハイライト）適用
 - `editor.revealLineInCenter()` - 指定行へスクロール
 
 ### VSCode Extension API
+
 - `vscode.executeDefinitionProvider(uri, position)` - 定義取得
 - `vscode.executeReferenceProvider(uri, position)` - 参照取得
 - `vscode.Location` - ファイル位置情報
 
 ### コンテキストメニューグループ
+
 - `navigation` - デフォルト最初
 - `1_modification` - 修正コマンド
 - `9_canvas` - Canvas カスタムアクション
