@@ -73,7 +73,7 @@ function App() {
       column: number,
       selectedText: string
     ) => {
-      console.log("[Link Canvas] コンテキストメニュー選択:", {
+      console.log("[Link Canvas] App handleContextMenu 呼び出し:", {
         action,
         filePath,
         line,
@@ -83,7 +83,11 @@ function App() {
 
       try {
         const acquire = (window as any).acquireVsCodeApi;
+        console.log("[Link Canvas] acquireVsCodeApi:", typeof acquire);
+
         const vscodeApi = typeof acquire === "function" ? acquire() : null;
+        console.log("[Link Canvas] vscodeApi:", !!vscodeApi);
+
         if (!vscodeApi) {
           console.log("[Link Canvas] VS Code API が利用できません");
           return;
@@ -92,6 +96,14 @@ function App() {
         const messageType =
           action === "definition" ? "showDefinition" : "showReferences";
 
+        console.log("[Link Canvas] postMessage 送信前:", {
+          type: messageType,
+          filePath,
+          line,
+          column,
+          selectedText,
+        });
+
         vscodeApi.postMessage({
           type: messageType,
           filePath,
@@ -99,6 +111,8 @@ function App() {
           column,
           selectedText,
         });
+
+        console.log("[Link Canvas] postMessage 送信完了");
       } catch (error) {
         console.error("[Link Canvas] エラー:", error);
       }

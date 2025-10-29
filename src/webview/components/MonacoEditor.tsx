@@ -36,6 +36,12 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
   const highlightCollectionRef = React.useRef<any>(null);
 
   const handleEditorMount = (editor: any, monaco: Monaco) => {
+    console.log("[Link Canvas] Monaco Editor handleEditorMount 呼び出し", {
+      fileName,
+      filePath,
+      hasOnContextMenu: !!onContextMenu,
+    });
+
     editorRef.current = editor;
     monacoRef.current = monaco;
 
@@ -50,7 +56,9 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
     }
 
     // コンテキストメニューアクション登録（メニュー項目を表示）
+    console.log("[Link Canvas] コンテキストメニューアクション登録開始");
     registerCustomContextMenuActions(editor, monaco, filePath, onContextMenu);
+    console.log("[Link Canvas] コンテキストメニューアクション登録完了");
 
     // Cmd +/- でフォントサイズ変更するコマンドを追加
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Equal, () => {
@@ -173,19 +181,33 @@ function registerCustomContextMenuActions(
     selectedText: string
   ) => void
 ) {
+  console.log("[Link Canvas] registerCustomContextMenuActions 呼び出し", {
+    filePath,
+    hasOnContextMenu: !!onContextMenu,
+  });
+
   // 既にアクションが登録されているかチェック
   try {
     if (editor.getAction && editor.getAction("link-canvas.showDefinition")) {
+      console.log("[Link Canvas] アクション既に登録済み - スキップ");
       return; // 既に登録されている場合はスキップ
     }
   } catch (e) {
-    // getAction がない場合はそのまま登録
+    console.log("[Link Canvas] getAction チェック失敗 - 新規登録", e);
   }
 
   // コンテキストメニューアクション実行用の共通関数
   const executeAction = (actionName: "definition" | "references") => {
+    console.log("[Link Canvas] executeAction 開始", {
+      action: actionName,
+      filePath,
+    });
+
     const position = editor.getPosition();
-    if (!position) return;
+    if (!position) {
+      console.log("[Link Canvas] position が取得できない");
+      return;
+    }
 
     const model = editor.getModel();
     const selection = editor.getSelection();
@@ -204,9 +226,11 @@ function registerCustomContextMenuActions(
       line: position.lineNumber - 1,
       column: position.column - 1,
       selectedText,
+      hasCallback: !!onContextMenu,
     });
 
     if (onContextMenu) {
+      console.log("[Link Canvas] onContextMenu コールバック実行");
       onContextMenu(
         actionName,
         filePath,
@@ -214,11 +238,14 @@ function registerCustomContextMenuActions(
         position.column - 1,
         selectedText
       );
+    } else {
+      console.log("[Link Canvas] onContextMenu コールバックが未定義");
     }
   };
 
   // 定義を表示アクション
-  editor.addAction({
+  console.log("[Link Canvas] 定義アクション登録中...");
+  const definitionAction = editor.addAction({
     id: "link-canvas.showDefinition",
     label: "[Canvas] 定義を表示",
     contextMenuGroupId: "navigation",
@@ -226,11 +253,16 @@ function registerCustomContextMenuActions(
     keybindings: [
       monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyD,
     ],
-    run: () => executeAction("definition"),
+    run: () => {
+      console.log("[Link Canvas] 定義アクション run 呼び出し");
+      executeAction("definition");
+    },
   });
+  console.log("[Link Canvas] 定義アクション登録完了", definitionAction);
 
   // 参照を表示アクション
-  editor.addAction({
+  console.log("[Link Canvas] 参照アクション登録中...");
+  const referencesAction = editor.addAction({
     id: "link-canvas.showReferences",
     label: "[Canvas] 参照を表示",
     contextMenuGroupId: "navigation",
@@ -238,6 +270,10 @@ function registerCustomContextMenuActions(
     keybindings: [
       monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyR,
     ],
-    run: () => executeAction("references"),
+    run: () => {
+      console.log("[Link Canvas] 参照アクション run 呼び出し");
+      executeAction("references");
+    },
   });
+  console.log("[Link Canvas] 参照アクション登録完了", referencesAction);
 }
