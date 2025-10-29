@@ -43,6 +43,9 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
     startClientY: number;
     startWidth: number;
     startHeight: number;
+    // starting top-left position of the window (canvas coordinates)
+    startPosX?: number;
+    startPosY?: number;
   } | null>(null);
   const [, setOverlayTick] = React.useState(0);
   const [isPanning, setIsPanning] = React.useState(false);
@@ -223,23 +226,43 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
 
       let newWidth = state.startWidth;
       let newHeight = state.startHeight;
+      // defaults: position may change when resizing from left/top edges
+      let newPosX = state.startPosX ?? 0;
+      let newPosY = state.startPosY ?? 0;
 
       // horizontal
       if (["nw", "w", "sw"].includes(state.direction || "")) {
-        newWidth = Math.max(200, state.startWidth - deltaX);
+        // dragging left edge: width decreases when pointer moves right (deltaX > 0)
+        const proposed = state.startWidth - deltaX;
+        newWidth = Math.max(200, proposed);
+        // left movement = startWidth - newWidth
+        newPosX = (state.startPosX ?? 0) + (state.startWidth - newWidth);
       } else if (["ne", "e", "se"].includes(state.direction || "")) {
         newWidth = Math.max(200, state.startWidth + deltaX);
       }
       // vertical
       if (["nw", "n", "ne"].includes(state.direction || "")) {
-        newHeight = Math.max(150, state.startHeight - deltaY);
+        const proposed = state.startHeight - deltaY;
+        newHeight = Math.max(150, proposed);
+        // top movement = startHeight - newHeight
+        newPosY = (state.startPosY ?? 0) + (state.startHeight - newHeight);
       } else if (["sw", "s", "se"].includes(state.direction || "")) {
         newHeight = Math.max(150, state.startHeight + deltaY);
       }
 
+      // apply size update
       onWindowResize(state.windowId, newWidth, newHeight);
+      // if position changed (left/top dragging), notify parent to move window
+      const roundedX = Math.round(newPosX * 100) / 100;
+      const roundedY = Math.round(newPosY * 100) / 100;
+      if (
+        roundedX !== (state.startPosX ?? 0) ||
+        roundedY !== (state.startPosY ?? 0)
+      ) {
+        onWindowMove(state.windowId, { x: roundedX, y: roundedY });
+      }
     },
-    [pan, zoom, onWindowResize]
+    [pan, zoom, onWindowResize, onWindowMove]
   );
 
   const overlayUp = React.useCallback(() => {
@@ -401,6 +424,8 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
                             startClientY: e.clientY,
                             startWidth: w.width,
                             startHeight: w.height,
+                            startPosX: w.position.x,
+                            startPosY: w.position.y,
                           };
                           // attach document pointer listeners immediately so move/up are captured
                           document.addEventListener(
