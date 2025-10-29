@@ -140,6 +140,48 @@ function App() {
             const updated = [...prev, newWindow];
             console.log("[Link Canvas] 新規ウィンドウ作成:", newWindow.id);
             console.log("[Link Canvas] 現在のウィンドウ数:", updated.length);
+            // notify extension host where resize handles are placed (overlay vs inline)
+            try {
+              // wait a tick so InfiniteCanvas can mount overlay
+              setTimeout(() => {
+                try {
+                  const placement = document.querySelector(
+                    ".link-canvas-overlay"
+                  )
+                    ? "overlay"
+                    : "inline";
+                  const acquire = (window as any).acquireVsCodeApi;
+                  const vscodeApi =
+                    typeof acquire === "function" ? acquire() : null;
+                  if (
+                    vscodeApi &&
+                    typeof vscodeApi.postMessage === "function"
+                  ) {
+                    vscodeApi.postMessage({
+                      type: "resizePlacement",
+                      placement,
+                      windowId: newWindow.id,
+                    });
+                    console.log(
+                      "[Link Canvas] resizePlacement posted to extension:",
+                      placement,
+                      newWindow.id
+                    );
+                  } else {
+                    console.log(
+                      "[Link Canvas] VSCode API not available to post resizePlacement"
+                    );
+                  }
+                } catch (err) {
+                  console.log("[Link Canvas] resizePlacement post error", err);
+                }
+              }, 50);
+            } catch (err) {
+              console.log(
+                "[Link Canvas] resizePlacement scheduling error",
+                err
+              );
+            }
             return updated;
           });
         } else if (message.type === "zoomIn" || message.type === "zoomOut") {

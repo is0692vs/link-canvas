@@ -25,6 +25,19 @@ export class CanvasViewProvider {
 
             this.panel.webview.html = this.getHtmlForWebview(this.panel.webview);
 
+            // Webview からのメッセージを受け取り、拡張ホストのデバッグコンソールに出力する
+            this.panel.webview.onDidReceiveMessage((message) => {
+                try {
+                    if (message && message.type === 'resizePlacement') {
+                        console.log('[Link Canvas] リサイズ配置:', message.placement, 'windowId:', message.windowId);
+                    } else {
+                        console.log('[Link Canvas] Webview message:', message);
+                    }
+                } catch (err) {
+                    console.log('[Link Canvas] onDidReceiveMessage error', err);
+                }
+            });
+
             // パネルが閉じられたらクリア
             this.panel.onDidDispose(() => {
                 console.log('[Link Canvas] Webview Panel閉じられた');

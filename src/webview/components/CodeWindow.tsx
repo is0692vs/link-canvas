@@ -39,6 +39,15 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
   const [width, setWidth] = React.useState(data.width);
   const [height, setHeight] = React.useState(data.height);
 
+  // Sync local size state when parent updates data (e.g., overlay resize from InfiniteCanvas)
+  React.useEffect(() => {
+    if (data.width !== width) setWidth(data.width);
+  }, [data.width]);
+
+  React.useEffect(() => {
+    if (data.height !== height) setHeight(data.height);
+  }, [data.height]);
+
   const handleResize = React.useCallback(
     (newWidth: number, newHeight: number) => {
       console.log("[Link Canvas] ウィンドウリサイズ:", { newWidth, newHeight });
@@ -159,16 +168,21 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
             handleResizeStart(e, "nw");
           }}
           onPointerDown={(e) => {
-            console.log("[Link Canvas] リサイズハンドルクリック: nw (pointer)", {
-              pointerType: (e as React.PointerEvent).pointerType,
-              clientX: e.clientX,
-              clientY: e.clientY,
-            });
+            console.log(
+              "[Link Canvas] リサイズハンドルクリック: nw (pointer)",
+              {
+                pointerType: (e as React.PointerEvent).pointerType,
+                clientX: e.clientX,
+                clientY: e.clientY,
+              }
+            );
             (e as React.PointerEvent).stopPropagation();
             // pass through to existing handler (cast for compatibility)
             handleResizeStart(e as unknown as React.MouseEvent, "nw");
           }}
-          onClick={() => console.log("[Link Canvas] リサイズハンドル onClick: nw")}
+          onClick={() =>
+            console.log("[Link Canvas] リサイズハンドル onClick: nw")
+          }
         />
         <div
           className="code-window__resize-handle code-window__resize-handle--ne"
@@ -179,15 +193,20 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
             handleResizeStart(e, "ne");
           }}
           onPointerDown={(e) => {
-            console.log("[Link Canvas] リサイズハンドルクリック: ne (pointer)", {
-              pointerType: (e as React.PointerEvent).pointerType,
-              clientX: e.clientX,
-              clientY: e.clientY,
-            });
+            console.log(
+              "[Link Canvas] リサイズハンドルクリック: ne (pointer)",
+              {
+                pointerType: (e as React.PointerEvent).pointerType,
+                clientX: e.clientX,
+                clientY: e.clientY,
+              }
+            );
             (e as React.PointerEvent).stopPropagation();
             handleResizeStart(e as unknown as React.MouseEvent, "ne");
           }}
-          onClick={() => console.log("[Link Canvas] リサイズハンドル onClick: ne")}
+          onClick={() =>
+            console.log("[Link Canvas] リサイズハンドル onClick: ne")
+          }
         />
         <div
           className="code-window__resize-handle code-window__resize-handle--sw"
@@ -198,15 +217,20 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
             handleResizeStart(e, "sw");
           }}
           onPointerDown={(e) => {
-            console.log("[Link Canvas] リサイズハンドルクリック: sw (pointer)", {
-              pointerType: (e as React.PointerEvent).pointerType,
-              clientX: e.clientX,
-              clientY: e.clientY,
-            });
+            console.log(
+              "[Link Canvas] リサイズハンドルクリック: sw (pointer)",
+              {
+                pointerType: (e as React.PointerEvent).pointerType,
+                clientX: e.clientX,
+                clientY: e.clientY,
+              }
+            );
             (e as React.PointerEvent).stopPropagation();
             handleResizeStart(e as unknown as React.MouseEvent, "sw");
           }}
-          onClick={() => console.log("[Link Canvas] リサイズハンドル onClick: sw")}
+          onClick={() =>
+            console.log("[Link Canvas] リサイズハンドル onClick: sw")
+          }
         />
         <div
           className="code-window__resize-handle code-window__resize-handle--se"
@@ -217,15 +241,20 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
             handleResizeStart(e, "se");
           }}
           onPointerDown={(e) => {
-            console.log("[Link Canvas] リサイズハンドルクリック: se (pointer)", {
-              pointerType: (e as React.PointerEvent).pointerType,
-              clientX: e.clientX,
-              clientY: e.clientY,
-            });
+            console.log(
+              "[Link Canvas] リサイズハンドルクリック: se (pointer)",
+              {
+                pointerType: (e as React.PointerEvent).pointerType,
+                clientX: e.clientX,
+                clientY: e.clientY,
+              }
+            );
             (e as React.PointerEvent).stopPropagation();
             handleResizeStart(e as unknown as React.MouseEvent, "se");
           }}
-          onClick={() => console.log("[Link Canvas] リサイズハンドル onClick: se")}
+          onClick={() =>
+            console.log("[Link Canvas] リサイズハンドル onClick: se")
+          }
         />
       </div>
     </div>

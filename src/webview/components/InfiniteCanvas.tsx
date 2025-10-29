@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDOM from "react-dom";
 import { CodeWindow, type CodeWindowData } from "./CodeWindow";
 import "./InfiniteCanvas.css";
 
@@ -31,6 +32,19 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
 }) => {
   const canvasRef = React.useRef<HTMLDivElement>(null);
   const viewportRef = React.useRef<HTMLDivElement>(null);
+  // refs to each window wrapper so we can compute screen rects for overlay handles
+  const windowRefs = React.useRef<Record<string, HTMLDivElement | null>>({});
+  // overlay resize state
+  const overlayResizeRef = React.useRef<{
+    isResizing: boolean;
+    windowId: string | null;
+    direction: string | null;
+    startClientX: number;
+    startClientY: number;
+    startWidth: number;
+    startHeight: number;
+  } | null>(null);
+  const [, setOverlayTick] = React.useState(0);
   const [isPanning, setIsPanning] = React.useState(false);
   const [panStart, setPanStart] = React.useState({ x: 0, y: 0 });
   const [focusedWindow, setFocusedWindow] = React.useState<string | null>(null);
@@ -97,8 +111,10 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
         const target = e.target as HTMLElement | null;
         const className = target?.className ?? null;
         const id = target?.id ?? null;
-        const rect = target?.getBoundingClientRect ? target.getBoundingClientRect() : null;
-        console.log('[Link Canvas][GLOBAL] pointerdown', {
+        const rect = target?.getBoundingClientRect
+          ? target.getBoundingClientRect()
+          : null;
+        console.log("[Link Canvas][GLOBAL] pointerdown", {
           pointerType: e.pointerType,
           clientX: e.clientX,
           clientY: e.clientY,
@@ -107,13 +123,14 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
           targetRect: rect,
         });
       } catch (err) {
-        console.log('[Link Canvas][GLOBAL] pointerdown error', err);
+        console.log("[Link Canvas][GLOBAL] pointerdown error", err);
       }
     };
 
     // capture フェーズで拾うことで、他のハンドラで stopPropagation される前に検出できる
-    document.addEventListener('pointerdown', debugHandler, true);
-    return () => document.removeEventListener('pointerdown', debugHandler, true);
+    document.addEventListener("pointerdown", debugHandler, true);
+    return () =>
+      document.removeEventListener("pointerdown", debugHandler, true);
   }, []);
 
   // マウスドラッグでパン
@@ -188,6 +205,69 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
     document.addEventListener("mouseup", handleMouseUp);
   };
 
+  // --- Overlay-based resize logic (ensures handles receive events above Monaco) ---
+  // Attach overlay move/up handlers directly on pointerdown so they run immediately.
+  const overlayMove = React.useCallback(
+    (e: PointerEvent) => {
+      const state = overlayResizeRef.current;
+      if (!state || !state.isResizing || !state.windowId) return;
+
+      const currentCanvasX = (e.clientX - pan.x) / zoom;
+      const currentCanvasY = (e.clientY - pan.y) / zoom;
+
+      const startCanvasX = (state.startClientX - pan.x) / zoom;
+      const startCanvasY = (state.startClientY - pan.y) / zoom;
+
+      const deltaX = currentCanvasX - startCanvasX;
+      const deltaY = currentCanvasY - startCanvasY;
+
+      let newWidth = state.startWidth;
+      let newHeight = state.startHeight;
+
+      // horizontal
+      if (["nw", "w", "sw"].includes(state.direction || "")) {
+        newWidth = Math.max(200, state.startWidth - deltaX);
+      } else if (["ne", "e", "se"].includes(state.direction || "")) {
+        newWidth = Math.max(200, state.startWidth + deltaX);
+      }
+      // vertical
+      if (["nw", "n", "ne"].includes(state.direction || "")) {
+        newHeight = Math.max(150, state.startHeight - deltaY);
+      } else if (["sw", "s", "se"].includes(state.direction || "")) {
+        newHeight = Math.max(150, state.startHeight + deltaY);
+      }
+
+      onWindowResize(state.windowId, newWidth, newHeight);
+    },
+    [pan, zoom, onWindowResize]
+  );
+
+  const overlayUp = React.useCallback(() => {
+    overlayResizeRef.current = null;
+    document.removeEventListener("pointermove", overlayMove as any);
+    document.removeEventListener("pointerup", overlayUp as any);
+    console.log("[Link Canvas] overlay resize end");
+  }, [overlayMove]);
+
+  // cleanup on unmount
+  React.useEffect(() => {
+    return () => {
+      document.removeEventListener("pointermove", overlayMove as any);
+      document.removeEventListener("pointerup", overlayUp as any);
+    };
+  }, [overlayMove, overlayUp]);
+
+  // keep overlay positions updated each render / on layout changes
+  React.useEffect(() => {
+    let raf = 0;
+    const tick = () => {
+      setOverlayTick((n) => n + 1);
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   const canvasStyle: React.CSSProperties = {
     transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
     transformOrigin: "0 0",
@@ -207,6 +287,7 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
         {windows.map((window) => (
           <div
             key={window.id}
+            ref={(el) => (windowRefs.current[window.id] = el)}
             className="window-wrapper"
             style={{
               position: "absolute",
@@ -235,6 +316,151 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
             />
           </div>
         ))}
+
+        {/* Overlay handles portal - rendered at document.body so they sit above Monaco */}
+        {typeof document !== "undefined"
+          ? ReactDOM.createPortal(
+              <div
+                className="link-canvas-overlay"
+                style={{
+                  position: "fixed",
+                  left: 0,
+                  top: 0,
+                  right: 0,
+                  bottom: 0,
+                  pointerEvents: "none",
+                  zIndex: 999999,
+                }}
+              >
+                {windows.map((w) => {
+                  const wrapper = windowRefs.current[w.id];
+                  if (!wrapper) return null;
+                  // prefer the actual .code-window element rect (reflects preview vs code modes)
+                  const inner =
+                    (wrapper.querySelector &&
+                      (wrapper.querySelector(".code-window") as HTMLElement)) ||
+                    null;
+                  const rect = inner
+                    ? inner.getBoundingClientRect()
+                    : wrapper.getBoundingClientRect();
+                  // explicit handle size in screen pixels (must match CSS)
+                  const HANDLE = 44; // larger hit area for easier grabbing
+                  // compute screen coordinates for each corner handle
+                  const handles = {
+                    nw: { left: rect.left, top: rect.top },
+                    ne: {
+                      left: rect.left + rect.width - HANDLE,
+                      top: rect.top,
+                    },
+                    sw: {
+                      left: rect.left,
+                      top: rect.top + rect.height - HANDLE,
+                    },
+                    se: {
+                      left: rect.left + rect.width - HANDLE,
+                      top: rect.top + rect.height - HANDLE,
+                    },
+                  } as const;
+
+                  const makeHandle = (dir: keyof typeof handles) => {
+                    const pos = handles[dir];
+                    return (
+                      <div
+                        key={`${w.id}-${dir}`}
+                        className={`code-window__resize-handle code-window__resize-handle--${dir}`}
+                        style={{
+                          position: "fixed",
+                          left: `${Math.round(pos.left)}px`,
+                          top: `${Math.round(pos.top)}px`,
+                          width: `${HANDLE}px`,
+                          height: `${HANDLE}px`,
+                          pointerEvents: "auto",
+                          zIndex: 999999,
+                          // debug-visuals to make handles obvious during troubleshooting
+                          backgroundColor: "rgba(255,0,0,0.45)",
+                          border: "2px solid rgba(0,0,0,0.6)",
+                          boxShadow: "0 2px 6px rgba(0,0,0,0.4)",
+                          borderRadius: "4px",
+                        }}
+                        onPointerDown={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          try {
+                            // capture pointer so pointermove events are routed to this element
+                            (e.target as Element).setPointerCapture?.(
+                              (e as React.PointerEvent).pointerId
+                            );
+                          } catch (err) {
+                            // ignore if not supported
+                          }
+                          overlayResizeRef.current = {
+                            isResizing: true,
+                            windowId: w.id,
+                            direction: dir,
+                            startClientX: e.clientX,
+                            startClientY: e.clientY,
+                            startWidth: w.width,
+                            startHeight: w.height,
+                          };
+                          // attach document pointer listeners immediately so move/up are captured
+                          document.addEventListener(
+                            "pointermove",
+                            overlayMove as any
+                          );
+                          document.addEventListener(
+                            "pointerup",
+                            overlayUp as any
+                          );
+                          console.log(
+                            "[Link Canvas] overlay resize start",
+                            w.id,
+                            dir
+                          );
+                        }}
+                      >
+                        <div
+                          style={{
+                            position: "absolute",
+                            right: 2,
+                            bottom: 2,
+                            fontSize: 10,
+                            color: "white",
+                            backgroundColor: "rgba(0,0,0,0.6)",
+                            padding: "1px 4px",
+                            borderRadius: 3,
+                            pointerEvents: "none",
+                            opacity: 0.9,
+                          }}
+                        >
+                          {dir}
+                        </div>
+                      </div>
+                    );
+                  };
+
+                  return (
+                    <React.Fragment key={`overlay-${w.id}`}>
+                      {makeHandle("nw")}
+                      {makeHandle("ne")}
+                      {makeHandle("sw")}
+                      {makeHandle("se")}
+                      {console.log(
+                        "[Link Canvas] overlay handles rendered for",
+                        w.id,
+                        {
+                          nw: handles.nw,
+                          ne: handles.ne,
+                          sw: handles.sw,
+                          se: handles.se,
+                        }
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </div>,
+              document.body
+            )
+          : null}
       </div>
     </div>
   );
