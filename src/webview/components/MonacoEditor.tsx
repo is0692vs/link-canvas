@@ -5,15 +5,18 @@ import type { Monaco } from "@monaco-editor/react";
 interface MonacoEditorProps {
   content: string;
   fileName: string;
+  filePath: string;
   onChange?: (value: string | undefined) => void;
 }
 
 /**
  * ズームイン時に表示されるMonaco Editorコンポーネント
+ * 右クリックで「参照を表示」「定義を表示」メニュー対応
  */
 export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
   content,
   fileName,
+  filePath,
   onChange,
 }) => {
   const editorRef = React.useRef<any>(null);
@@ -70,6 +73,75 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
       editor.updateOptions({ fontSize: 14 });
       console.log("[Link Canvas] フォントサイズリセット: 14px");
     });
+
+    // コンテキストメニューハンドラ
+    const domElement = editor.getDomNode();
+    if (domElement) {
+      domElement.addEventListener('contextmenu', (e: MouseEvent) => {
+        handleEditorContextMenu(e, editor);
+      });
+    }
+  };
+
+  /**
+   * Monaco Editor のコンテキストメニューハンドラ
+   * 右クリック時にカーソル位置から定義/参照を取得
+   */
+  const handleEditorContextMenu = (e: MouseEvent, editor: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    try {
+      const position = editor.getPosition();
+      if (!position) return;
+
+      // 選択テキスト取得
+      const model = editor.getModel();
+      const selection = editor.getSelection();
+      let selectedText = '';
+
+      if (selection && !selection.isEmpty()) {
+        selectedText = model.getValueInRange(selection);
+      } else {
+        // 単語を選択
+        const wordInfo = model.getWordAtPosition(position);
+        selectedText = wordInfo?.word || '';
+      }
+
+      console.log('[Link Canvas] コンテキストメニュー呼び出し', {
+        line: position.lineNumber - 1,
+        column: position.column - 1,
+        selectedText,
+      });
+
+      // VSCodeAPI で Webview に通知
+      const vscodeApi = (window as any).acquireVsCodeApi?.();
+      if (vscodeApi) {
+        vscodeApi.postMessage({
+          type: 'requestDefinition',
+          filePath: filePath,
+          line: position.lineNumber - 1,
+          column: position.column - 1,
+          selectedText: selectedText,
+        });
+
+        vscodeApi.postMessage({
+          type: 'requestReferences',
+          filePath: filePath,
+          line: position.lineNumber - 1,
+          column: position.column - 1,
+          selectedText: selectedText,
+        });
+
+        console.log('[Link Canvas] 定義/参照リクエスト送信:', {
+          filePath,
+          line: position.lineNumber - 1,
+          column: position.column - 1,
+        });
+      }
+    } catch (error) {
+      console.error('[Link Canvas] コンテキストメニュー処理エラー:', error);
+    }
   };
 
   return (

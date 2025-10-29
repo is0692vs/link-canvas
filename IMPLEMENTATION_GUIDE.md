@@ -1,34 +1,35 @@
-# VSCode標準API統合実装ガイド
+# VSCode 標準 API 統合実装ガイド
 
 ## 概要
 
-このブランチ（`feat/vscode-context-menu-integration`）は、VSCode公式の標準APIを使用して、エディタのコンテキストメニューから定義・参照情報を取得し、Link Canvasキャンバスに表示する機能を実装しています。
+このブランチ（`feat/vscode-context-menu-integration`）は、VSCode 公式の標準 API を使用して、エディタのコンテキストメニューから定義・参照情報を取得し、Link Canvas キャンバスに表示する機能を実装しています。
 
-**関連API仕様**: 
+**関連 API 仕様**:
+
 - [VSCode: Built-in Commands](https://code.visualstudio.com/api/references/commands)
 - [VSCode: Commands Guide](https://code.visualstudio.com/api/extension-guides/command)
 
 ## 実装内容
 
-### 1. VSCode標準API使用
+### 1. VSCode 標準 API 使用
 
-| API | 用途 | 戻り値 |
-|-----|------|--------|
+| API                                | 用途                     | 戻り値       |
+| ---------------------------------- | ------------------------ | ------------ |
 | `vscode.executeDefinitionProvider` | シンボルの定義位置を取得 | `Location[]` |
-| `vscode.executeReferenceProvider` | シンボルの参照位置を取得 | `Location[]` |
+| `vscode.executeReferenceProvider`  | シンボルの参照位置を取得 | `Location[]` |
 
-**Location型**: ファイルパス、行番号、列番号を含む
+**Location 型**: ファイルパス、行番号、列番号を含む
 
 ```typescript
 interface Location {
-  uri: Uri;                    // ファイルのURI
-  range: Range;              // 位置情報（start.line, start.character）
+  uri: Uri; // ファイルのURI
+  range: Range; // 位置情報（start.line, start.character）
 }
 ```
 
 ### 2. エディタコンテキストメニュー
 
-#### package.json設定
+#### package.json 設定
 
 ```json
 "editor/context": [
@@ -72,29 +73,32 @@ Location[]を取得
 キャンバス表示
 ```
 
-### 4. CanvasViewProviderの拡張メソッド
+### 4. CanvasViewProvider の拡張メソッド
 
 #### handleShowDefinitionFromContext()
+
 - **トリガー**: エディタコンテキストメニュー「Show Definition in Canvas」
 - **処理**:
   1. アクティブなエディタとカーソル位置を取得
   2. `vscode.executeDefinitionProvider`を実行
   3. キャンバスが閉じていれば開く
   4. 各定義ファイルを`addDefinitionToCanvas()`で追加
-  5. ハイライト情報（行・列）をWebviewに送信
+  5. ハイライト情報（行・列）を Webview に送信
 
 #### handleShowReferencesFromContext()
+
 - **トリガー**: エディタコンテキストメニュー「Show References in Canvas」
 - **処理**: `handleShowDefinitionFromContext()`と同じ、ただし`vscode.executeReferenceProvider`を使用
 
 #### addDefinitionToCanvas(definition: Location)
-- Location情報からファイル内容を読み込む
+
+- Location 情報からファイル内容を読み込む
 - ファイルパス、ファイル名、コンテンツを取得
-- ハイライト対象行・列を含めてWebviewに送信
+- ハイライト対象行・列を含めて Webview に送信
 
 ```typescript
 webview.postMessage({
-  type: 'addFile',
+  type: "addFile",
   filePath: definition.uri.fsPath,
   fileName: path.basename(definition.uri.fsPath),
   content: content,
@@ -103,7 +107,7 @@ webview.postMessage({
 });
 ```
 
-### 5. Webviewメッセージング
+### 5. Webview メッセージング
 
 #### 送信（拡張機能 → Webview）
 
@@ -133,37 +137,42 @@ webview.postMessage({
 ## テスト手順
 
 ### 前提条件
+
 - `npm run build` が成功
-- F5デバッグ実行環境あり
+- F5 デバッグ実行環境あり
 
 ### テストシナリオ
 
-#### テスト1: 定義取得機能
-1. **F5**でデバッグ開始（新しいVSCodeウィンドウが開く）
-2. ファイルエクスプローラから任意のTypeScript/JavaScriptファイルを開く
+#### テスト 1: 定義取得機能
+
+1. **F5**でデバッグ開始（新しい VSCode ウィンドウが開く）
+2. ファイルエクスプローラから任意の TypeScript/JavaScript ファイルを開く
 3. シンボル（関数名、クラス名、変数など）にカーソルを置く
 4. **右クリック** → **「Show Definition in Canvas」**を選択
 5. **期待結果**:
-   - Link Canvasが自動的に開く
+   - Link Canvas が自動的に開く
    - 定義されたファイルがキャンバスに表示される
    - ハイライトされた行が視認できる
    - デバッグコンソールに`[Link Canvas] 定義表示開始`が出力される
 
 **確認ポイント**:
+
 ```
 [Link Canvas] 定義表示開始: /path/to/file.ts Position: 10 5
 [Link Canvas] 定義ファイルをキャンバスに追加: target.ts
 ```
 
-#### テスト2: 参照取得機能
-1. テスト1と同じファイルでシンボルを選択
+#### テスト 2: 参照取得機能
+
+1. テスト 1 と同じファイルでシンボルを選択
 2. **右クリック** → **「Show References in Canvas」**を選択
 3. **期待結果**:
    - 参照されている全ファイルがキャンバスに表示される
    - 複数ファイルの場合、各ハイライト位置が異なる
    - デバッグコンソールに`[Link Canvas] 参照数: N`が出力される
 
-#### テスト3: 定義なし時の処理
+#### テスト 3: 定義なし時の処理
+
 1. 標準ライブラリ関数（例：`console.log`）にカーソルを置く
 2. **右クリック** → **「Show Definition in Canvas」**を選択
 3. **期待結果**:
@@ -171,34 +180,37 @@ webview.postMessage({
    - キャンバスは新しいウィンドウを追加しない
 
 **確認ポイント**:
+
 ```
 [Link Canvas] 定義が見つかりませんでした
 ```
 
-#### テスト4: Monaco Editor表示確認
-1. テスト1で定義ファイルを追加した状態
+#### テスト 4: Monaco Editor 表示確認
+
+1. テスト 1 で定義ファイルを追加した状態
 2. キャンバスをズームイン（Cmd/Ctrl + マウスホイール）
-3. ズームレベルが1.0以上になると、Monaco Editorが表示される
+3. ズームレベルが 1.0 以上になると、Monaco Editor が表示される
 4. **期待結果**:
    - ファイルコンテンツがコード表示される
    - ハイライト行が強調表示される
    - シンタックスハイライトが適用されている
 
-#### テスト5: ハイライト情報の検証
-1. テスト1で定義ファイルを追加
-2. Webview側でハイライト情報を確認
+#### テスト 5: ハイライト情報の検証
+
+1. テスト 1 で定義ファイルを追加
+2. Webview 側でハイライト情報を確認
 3. **期待結果**:
    - `highlightLine`と`highlightColumn`がメッセージに含まれている
-   - 指定行がUI上で視覚的に強調される
+   - 指定行が UI 上で視覚的に強調される
 
 ### エラーハンドリング確認
 
-| シナリオ | 期待動作 |
-|---------|---------|
+| シナリオ                   | 期待動作                                             |
+| -------------------------- | ---------------------------------------------------- |
 | エディタがアクティブでない | エラーメッセージ「アクティブなエディタがありません」 |
-| ファイルが存在しない | コンソールログにエラー出力 |
-| VSCode APIが失敗 | ユーザーメッセージとコンソールエラー出力 |
-| 複数定義が返される | すべての定義ファイルをキャンバスに追加 |
+| ファイルが存在しない       | コンソールログにエラー出力                           |
+| VSCode API が失敗          | ユーザーメッセージとコンソールエラー出力             |
+| 複数定義が返される         | すべての定義ファイルをキャンバスに追加               |
 
 ## デバッグログ出力
 
@@ -220,16 +232,16 @@ webview.postMessage({
 [Link Canvas] 定義取得エラー: <エラー内容>
 ```
 
-## VSCode API仕様との対応
+## VSCode API 仕様との対応
 
 ### executeDefinitionProvider
 
 ```typescript
 // 実装例
 const definitions = await vscode.commands.executeCommand<vscode.Location[]>(
-  'vscode.executeDefinitionProvider',
-  uri,           // ファイルURI
-  position       // カーソル位置
+  "vscode.executeDefinitionProvider",
+  uri, // ファイルURI
+  position // カーソル位置
 );
 ```
 
@@ -240,9 +252,9 @@ const definitions = await vscode.commands.executeCommand<vscode.Location[]>(
 ```typescript
 // 実装例
 const references = await vscode.commands.executeCommand<vscode.Location[]>(
-  'vscode.executeReferenceProvider',
-  uri,           // ファイルURI
-  position       // カーソル位置
+  "vscode.executeReferenceProvider",
+  uri, // ファイルURI
+  position // カーソル位置
 );
 ```
 
@@ -253,6 +265,7 @@ const references = await vscode.commands.executeCommand<vscode.Location[]>(
 ### コンテキストメニューが表示されない
 
 1. **確認項目**:
+
    - `package.json`の`editor/context`メニュー設定を確認
    - `when: "editorTextFocus"`が正しく設定されているか
    - `npm run build`が完了しているか
@@ -266,28 +279,29 @@ const references = await vscode.commands.executeCommand<vscode.Location[]>(
 ### 定義が取得されない
 
 1. **確認項目**:
+
    - ファイルが言語サーバーでサポートされているか
    - シンボルが定義可能な位置か
    - デバッグコンソールでエラーが出力されていないか
 
 2. **解決方法**:
-   - VSCodeの標準「定義に移動」（F12）で同じシンボルを確認
+   - VSCode の標準「定義に移動」（F12）で同じシンボルを確認
    - 言語拡張機能が正しくインストールされているか確認
 
 ### ハイライト情報が反映されない
 
-1. **Webview側の実装確認**:
+1. **Webview 側の実装確認**:
    - `highlightLine`と`highlightColumn`がメッセージに含まれているか
-   - Monaco Editorが正しくレンダリングされているか
-   - CSS/UIでハイライトが適用されているか
+   - Monaco Editor が正しくレンダリングされているか
+   - CSS/UI でハイライトが適用されているか
 
 ## 実装の特徴
 
-✅ **VSCode標準API**: 公式推奨API使用
+✅ **VSCode 標準 API**: 公式推奨 API 使用
 ✅ **エラーハンドリング**: 定義/参照なしの場合も適切に処理
 ✅ **ユーザーフィードバック**: エラーメッセージで状態を通知
 ✅ **デバッグログ**: 全処理をトレーサビリティ確保
-✅ **多言語対応**: Language Server Protocol対応の全言語で動作
+✅ **多言語対応**: Language Server Protocol 対応の全言語で動作
 
 ## 参考資料
 

@@ -8,10 +8,28 @@ interface FileMessage {
   filePath: string;
   fileName: string;
   content: string;
+  highlightLine?: number;
+  highlightColumn?: number;
 }
 
 interface ZoomMessage {
   type: "zoomIn" | "zoomOut";
+}
+
+interface DefinitionRequestMessage {
+  type: "requestDefinition";
+  filePath: string;
+  line: number;
+  column: number;
+  selectedText: string;
+}
+
+interface ReferencesRequestMessage {
+  type: "requestReferences";
+  filePath: string;
+  line: number;
+  column: number;
+  selectedText: string;
 }
 
 function App() {
@@ -68,7 +86,7 @@ function App() {
     console.log("[Link Canvas] イベントリスナー セットアップ開始");
 
     const messageHandler = (event: MessageEvent) => {
-      const message = event.data as FileMessage | ZoomMessage;
+      const message = event.data as FileMessage | ZoomMessage | DefinitionRequestMessage | ReferencesRequestMessage;
 
       if ("type" in message) {
         if (message.type === "addFile") {
@@ -208,6 +226,46 @@ function App() {
           }
 
           handleZoomChange(newZoom);
+        } else if (message.type === "requestDefinition") {
+          const defMsg = message as DefinitionRequestMessage;
+          console.log("[Link Canvas] 定義リクエスト受信:", {
+            filePath: defMsg.filePath,
+            line: defMsg.line,
+            column: defMsg.column,
+            selectedText: defMsg.selectedText,
+          });
+
+          // 拡張機能へリクエスト転送
+          const vscodeApi = (window as any).acquireVsCodeApi?.();
+          if (vscodeApi) {
+            vscodeApi.postMessage({
+              type: "showDefinition",
+              filePath: defMsg.filePath,
+              line: defMsg.line,
+              column: defMsg.column,
+            });
+            console.log("[Link Canvas] 定義リクエスト拡張機能に転送");
+          }
+        } else if (message.type === "requestReferences") {
+          const refMsg = message as ReferencesRequestMessage;
+          console.log("[Link Canvas] 参照リクエスト受信:", {
+            filePath: refMsg.filePath,
+            line: refMsg.line,
+            column: refMsg.column,
+            selectedText: refMsg.selectedText,
+          });
+
+          // 拡張機能へリクエスト転送
+          const vscodeApi = (window as any).acquireVsCodeApi?.();
+          if (vscodeApi) {
+            vscodeApi.postMessage({
+              type: "showReferences",
+              filePath: refMsg.filePath,
+              line: refMsg.line,
+              column: refMsg.column,
+            });
+            console.log("[Link Canvas] 参照リクエスト拡張機能に転送");
+          }
         }
       }
     };

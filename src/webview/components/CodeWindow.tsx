@@ -152,6 +152,7 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
           <MonacoEditorComponent
             content={data.content}
             fileName={data.fileName}
+            filePath={data.filePath}
           />
         )}
       </div>
