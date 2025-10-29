@@ -439,9 +439,11 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
                           pointerEvents: "auto",
                           zIndex: 999999,
                           // debug-visuals to make handles obvious during troubleshooting
-                          backgroundColor: "rgba(255,0,0,0.45)",
-                          border: "2px solid rgba(0,0,0,0.6)",
-                          boxShadow: "0 2px 6px rgba(0,0,0,0.4)",
+                          // backgroundColor: "rgba(255,0,0,0.45)", // commented out to make handles transparent
+                          backgroundColor: "transparent",
+                          // border: "2px solid rgba(0,0,0,0.6)", // commented out to remove visible frame
+                          border: "none",
+                          boxShadow: "none",
                           borderRadius: "4px",
                         }}
                         onPointerDown={(e) => {
@@ -482,6 +484,7 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
                           );
                         }}
                       >
+                        {/*
                         <div
                           style={{
                             position: "absolute",
@@ -498,6 +501,7 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
                         >
                           {dir}
                         </div>
+                        */}
                       </div>
                     );
                   };
