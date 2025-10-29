@@ -25,6 +25,7 @@ interface CodeWindowProps {
   onResize?: (width: number, height: number) => void;
   onDragStart?: (startX: number, startY: number) => void;
   onContextMenu?: (
+    action: "definition" | "references",
     filePath: string,
     line: number,
     column: number,

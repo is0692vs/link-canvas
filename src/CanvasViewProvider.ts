@@ -8,6 +8,7 @@ interface DefinitionMessage {
     filePath: string;
     line: number;
     column: number;
+    selectedText?: string;
 }
 
 interface ReferencesMessage {
@@ -15,6 +16,7 @@ interface ReferencesMessage {
     filePath: string;
     line: number;
     column: number;
+    selectedText?: string;
 }
 
 type WebviewMessage = DefinitionMessage | ReferencesMessage;
@@ -50,8 +52,20 @@ export class CanvasViewProvider {
                     if (message && message.type === 'resizePlacement') {
                         console.log('[Link Canvas] リサイズ配置:', (message as any).placement, 'windowId:', (message as any).windowId);
                     } else if (message.type === 'showDefinition') {
+                        console.log('[Link Canvas] Webviewリクエスト受信: 定義表示', {
+                            filePath: message.filePath,
+                            line: message.line,
+                            column: message.column,
+                            selectedText: message.selectedText,
+                        });
                         await this.handleDefinitionRequest(message, this.panel!.webview);
                     } else if (message.type === 'showReferences') {
+                        console.log('[Link Canvas] Webviewリクエスト受信: 参照表示', {
+                            filePath: message.filePath,
+                            line: message.line,
+                            column: message.column,
+                            selectedText: message.selectedText,
+                        });
                         await this.handleReferencesRequest(message, this.panel!.webview);
                     } else {
                         console.log('[Link Canvas] Webview message:', message);
@@ -208,6 +222,12 @@ export class CanvasViewProvider {
                 highlightLine: definition.range.start.line,
                 highlightColumn: definition.range.start.character,
             });
+
+            console.log('[Link Canvas] 定義送信完了', {
+                filePath: definition.uri.fsPath,
+                line: definition.range.start.line,
+                column: definition.range.start.character,
+            });
         } catch (error) {
             console.error('[Link Canvas] 定義ファイル読み込みエラー:', error);
         }
@@ -231,6 +251,12 @@ export class CanvasViewProvider {
                 content: content,
                 highlightLine: reference.range.start.line,
                 highlightColumn: reference.range.start.character,
+            });
+
+            console.log('[Link Canvas] 参照送信完了', {
+                filePath: reference.uri.fsPath,
+                line: reference.range.start.line,
+                column: reference.range.start.character,
             });
         } catch (error) {
             console.error('[Link Canvas] 参照ファイル読み込みエラー:', error);
@@ -268,6 +294,7 @@ export class CanvasViewProvider {
                     line: d.range.start.line,
                     character: d.range.start.character,
                 })),
+                selectedText: message.selectedText,
             });
 
             if (definitions && definitions.length > 0) {
@@ -275,6 +302,7 @@ export class CanvasViewProvider {
                 for (const def of definitions) {
                     await this.addDefinitionToCanvas(def);
                 }
+                console.log('[Link Canvas] 定義処理完了');
             } else {
                 console.log('[Link Canvas] 定義が見つかりませんでした');
             }
@@ -314,6 +342,7 @@ export class CanvasViewProvider {
                     line: r.range.start.line,
                     character: r.range.start.character,
                 })),
+                selectedText: message.selectedText,
             });
 
             if (references && references.length > 0) {
@@ -321,6 +350,7 @@ export class CanvasViewProvider {
                 for (const ref of references) {
                     await this.addReferenceToCanvas(ref);
                 }
+                console.log('[Link Canvas] 参照処理完了');
             } else {
                 console.log('[Link Canvas] 参照が見つかりませんでした');
             }

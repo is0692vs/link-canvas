@@ -66,26 +66,39 @@ function App() {
   }, []);
 
   const handleContextMenu = React.useCallback(
-    (filePath: string, line: number, column: number, selectedText: string) => {
-      console.log("[Link Canvas] コンテキストメニュー呼び出し:", selectedText);
+    (
+      action: "definition" | "references",
+      filePath: string,
+      line: number,
+      column: number,
+      selectedText: string
+    ) => {
+      console.log("[Link Canvas] コンテキストメニュー選択:", {
+        action,
+        filePath,
+        line,
+        column,
+        selectedText,
+      });
 
       try {
-        const vscodeApi = (window as any).acquireVsCodeApi?.();
-        if (vscodeApi) {
-          vscodeApi.postMessage({
-            type: "showDefinition",
-            filePath: filePath,
-            line: line,
-            column: column,
-          });
-
-          vscodeApi.postMessage({
-            type: "showReferences",
-            filePath: filePath,
-            line: line,
-            column: column,
-          });
+        const acquire = (window as any).acquireVsCodeApi;
+        const vscodeApi = typeof acquire === "function" ? acquire() : null;
+        if (!vscodeApi) {
+          console.log("[Link Canvas] VS Code API が利用できません");
+          return;
         }
+
+        const messageType =
+          action === "definition" ? "showDefinition" : "showReferences";
+
+        vscodeApi.postMessage({
+          type: messageType,
+          filePath,
+          line,
+          column,
+          selectedText,
+        });
       } catch (error) {
         console.error("[Link Canvas] エラー:", error);
       }
@@ -109,12 +122,6 @@ function App() {
           //   "サイズ:",
           //   fileMsg.content.length
           // );
-
-          // ユニークなノードIDを生成（ファイルパスをベースに）
-          const nodeId = `node-${fileMsg.filePath.replace(
-            /[^a-zA-Z0-9]/g,
-            "-"
-          )}`;
 
           // ファイル内容からクラスと関数を抽出
           const classes: string[] = [];
@@ -144,26 +151,57 @@ function App() {
           //   functions
           // );
 
-          const newWindow: CodeWindowData = {
-            id: `window-${fileMsg.filePath.replace(/[^a-zA-Z0-9]/g, "-")}`,
-            filePath: fileMsg.filePath,
-            fileName: fileMsg.fileName,
-            content: fileMsg.content,
-            width: 400,
-            height: 300,
-            classes,
-            functions,
-            position: { x: windows.length * 450 + 50, y: 100 },
-          };
+          const sanitizedPath = fileMsg.filePath.replace(/[^a-zA-Z0-9]/g, "-");
+          const highlightKey =
+            typeof fileMsg.highlightLine === "number"
+              ? `line-${fileMsg.highlightLine}-col-${
+                  typeof fileMsg.highlightColumn === "number"
+                    ? fileMsg.highlightColumn
+                    : 0
+                }`
+              : "base";
+          const windowId = `window-${sanitizedPath}-${highlightKey}`;
 
           setWindows((prev) => {
-            if (prev.some((w) => w.id === newWindow.id)) {
-              console.log(
-                "[Link Canvas] 既存ウィンドウのため追加スキップ:",
-                newWindow.id
-              );
-              return prev;
+            const existingIndex = prev.findIndex((w) => w.id === windowId);
+
+            if (existingIndex >= 0) {
+              const updated = [...prev];
+              const existing = updated[existingIndex];
+              updated[existingIndex] = {
+                ...existing,
+                content: fileMsg.content,
+                classes,
+                functions,
+                highlightLine: fileMsg.highlightLine,
+                highlightColumn: fileMsg.highlightColumn,
+              };
+              console.log("[Link Canvas] 既存ウィンドウ更新:", windowId);
+              return updated;
             }
+
+            const position = {
+              x: prev.length * 450 + 50,
+              y: 100 + prev.length * 40,
+            };
+
+            const newWindow: CodeWindowData & {
+              id: string;
+              position: { x: number; y: number };
+            } = {
+              id: windowId,
+              filePath: fileMsg.filePath,
+              fileName: fileMsg.fileName,
+              content: fileMsg.content,
+              width: 400,
+              height: 300,
+              classes,
+              functions,
+              highlightLine: fileMsg.highlightLine,
+              highlightColumn: fileMsg.highlightColumn,
+              position,
+            };
+
             const updated = [...prev, newWindow];
             console.log("[Link Canvas] 新規ウィンドウ作成:", newWindow.id);
             console.log("[Link Canvas] 現在のウィンドウ数:", updated.length);

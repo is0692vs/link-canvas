@@ -15,6 +15,7 @@ interface InfiniteCanvasProps {
   onWindowResize: (id: string, width: number, height: number) => void;
   onWindowClose: (id: string) => void;
   onContextMenu?: (
+    action: "definition" | "references",
     filePath: string,
     line: number,
     column: number,

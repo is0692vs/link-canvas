@@ -8,6 +8,7 @@ interface MonacoEditorProps {
   filePath: string;
   onChange?: (value: string | undefined) => void;
   onContextMenu?: (
+    action: "definition" | "references",
     filePath: string,
     line: number,
     column: number,
@@ -32,6 +33,7 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
 }) => {
   const editorRef = React.useRef<any>(null);
   const monacoRef = React.useRef<Monaco | null>(null);
+  const highlightCollectionRef = React.useRef<any>(null);
 
   const handleEditorMount = (editor: any, monaco: Monaco) => {
     editorRef.current = editor;
@@ -45,20 +47,10 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
           editor.layout();
         }, 100);
       }
-      
-      // DOM要素にcontextmenuイベントリスナーを追加
-      domNode.addEventListener('contextmenu', (e: MouseEvent) => {
-        handleEditorContextMenu(e, editor);
-      });
     }
 
     // コンテキストメニューアクション登録（メニュー項目を表示）
-    registerCustomContextMenuActions(
-      editor,
-      monaco,
-      filePath,
-      onContextMenu
-    );
+    registerCustomContextMenuActions(editor, monaco, filePath, onContextMenu);
 
     // Cmd +/- でフォントサイズ変更するコマンドを追加
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Equal, () => {
@@ -81,37 +73,30 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
     });
   };
 
-
   /**
    * ハイライト機能: highlightLine が変わったときに、該当行を視認しやすくハイライト
    */
   React.useEffect(() => {
-    if (!editorRef.current || typeof highlightLine !== "number") {
-      // ハイライトがない場合は装飾を削除
-      editorRef.current?.createDecorationsCollection([]);
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+
+    if (!editor || !monaco) {
       return;
     }
 
-    const editor = editorRef.current;
-    const monaco = monacoRef.current;
-    if (!monaco) return;
+    if (typeof highlightLine !== "number") {
+      // ハイライトを解除
+      highlightCollectionRef.current?.set([]);
+      return;
+    }
 
     const lineNumber = highlightLine + 1; // 0-based → 1-based
-
-    // console.log("[Link Canvas] ハイライト適用:", {
-    //   fileName,
-    //   highlightLine,
-    //   highlightColumn,
-    //   monacoLineNumber: lineNumber,
-    // });
-
-    // 装飾定義
     const decorations = [
       {
         range: new monaco.Range(lineNumber, 1, lineNumber, 1000),
         options: {
           isWholeLine: true,
-          backgroundColor: "rgba(255, 200, 0, 0.2)", // 黄色の背景
+          backgroundColor: "rgba(255, 200, 0, 0.2)",
           borderColor: "rgba(255, 150, 0, 0.5)",
           borderStyle: "solid",
           borderWidth: "1px",
@@ -119,55 +104,13 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
       },
     ];
 
-    // 装飾を適用
-    editor.createDecorationsCollection(decorations);
+    if (!highlightCollectionRef.current) {
+      highlightCollectionRef.current = editor.createDecorationsCollection([]);
+    }
 
-    // エディタをハイライト行までスクロール
+    highlightCollectionRef.current.set(decorations);
     editor.revealLineInCenter(lineNumber);
   }, [highlightLine, highlightColumn, fileName]);
-
-  /**
-   * Monaco Editor のコンテキストメニューハンドラ
-   * 右クリック時にカーソル位置から定義/参照を取得
-   */
-  const handleEditorContextMenu = (e: MouseEvent, editor: any) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    try {
-      const position = editor.getPosition();
-      if (!position) return;
-
-      // 選択テキスト取得
-      const model = editor.getModel();
-      const selection = editor.getSelection();
-      let selectedText = "";
-
-      if (selection && !selection.isEmpty()) {
-        selectedText = model.getValueInRange(selection);
-      } else {
-        // 単語を選択
-        const wordInfo = model.getWordAtPosition(position);
-        selectedText = wordInfo?.word || "";
-      }
-
-      console.log("[Link Canvas] コンテキストメニュー呼び出し", {
-        line: position.lineNumber - 1,
-        column: position.column - 1,
-        selectedText,
-      });
-
-      // 親コンポーネント (CodeWindow) にコールバック経由で通知
-      onContextMenu?.(
-        filePath,
-        position.lineNumber - 1, // 0-based
-        position.column - 1, // 0-based
-        selectedText
-      );
-    } catch (error) {
-      console.error("[Link Canvas] コンテキストメニュー処理エラー:", error);
-    }
-  };
 
   return (
     <Editor
@@ -223,6 +166,7 @@ function registerCustomContextMenuActions(
   monaco: any,
   filePath: string,
   onContextMenu?: (
+    action: "definition" | "references",
     filePath: string,
     line: number,
     column: number,
@@ -239,7 +183,7 @@ function registerCustomContextMenuActions(
   }
 
   // コンテキストメニューアクション実行用の共通関数
-  const executeAction = (actionName: string) => {
+  const executeAction = (actionName: "definition" | "references") => {
     const position = editor.getPosition();
     if (!position) return;
 
@@ -254,8 +198,17 @@ function registerCustomContextMenuActions(
       selectedText = wordInfo?.word || "";
     }
 
+    console.log("[Link Canvas] Monaco action run", {
+      action: actionName,
+      filePath,
+      line: position.lineNumber - 1,
+      column: position.column - 1,
+      selectedText,
+    });
+
     if (onContextMenu) {
       onContextMenu(
+        actionName,
         filePath,
         position.lineNumber - 1,
         position.column - 1,
@@ -273,7 +226,7 @@ function registerCustomContextMenuActions(
     keybindings: [
       monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyD,
     ],
-    run: () => executeAction("定義を表示"),
+    run: () => executeAction("definition"),
   });
 
   // 参照を表示アクション
@@ -285,6 +238,6 @@ function registerCustomContextMenuActions(
     keybindings: [
       monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyR,
     ],
-    run: () => executeAction("参照を表示"),
+    run: () => executeAction("references"),
   });
 }
