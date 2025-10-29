@@ -67,7 +67,7 @@ function App() {
 
   const handleContextMenu = React.useCallback(
     (filePath: string, line: number, column: number, selectedText: string) => {
-      console.log('[Link Canvas] コンテキストメニュー発火:', {
+      console.log("[Link Canvas] コンテキストメニュー発火:", {
         filePath,
         line,
         column,
@@ -91,7 +91,7 @@ function App() {
           column: column,
         });
 
-        console.log('[Link Canvas] 定義/参照リクエスト拡張機能に転送');
+        console.log("[Link Canvas] 定義/参照リクエスト拡張機能に転送");
       }
     },
     []

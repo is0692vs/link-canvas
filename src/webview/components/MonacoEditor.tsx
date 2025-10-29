@@ -7,7 +7,12 @@ interface MonacoEditorProps {
   fileName: string;
   filePath: string;
   onChange?: (value: string | undefined) => void;
-  onContextMenu?: (filePath: string, line: number, column: number, selectedText: string) => void;
+  onContextMenu?: (
+    filePath: string,
+    line: number,
+    column: number,
+    selectedText: string
+  ) => void;
 }
 
 /**
@@ -76,13 +81,8 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
       console.log("[Link Canvas] フォントサイズリセット: 14px");
     });
 
-    // コンテキストメニューハンドラ
-    const domElement = editor.getDomNode();
-    if (domElement) {
-      domElement.addEventListener('contextmenu', (e: MouseEvent) => {
-        handleEditorContextMenu(e, editor);
-      });
-    }
+    // カスタムコンテキストメニューアクション登録
+    registerCustomContextMenuActions(editor, monaco, filePath, onContextMenu);
   };
 
   /**
@@ -100,17 +100,17 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
       // 選択テキスト取得
       const model = editor.getModel();
       const selection = editor.getSelection();
-      let selectedText = '';
+      let selectedText = "";
 
       if (selection && !selection.isEmpty()) {
         selectedText = model.getValueInRange(selection);
       } else {
         // 単語を選択
         const wordInfo = model.getWordAtPosition(position);
-        selectedText = wordInfo?.word || '';
+        selectedText = wordInfo?.word || "";
       }
 
-      console.log('[Link Canvas] コンテキストメニュー呼び出し', {
+      console.log("[Link Canvas] コンテキストメニュー呼び出し", {
         line: position.lineNumber - 1,
         column: position.column - 1,
         selectedText,
@@ -119,12 +119,12 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
       // 親コンポーネント (CodeWindow) にコールバック経由で通知
       onContextMenu?.(
         filePath,
-        position.lineNumber - 1,  // 0-based
-        position.column - 1,      // 0-based
+        position.lineNumber - 1, // 0-based
+        position.column - 1, // 0-based
         selectedText
       );
     } catch (error) {
-      console.error('[Link Canvas] コンテキストメニュー処理エラー:', error);
+      console.error("[Link Canvas] コンテキストメニュー処理エラー:", error);
     }
   };
 
@@ -172,4 +172,86 @@ function getLanguageFromFileName(fileName: string): string {
     sql: "sql",
   };
   return languageMap[ext || ""] || "plaintext";
+}
+
+/**
+ * Monaco Editor にカスタムコンテキストメニューアクションを登録
+ */
+function registerCustomContextMenuActions(
+  editor: any,
+  monaco: any,
+  filePath: string,
+  onContextMenu?: (filePath: string, line: number, column: number, selectedText: string) => void
+) {
+  // 定義を表示アクション
+  editor.addAction({
+    id: "link-canvas.showDefinition",
+    label: "[Canvas] 定義を表示",
+    contextMenuGroupId: "1_modification",
+    contextMenuOrder: 1,
+    run: (ed: any) => {
+      const position = ed.getPosition();
+      if (!position) return;
+
+      const model = ed.getModel();
+      const selection = ed.getSelection();
+      let selectedText = "";
+
+      if (selection && !selection.isEmpty()) {
+        selectedText = model.getValueInRange(selection);
+      } else {
+        const wordInfo = model.getWordAtPosition(position);
+        selectedText = wordInfo?.word || "";
+      }
+
+      console.log("[Link Canvas] コンテキストメニュー アクション: 定義を表示", {
+        line: position.lineNumber - 1,
+        column: position.column - 1,
+        selectedText,
+      });
+
+      onContextMenu?.(
+        filePath,
+        position.lineNumber - 1,
+        position.column - 1,
+        selectedText
+      );
+    },
+  });
+
+  // 参照を表示アクション
+  editor.addAction({
+    id: "link-canvas.showReferences",
+    label: "[Canvas] 参照を表示",
+    contextMenuGroupId: "1_modification",
+    contextMenuOrder: 2,
+    run: (ed: any) => {
+      const position = ed.getPosition();
+      if (!position) return;
+
+      const model = ed.getModel();
+      const selection = ed.getSelection();
+      let selectedText = "";
+
+      if (selection && !selection.isEmpty()) {
+        selectedText = model.getValueInRange(selection);
+      } else {
+        const wordInfo = model.getWordAtPosition(position);
+        selectedText = wordInfo?.word || "";
+      }
+
+      console.log("[Link Canvas] コンテキストメニュー アクション: 参照を表示", {
+        line: position.lineNumber - 1,
+        column: position.column - 1,
+        selectedText,
+      });
+
+      onContextMenu?.(
+        filePath,
+        position.lineNumber - 1,
+        position.column - 1,
+        selectedText
+      );
+    },
+  });
 }

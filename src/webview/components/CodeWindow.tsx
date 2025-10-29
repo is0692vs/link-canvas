@@ -22,7 +22,12 @@ interface CodeWindowProps {
   onClose?: () => void;
   onResize?: (width: number, height: number) => void;
   onDragStart?: (startX: number, startY: number) => void;
-  onContextMenu?: (filePath: string, line: number, column: number, selectedText: string) => void;
+  onContextMenu?: (
+    filePath: string,
+    line: number,
+    column: number,
+    selectedText: string
+  ) => void;
 }
 
 /**

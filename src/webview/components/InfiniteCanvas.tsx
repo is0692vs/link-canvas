@@ -14,7 +14,12 @@ interface InfiniteCanvasProps {
   onWindowMove: (id: string, position: { x: number; y: number }) => void;
   onWindowResize: (id: string, width: number, height: number) => void;
   onWindowClose: (id: string) => void;
-  onContextMenu?: (filePath: string, line: number, column: number, selectedText: string) => void;
+  onContextMenu?: (
+    filePath: string,
+    line: number,
+    column: number,
+    selectedText: string
+  ) => void;
 }
 
 /**
