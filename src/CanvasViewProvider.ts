@@ -245,24 +245,41 @@ export class CanvasViewProvider {
         webview: vscode.Webview
     ): Promise<void> {
         try {
+            console.log('[Link Canvas] 定義リクエスト処理開始:', {
+                filePath: message.filePath,
+                line: message.line,
+                column: message.column,
+            });
+
             const uri = vscode.Uri.file(message.filePath);
             const position = new vscode.Position(message.line, message.column);
 
+            console.log('[Link Canvas] VSCode API 実行: vscode.executeDefinitionProvider');
             const definitions = await vscode.commands.executeCommand<vscode.Location[]>(
                 'vscode.executeDefinitionProvider',
                 uri,
                 position
             );
 
-            console.log('[Link Canvas] Webviewからの定義取得:', definitions?.length || 0);
+            console.log('[Link Canvas] 定義取得完了:', {
+                count: definitions?.length || 0,
+                definitions: definitions?.map(d => ({
+                    uri: d.uri.fsPath,
+                    line: d.range.start.line,
+                    character: d.range.start.character,
+                })),
+            });
 
             if (definitions && definitions.length > 0) {
+                console.log('[Link Canvas] 定義をキャンバスに追加 (数:', definitions.length, ')');
                 for (const def of definitions) {
                     await this.addDefinitionToCanvas(def);
                 }
+            } else {
+                console.log('[Link Canvas] 定義が見つかりませんでした');
             }
         } catch (error) {
-            console.error('[Link Canvas] Webviewの定義取得エラー:', error);
+            console.error('[Link Canvas] 定義取得エラー:', error);
         }
     }
 
@@ -274,24 +291,41 @@ export class CanvasViewProvider {
         webview: vscode.Webview
     ): Promise<void> {
         try {
+            console.log('[Link Canvas] 参照リクエスト処理開始:', {
+                filePath: message.filePath,
+                line: message.line,
+                column: message.column,
+            });
+
             const uri = vscode.Uri.file(message.filePath);
             const position = new vscode.Position(message.line, message.column);
 
+            console.log('[Link Canvas] VSCode API 実行: vscode.executeReferenceProvider');
             const references = await vscode.commands.executeCommand<vscode.Location[]>(
                 'vscode.executeReferenceProvider',
                 uri,
                 position
             );
 
-            console.log('[Link Canvas] Webviewからの参照取得:', references?.length || 0);
+            console.log('[Link Canvas] 参照取得完了:', {
+                count: references?.length || 0,
+                references: references?.map(r => ({
+                    uri: r.uri.fsPath,
+                    line: r.range.start.line,
+                    character: r.range.start.character,
+                })),
+            });
 
             if (references && references.length > 0) {
+                console.log('[Link Canvas] 参照をキャンバスに追加 (数:', references.length, ')');
                 for (const ref of references) {
                     await this.addReferenceToCanvas(ref);
                 }
+            } else {
+                console.log('[Link Canvas] 参照が見つかりませんでした');
             }
         } catch (error) {
-            console.error('[Link Canvas] Webviewの参照取得エラー:', error);
+            console.error('[Link Canvas] 参照取得エラー:', error);
         }
     }
 
