@@ -392,15 +392,18 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
                         right: wrapperRect.right,
                         bottom: wrapperRect.bottom - TITLEBAR_HEIGHT,
                       } as DOMRect);
-                  // Compute handle size relative to window so zoom/resize don't break hit areas
-                  const MIN_HANDLE = 28;
-                  const MAX_HANDLE = 72;
-                  const HANDLE_PCT = 0.08; // 8% of min(width,height)
-                  const base = Math.min(rect.width, rect.height);
-                  const HANDLE = Math.max(
-                    MIN_HANDLE,
-                    Math.min(MAX_HANDLE, Math.round(base * HANDLE_PCT))
-                  );
+                  // Use a fixed handle size so the red overlay area stays constant
+                  // regardless of window dimensions or zoom.
+                  const HANDLE = 30; // px (fixed)
+                  // // Compute handle size relative to window so zoom/resize don't break hit areas
+                  // const MIN_HANDLE = 28;
+                  // const MAX_HANDLE = 72;
+                  // const HANDLE_PCT = 0.08; // 8% of min(width,height)
+                  // const base = Math.min(rect.width, rect.height);
+                  // const HANDLE = Math.max(
+                  //   MIN_HANDLE,
+                  //   Math.min(MAX_HANDLE, Math.round(base * HANDLE_PCT))
+                  // );
 
                   // Anchor handles so they align to edges/corners of the code content area.
                   // NW/NE are aligned to the top-left / top-right of the white code area
