@@ -16,6 +16,18 @@ export function activate(context: vscode.ExtensionContext) {
         await canvasProvider.openOrAddFile(fileUri);
     });
 
+    // Show Definition Command（エディタコンテキストメニューから）
+    const showDefinitionCommand = vscode.commands.registerCommand('linkCanvas.showDefinition', async () => {
+        console.log('[Link Canvas] showDefinitionコマンド実行');
+        await canvasProvider.handleShowDefinitionFromContext();
+    });
+
+    // Show References Command（エディタコンテキストメニューから）
+    const showReferencesCommand = vscode.commands.registerCommand('linkCanvas.showReferences', async () => {
+        console.log('[Link Canvas] showReferencesコマンド実行');
+        await canvasProvider.handleShowReferencesFromContext();
+    });
+
     // Zoom In Command
     const zoomInCommand = vscode.commands.registerCommand('linkCanvas.zoomIn', () => {
         console.log('[Link Canvas] Zoom In コマンド実行');
@@ -28,7 +40,7 @@ export function activate(context: vscode.ExtensionContext) {
         canvasProvider.sendZoomCommand('zoomOut');
     });
 
-    context.subscriptions.push(openCanvasCommand, zoomInCommand, zoomOutCommand);
+    context.subscriptions.push(openCanvasCommand, showDefinitionCommand, showReferencesCommand, zoomInCommand, zoomOutCommand);
 }
 
 export function deactivate() { }

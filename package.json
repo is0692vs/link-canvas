@@ -37,6 +37,16 @@
         "title": "Open Canvas"
       },
       {
+        "command": "linkCanvas.showDefinition",
+        "title": "Show Definition in Canvas",
+        "category": "Link Canvas"
+      },
+      {
+        "command": "linkCanvas.showReferences",
+        "title": "Show References in Canvas",
+        "category": "Link Canvas"
+      },
+      {
         "command": "linkCanvas.zoomIn",
         "title": "Zoom In",
         "category": "Link Canvas",
@@ -50,6 +60,18 @@
       }
     ],
     "menus": {
+      "editor/context": [
+        {
+          "command": "linkCanvas.showDefinition",
+          "when": "editorTextFocus",
+          "group": "linkCanvas@1"
+        },
+        {
+          "command": "linkCanvas.showReferences",
+          "when": "editorTextFocus",
+          "group": "linkCanvas@2"
+        }
+      ],
       "view/title": [
         {
           "command": "linkCanvas.zoomIn",
