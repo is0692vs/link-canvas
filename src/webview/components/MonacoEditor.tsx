@@ -229,77 +229,74 @@ function registerCustomContextMenuActions(
   editor: any,
   monaco: any,
   filePath: string,
-  onContextMenu?: (filePath: string, line: number, column: number, selectedText: string) => void
+  onContextMenu?: (
+    filePath: string,
+    line: number,
+    column: number,
+    selectedText: string
+  ) => void
 ) {
-  // 定義を表示アクション
-  editor.addAction({
-    id: "link-canvas.showDefinition",
-    label: "[Canvas] 定義を表示",
-    contextMenuGroupId: "1_modification",
-    contextMenuOrder: 1,
-    run: (ed: any) => {
-      const position = ed.getPosition();
-      if (!position) return;
+  console.log("[Link Canvas] registerCustomContextMenuActions 呼び出し開始:", filePath);
 
-      const model = ed.getModel();
-      const selection = ed.getSelection();
-      let selectedText = "";
+  // コンテキストメニューアクション実行用の共通関数
+  const executeAction = (actionName: string) => {
+    console.log(`[Link Canvas] ✓ アクション '${actionName}' 実行`);
+    const position = editor.getPosition();
+    if (!position) {
+      console.log("[Link Canvas] ✗ position が取得できません");
+      return;
+    }
 
-      if (selection && !selection.isEmpty()) {
-        selectedText = model.getValueInRange(selection);
-      } else {
-        const wordInfo = model.getWordAtPosition(position);
-        selectedText = wordInfo?.word || "";
-      }
+    const model = editor.getModel();
+    const selection = editor.getSelection();
+    let selectedText = "";
 
-      console.log("[Link Canvas] コンテキストメニュー アクション: 定義を表示", {
-        line: position.lineNumber - 1,
-        column: position.column - 1,
-        selectedText,
-      });
+    if (selection && !selection.isEmpty()) {
+      selectedText = model.getValueInRange(selection);
+    } else {
+      const wordInfo = model.getWordAtPosition(position);
+      selectedText = wordInfo?.word || "";
+    }
 
-      onContextMenu?.(
+    console.log(`[Link Canvas] コンテキストメニュー アクション: ${actionName}`, {
+      filePath,
+      line: position.lineNumber - 1,
+      column: position.column - 1,
+      selectedText,
+    });
+
+    if (onContextMenu) {
+      console.log("[Link Canvas] onContextMenu コールバック実行");
+      onContextMenu(
         filePath,
         position.lineNumber - 1,
         position.column - 1,
         selectedText
       );
-    },
+    } else {
+      console.log("[Link Canvas] ✗ onContextMenu コールバックが定義されていません");
+    }
+  };
+
+  // 定義を表示アクション
+  editor.addAction({
+    id: "link-canvas.showDefinition",
+    label: "[Canvas] 定義を表示",
+    contextMenuGroupId: "9_canvas",
+    contextMenuOrder: 1,
+    keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyD],
+    run: () => executeAction("定義を表示"),
   });
 
   // 参照を表示アクション
   editor.addAction({
     id: "link-canvas.showReferences",
     label: "[Canvas] 参照を表示",
-    contextMenuGroupId: "1_modification",
+    contextMenuGroupId: "9_canvas",
     contextMenuOrder: 2,
-    run: (ed: any) => {
-      const position = ed.getPosition();
-      if (!position) return;
-
-      const model = ed.getModel();
-      const selection = ed.getSelection();
-      let selectedText = "";
-
-      if (selection && !selection.isEmpty()) {
-        selectedText = model.getValueInRange(selection);
-      } else {
-        const wordInfo = model.getWordAtPosition(position);
-        selectedText = wordInfo?.word || "";
-      }
-
-      console.log("[Link Canvas] コンテキストメニュー アクション: 参照を表示", {
-        line: position.lineNumber - 1,
-        column: position.column - 1,
-        selectedText,
-      });
-
-      onContextMenu?.(
-        filePath,
-        position.lineNumber - 1,
-        position.column - 1,
-        selectedText
-      );
-    },
+    keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyR],
+    run: () => executeAction("参照を表示"),
   });
+
+  console.log("[Link Canvas] registerCustomContextMenuActions 完了 - keybindings: Cmd+Shift+D, Cmd+Shift+R");
 }
