@@ -2,7 +2,7 @@
   "name": "link-canvas",
   "displayName": "Link Canvas",
   "description": "Visualize and explore code dependencies on an infinite canvas with interactive code windows.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "engines": {
     "vscode": "^1.80.0"
   },
