@@ -9,5 +9,6 @@ tsconfig.json
 .eslintrc.json
 *.md
 !README.md
+!README.ja.md
 !CHANGELOG.md
 test-workspace/

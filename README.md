@@ -1,5 +1,7 @@
 # Link Canvas
 
+> [日本語版 README はこちら / Japanese README](./README.ja.md)
+
 Link Canvas is a VS Code extension that visualizes code dependencies, references, and relationships on an infinite canvas. Explore your codebase interactively with OS-window-style code viewers that support zooming, panning, and direct navigation to definitions and references.
 
 ## Features
@@ -53,6 +55,13 @@ npm run build
 5. Right-click in any editor to jump to definitions or references on the canvas
 
 ## Screenshots
+
+<!-- TODO: Add screenshots here -->
+<!-- Recommended: -->
+<!-- 1. Full canvas view (zoomed out state) -->
+<!-- 2. Code window zoomed in (showing Monaco Editor) -->
+<!-- 3. GIF of right-click menu to jump to definition/references -->
+<!-- 4. GIF of dragging files from file tree to canvas -->
 
 _Screenshots and demo GIFs will be added soon._
 
