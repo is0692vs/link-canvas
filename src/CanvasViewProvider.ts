@@ -26,7 +26,7 @@ export class CanvasViewProvider {
 
     constructor(private readonly extensionUri: vscode.Uri) { }
 
-    public async openOrAddFile(fileUri: vscode.Uri): Promise<void> {
+    public async openOrAddFile(fileUri?: vscode.Uri): Promise<void> {
         // 既存のパネルがあれば再利用
         if (!this.panel) {
             console.log('[Link Canvas] 新しいWebview Panelを作成');
@@ -85,23 +85,9 @@ export class CanvasViewProvider {
             this.panel.reveal(vscode.ViewColumn.One);
         }
 
-        // ファイル内容を読み込んでWebviewに送信
-        try {
-            const fileContent = await vscode.workspace.fs.readFile(fileUri);
-            const content = Buffer.from(fileContent).toString('utf8');
-            const fileName = fileUri.path.split('/').pop() || 'unknown';
-
-            console.log('[Link Canvas] ファイル送信:', fileName, 'サイズ:', content.length);
-
-            this.panel!.webview.postMessage({
-                type: 'addFile',
-                filePath: fileUri.fsPath,
-                fileName: fileName,
-                content: content,
-            });
-        } catch (error) {
-            console.error('[Link Canvas] ファイル読み込みエラー:', error);
-            vscode.window.showErrorMessage('ファイルの読み込みに失敗しました');
+        // ファイルが指定されていれば、ファイル内容を読み込んでWebviewに送信
+        if (fileUri) {
+            await this.addFileToCanvas(fileUri);
         }
     }
 
@@ -121,7 +107,14 @@ export class CanvasViewProvider {
      * エディタコンテキストメニューから呼び出され、定義を取得してキャンバスに追加
      */
     public async handleShowDefinitionFromContext(): Promise<void> {
-        const editor = vscode.window.activeTextEditor;
+        let editor = vscode.window.activeTextEditor;
+
+        // もしアクティブなエディタがなければ、少し待ってから再試行
+        if (!editor) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            editor = vscode.window.activeTextEditor;
+        }
+
         if (!editor) {
             vscode.window.showErrorMessage('アクティブなエディタがありません');
             return;
@@ -133,20 +126,30 @@ export class CanvasViewProvider {
         console.log('[Link Canvas] 定義表示開始:', uri.fsPath, 'Position:', position.line, position.character);
 
         try {
+            // まずキャンバスを開く (ファイル内容はまだ送らない)
+            await this.openOrAddFile();
+
             // 定義情報を取得
-            const definitions = await vscode.commands.executeCommand<vscode.Location[]>(
+            const definitionsResult = await vscode.commands.executeCommand<vscode.Location | vscode.Location[]>(
                 'vscode.executeDefinitionProvider',
                 uri,
                 position
             );
 
-            if (!definitions || definitions.length === 0) {
+            if (!definitionsResult) {
+                vscode.window.showInformationMessage('定義が見つかりませんでした');
+                return;
+            }
+    
+            const definitions = Array.isArray(definitionsResult) ? definitionsResult : [definitionsResult];
+    
+            if (definitions.length === 0) {
                 vscode.window.showInformationMessage('定義が見つかりませんでした');
                 return;
             }
 
-            // キャンバスが開かれていなければ開く
-            await this.openOrAddFile(uri);
+            // 元のファイルもキャンバスに追加
+            await this.addFileToCanvas(uri);
 
             // 各定義をキャンバスに追加
             for (const definition of definitions) {
@@ -164,7 +167,14 @@ export class CanvasViewProvider {
      * エディタコンテキストメニューから呼び出され、参照を取得してキャンバスに追加
      */
     public async handleShowReferencesFromContext(): Promise<void> {
-        const editor = vscode.window.activeTextEditor;
+        let editor = vscode.window.activeTextEditor;
+
+        // もしアクティブなエディタがなければ、少し待ってから再試行
+        if (!editor) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            editor = vscode.window.activeTextEditor;
+        }
+
         if (!editor) {
             vscode.window.showErrorMessage('アクティブなエディタがありません');
             return;
@@ -176,20 +186,30 @@ export class CanvasViewProvider {
         console.log('[Link Canvas] 参照表示開始:', uri.fsPath, 'Position:', position.line, position.character);
 
         try {
+            // まずキャンバスを開く (ファイル内容はまだ送らない)
+            await this.openOrAddFile();
+
             // 参照情報を取得
-            const references = await vscode.commands.executeCommand<vscode.Location[]>(
+            const referencesResult = await vscode.commands.executeCommand<vscode.Location | vscode.Location[]>(
                 'vscode.executeReferenceProvider',
                 uri,
                 position
             );
 
-            if (!references || references.length === 0) {
+            if (!referencesResult) {
                 vscode.window.showInformationMessage('参照が見つかりませんでした');
                 return;
             }
 
-            // キャンバスが開かれていなければ開く
-            await this.openOrAddFile(uri);
+            const references = Array.isArray(referencesResult) ? referencesResult : [referencesResult];
+
+            if (references.length === 0) {
+                vscode.window.showInformationMessage('参照が見つかりませんでした');
+                return;
+            }
+
+            // 元のファイルもキャンバスに追加
+            await this.addFileToCanvas(uri);
 
             // 各参照をキャンバスに追加
             for (const reference of references) {
@@ -204,9 +224,42 @@ export class CanvasViewProvider {
     }
 
     /**
+     * URIからファイル情報を取得してキャンバスに追加
+     */
+    private async addFileToCanvas(fileUri: vscode.Uri): Promise<void> {
+        if (!this.panel) {
+            console.log('[Link Canvas] Webview Panelが存在しません。addFileToCanvasを中断。');
+            return;
+        }
+        try {
+            const fileContent = await vscode.workspace.fs.readFile(fileUri);
+            const content = Buffer.from(fileContent).toString('utf8');
+            const fileName = fileUri.path.split('/').pop() || 'unknown';
+
+            console.log('[Link Canvas] ファイル送信:', fileName, 'サイズ:', content.length);
+
+            this.panel.webview.postMessage({
+                type: 'addFile',
+                filePath: fileUri.fsPath,
+                fileName: fileName,
+                content: content,
+            });
+        } catch (error) {
+            console.error('[Link Canvas] ファイル読み込みエラー:', error);
+            vscode.window.showErrorMessage('ファイルの読み込みに失敗しました');
+        }
+    }
+
+
+    /**
      * Locationからファイル情報を取得してキャンバスに追加
      */
     private async addDefinitionToCanvas(definition: vscode.Location): Promise<void> {
+        // uriが有効かチェック
+        if (!definition || !definition.uri || typeof definition.uri.scheme === 'undefined') {
+            console.error('[Link Canvas] 無効な定義オブジェクトを受け取りました。処理をスキップします。', definition);
+            return;
+        }
         try {
             const fileContent = await vscode.workspace.fs.readFile(definition.uri);
             const content = Buffer.from(fileContent).toString('utf8');
@@ -237,6 +290,11 @@ export class CanvasViewProvider {
      * Locationからファイル情報を取得してキャンバスに追加
      */
     private async addReferenceToCanvas(reference: vscode.Location): Promise<void> {
+        // uriが有効かチェック
+        if (!reference || !reference.uri || typeof reference.uri.scheme === 'undefined') {
+            console.error('[Link Canvas] 無効な参照オブジェクトを受け取りました。処理をスキップします。', reference);
+            return;
+        }
         try {
             const fileContent = await vscode.workspace.fs.readFile(reference.uri);
             const content = Buffer.from(fileContent).toString('utf8');
@@ -281,23 +339,25 @@ export class CanvasViewProvider {
             const position = new vscode.Position(message.line, message.column);
 
             console.log('[Link Canvas] VSCode API 実行: vscode.executeDefinitionProvider');
-            const definitions = await vscode.commands.executeCommand<vscode.Location[]>(
+            const definitionsResult = await vscode.commands.executeCommand<vscode.Location | vscode.Location[]>(
                 'vscode.executeDefinitionProvider',
                 uri,
                 position
             );
 
             console.log('[Link Canvas] 定義取得完了:', {
-                count: definitions?.length || 0,
-                definitions: definitions?.map(d => ({
-                    uri: d.uri.fsPath,
-                    line: d.range.start.line,
-                    character: d.range.start.character,
-                })),
+                count: definitionsResult ? (Array.isArray(definitionsResult) ? definitionsResult.length : 1) : 0,
                 selectedText: message.selectedText,
             });
 
-            if (definitions && definitions.length > 0) {
+            if (!definitionsResult) {
+                console.log('[Link Canvas] 定義が見つかりませんでした');
+                return;
+            }
+    
+            const definitions = Array.isArray(definitionsResult) ? definitionsResult : [definitionsResult];
+
+            if (definitions.length > 0) {
                 console.log('[Link Canvas] 定義をキャンバスに追加 (数:', definitions.length, ')');
                 for (const def of definitions) {
                     await this.addDefinitionToCanvas(def);
@@ -329,23 +389,25 @@ export class CanvasViewProvider {
             const position = new vscode.Position(message.line, message.column);
 
             console.log('[Link Canvas] VSCode API 実行: vscode.executeReferenceProvider');
-            const references = await vscode.commands.executeCommand<vscode.Location[]>(
+            const referencesResult = await vscode.commands.executeCommand<vscode.Location | vscode.Location[]>(
                 'vscode.executeReferenceProvider',
                 uri,
                 position
             );
 
             console.log('[Link Canvas] 参照取得完了:', {
-                count: references?.length || 0,
-                references: references?.map(r => ({
-                    uri: r.uri.fsPath,
-                    line: r.range.start.line,
-                    character: r.range.start.character,
-                })),
+                count: referencesResult ? (Array.isArray(referencesResult) ? referencesResult.length : 1) : 0,
                 selectedText: message.selectedText,
             });
 
-            if (references && references.length > 0) {
+            if (!referencesResult) {
+                console.log('[Link Canvas] 参照が見つかりませんでした');
+                return;
+            }
+
+            const references = Array.isArray(referencesResult) ? referencesResult : [referencesResult];
+
+            if (references.length > 0) {
                 console.log('[Link Canvas] 参照をキャンバスに追加 (数:', references.length, ')');
                 for (const ref of references) {
                     await this.addReferenceToCanvas(ref);

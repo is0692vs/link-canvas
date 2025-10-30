@@ -10,7 +10,9 @@
     "Visualization"
   ],
   "activationEvents": [
-    "onView:linkCanvas.fileTree"
+    "onView:linkCanvas.fileTree",
+    "onCommand:linkCanvas.showDefinition",
+    "onCommand:linkCanvas.showReferences"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -63,13 +65,11 @@
       "editor/context": [
         {
           "command": "linkCanvas.showDefinition",
-          "when": "editorTextFocus",
-          "group": "linkCanvas@1"
+          "when": "editorTextFocus"
         },
         {
           "command": "linkCanvas.showReferences",
-          "when": "editorTextFocus",
-          "group": "linkCanvas@2"
+          "when": "editorTextFocus"
         }
       ],
       "view/title": [

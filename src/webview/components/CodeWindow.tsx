@@ -24,13 +24,6 @@ interface CodeWindowProps {
   onClose?: () => void;
   onResize?: (width: number, height: number) => void;
   onDragStart?: (startX: number, startY: number) => void;
-  onContextMenu?: (
-    action: "definition" | "references",
-    filePath: string,
-    line: number,
-    column: number,
-    selectedText: string
-  ) => void;
 }
 
 /**
@@ -44,7 +37,6 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
   onClose,
   onResize,
   onDragStart,
-  onContextMenu,
 }) => {
   const [width, setWidth] = React.useState(data.width);
   const [height, setHeight] = React.useState(data.height);
@@ -163,7 +155,6 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
             content={data.content}
             fileName={data.fileName}
             filePath={data.filePath}
-            onContextMenu={onContextMenu}
             highlightLine={data.highlightLine}
             highlightColumn={data.highlightColumn}
           />

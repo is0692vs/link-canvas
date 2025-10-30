@@ -65,61 +65,6 @@ function App() {
     // console.log("[Link Canvas] ウィンドウ削除:", id);
   }, []);
 
-  const handleContextMenu = React.useCallback(
-    (
-      action: "definition" | "references",
-      filePath: string,
-      line: number,
-      column: number,
-      selectedText: string
-    ) => {
-      console.log("[Link Canvas] App handleContextMenu 呼び出し:", {
-        action,
-        filePath,
-        line,
-        column,
-        selectedText,
-      });
-
-      try {
-        const acquire = (window as any).acquireVsCodeApi;
-        console.log("[Link Canvas] acquireVsCodeApi:", typeof acquire);
-
-        const vscodeApi = typeof acquire === "function" ? acquire() : null;
-        console.log("[Link Canvas] vscodeApi:", !!vscodeApi);
-
-        if (!vscodeApi) {
-          console.log("[Link Canvas] VS Code API が利用できません");
-          return;
-        }
-
-        const messageType =
-          action === "definition" ? "showDefinition" : "showReferences";
-
-        console.log("[Link Canvas] postMessage 送信前:", {
-          type: messageType,
-          filePath,
-          line,
-          column,
-          selectedText,
-        });
-
-        vscodeApi.postMessage({
-          type: messageType,
-          filePath,
-          line,
-          column,
-          selectedText,
-        });
-
-        console.log("[Link Canvas] postMessage 送信完了");
-      } catch (error) {
-        console.error("[Link Canvas] エラー:", error);
-      }
-    },
-    []
-  );
-
   // postMessageリスナーのセットアップ
   React.useEffect(() => {
     // console.log("[Link Canvas] イベントリスナー セットアップ開始");
@@ -310,7 +255,6 @@ function App() {
         onWindowMove={handleWindowMove}
         onWindowResize={handleWindowResize}
         onWindowClose={handleWindowClose}
-        onContextMenu={handleContextMenu}
       />
     </div>
   );

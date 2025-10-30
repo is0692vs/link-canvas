@@ -7,30 +7,27 @@ interface MonacoEditorProps {
   fileName: string;
   filePath: string;
   onChange?: (value: string | undefined) => void;
-  onContextMenu?: (
-    action: "definition" | "references",
-    filePath: string,
-    line: number,
-    column: number,
-    selectedText: string
-  ) => void;
   highlightLine?: number;
   highlightColumn?: number;
 }
+
+// VSCode APIは一度だけ取得して保持する
+const vscodeApi = (window as any).acquireVsCodeApi?.();
 
 /**
  * ズームイン時に表示されるMonaco Editorコンポーネント
  * 右クリックで「参照を表示」「定義を表示」メニュー対応
  */
-export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
-  content,
-  fileName,
-  filePath,
-  onChange,
-  onContextMenu,
-  highlightLine,
-  highlightColumn,
-}) => {
+export const MonacoEditorComponent: React.FC<MonacoEditorProps> = (props) => {
+  const {
+    content,
+    fileName,
+    filePath,
+    onChange,
+    highlightLine,
+    highlightColumn,
+  } = props;
+
   const editorRef = React.useRef<any>(null);
   const monacoRef = React.useRef<Monaco | null>(null);
   const highlightCollectionRef = React.useRef<any>(null);
@@ -39,7 +36,6 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
     console.log("[Link Canvas] Monaco Editor handleEditorMount 呼び出し", {
       fileName,
       filePath,
-      hasOnContextMenu: !!onContextMenu,
     });
 
     editorRef.current = editor;
@@ -57,7 +53,7 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
 
     // コンテキストメニューアクション登録（メニュー項目を表示）
     console.log("[Link Canvas] コンテキストメニューアクション登録開始");
-    registerCustomContextMenuActions(editor, monaco, filePath, onContextMenu);
+    registerCustomContextMenuActions(editor, monaco, filePath);
     console.log("[Link Canvas] コンテキストメニューアクション登録完了");
 
     // Cmd +/- でフォントサイズ変更するコマンドを追加
@@ -65,19 +61,16 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
       const currentSize = editor.getOption(monaco.editor.EditorOption.fontSize);
       const newSize = Math.min(currentSize + 2, 32);
       editor.updateOptions({ fontSize: newSize });
-      // console.log("[Link Canvas] フォントサイズ増加:", newSize);
     });
 
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Minus, () => {
       const currentSize = editor.getOption(monaco.editor.EditorOption.fontSize);
       const newSize = Math.max(currentSize - 2, 8);
       editor.updateOptions({ fontSize: newSize });
-      // console.log("[Link Canvas] フォントサイズ減少:", newSize);
     });
 
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Digit0, () => {
       editor.updateOptions({ fontSize: 14 });
-      // console.log("[Link Canvas] フォントサイズリセット: 14px");
     });
   };
 
@@ -172,18 +165,10 @@ function getLanguageFromFileName(fileName: string): string {
 function registerCustomContextMenuActions(
   editor: any,
   monaco: any,
-  filePath: string,
-  onContextMenu?: (
-    action: "definition" | "references",
-    filePath: string,
-    line: number,
-    column: number,
-    selectedText: string
-  ) => void
+  filePath: string
 ) {
   console.log("[Link Canvas] registerCustomContextMenuActions 呼び出し", {
     filePath,
-    hasOnContextMenu: !!onContextMenu,
   });
 
   // 既にアクションが登録されているかチェック
@@ -220,27 +205,28 @@ function registerCustomContextMenuActions(
       selectedText = wordInfo?.word || "";
     }
 
-    console.log("[Link Canvas] Monaco action run", {
-      action: actionName,
-      filePath,
-      line: position.lineNumber - 1,
-      column: position.column - 1,
-      selectedText,
-      hasCallback: !!onContextMenu,
+    if (!vscodeApi) {
+      console.error("[Link Canvas] VS Code API が利用できません");
+      return;
+    }
+
+    const messageType = actionName === 'definition' ? 'showDefinition' : 'showReferences';
+
+    console.log("[Link Canvas] postMessage 送信:", {
+        type: messageType,
+        filePath,
+        line: position.lineNumber - 1,
+        column: position.column - 1,
+        selectedText,
     });
 
-    if (onContextMenu) {
-      console.log("[Link Canvas] onContextMenu コールバック実行");
-      onContextMenu(
-        actionName,
+    vscodeApi.postMessage({
+        type: messageType,
         filePath,
-        position.lineNumber - 1,
-        position.column - 1,
-        selectedText
-      );
-    } else {
-      console.log("[Link Canvas] onContextMenu コールバックが未定義");
-    }
+        line: position.lineNumber - 1,
+        column: position.column - 1,
+        selectedText,
+    });
   };
 
   // 定義を表示アクション
