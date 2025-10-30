@@ -3,6 +3,8 @@
   "displayName": "Link Canvas",
   "description": "Visualize and explore code dependencies on an infinite canvas with interactive code windows.",
   "version": "0.1.2",
+  "publisher": "HirokiMukai",
+  "license": "MIT",
   "icon": "icon.png",
   "engines": {
     "vscode": "^1.80.0"
@@ -96,7 +98,10 @@
   "scripts": {
     "build": "node build.js",
     "watch": "node build.js --watch",
-    "vscode:prepublish": "npm run build"
+    "vscode:prepublish": "npm run build",
+    "package": "npm run build",
+    "vsce:package": "npx @vscode/vsce package",
+    "vsce:publish": "npx @vscode/vsce publish -p $VSCE_PAT"
   },
   "repository": {
     "type": "git",
@@ -106,10 +111,9 @@
     "url": "https://github.com/is0692vs/link-canvas/issues"
   },
   "homepage": "https://github.com/is0692vs/link-canvas",
-  "publisher": "is0692vs",
   "galleryBanner": {
-    "color": "#ffffff",
-    "theme": "light"
+    "color": "#7B3FF2",
+    "theme": "dark"
   },
   "devDependencies": {
     "@types/node": "^18.0.0",
