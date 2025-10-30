@@ -1,6 +1,14 @@
 .vscode/
+.git/
+.gitignore
 src/
 node_modules/
 *.map
 build.js
 tsconfig.json
+.eslintrc.json
+*.md
+!README.md
+!README.ja.md
+!CHANGELOG.md
+test-workspace/
