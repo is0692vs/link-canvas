@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="Link Canvas icon">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7B3FF2"/>
+      <stop offset="100%" stop-color="#5B22E6"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="16" fill="url(#g)"/>
+
+  <!-- subtle grid -->
+  <g opacity="0.12" stroke="#ffffff" stroke-width="1">
+    <path d="M16 20h96"/>
+    <path d="M16 40h96"/>
+    <path d="M16 60h96"/>
+    <path d="M16 80h96"/>
+    <path d="M16 100h96"/>
+    <path d="M20 16v96"/>
+    <path d="M40 16v96"/>
+    <path d="M60 16v96"/>
+    <path d="M80 16v96"/>
+    <path d="M100 16v96"/>
+  </g>
+
+  <!-- code window representation -->
+  <g transform="translate(20,26)">
+    <rect x="0" y="0" width="88" height="60" rx="6" fill="#ffffff" opacity="0.95"/>
+    <rect x="6" y="6" width="76" height="10" rx="3" fill="#f3f3f3"/>
+    <!-- lines of code -->
+    <g fill="#2b2b2b" opacity="0.9">
+      <rect x="8" y="22" width="60" height="6" rx="3" />
+      <rect x="8" y="34" width="48" height="6" rx="3" />
+      <rect x="8" y="46" width="36" height="6" rx="3" />
+    </g>
+    <!-- window shadow -->
+    <rect x="-2" y="62" width="92" height="6" rx="3" fill="#000" opacity="0.06"/>
+  </g>
+
+  <!-- small link/graph dot to indicate connectivity -->
+  <g transform="translate(88,88)">
+    <circle cx="0" cy="0" r="10" fill="#fff" opacity="0.95"/>
+    <circle cx="0" cy="0" r="6" fill="#7B3FF2"/>
+  </g>
+</svg>
