@@ -88,8 +88,8 @@
   height: 100%;
   top: 0;
   left: 0;
-  /* ハンドル自体でイベントを受け取れるようにする */
-  pointer-events: auto;
+  /* コンテナ自体はイベントを通過させる（個別ハンドルのみがイベント受け取る） */
+  pointer-events: none;
   z-index: 1000; /* 大幅に上げる */
 }
 

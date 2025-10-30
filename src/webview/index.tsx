@@ -2,12 +2,15 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { InfiniteCanvas } from "./components/InfiniteCanvas";
 import type { CodeWindowData } from "./components/CodeWindow";
+import { generateWindowId } from "./utils";
 
 interface FileMessage {
   type: string;
   filePath: string;
   fileName: string;
   content: string;
+  highlightLine?: number;
+  highlightColumn?: number;
 }
 
 interface ZoomMessage {
@@ -60,12 +63,12 @@ function App() {
 
   const handleWindowClose = React.useCallback((id: string) => {
     setWindows((prev) => prev.filter((w) => w.id !== id));
-    console.log("[Link Canvas] ウィンドウ削除:", id);
+    // console.log("[Link Canvas] ウィンドウ削除:", id);
   }, []);
 
   // postMessageリスナーのセットアップ
   React.useEffect(() => {
-    console.log("[Link Canvas] イベントリスナー セットアップ開始");
+    // console.log("[Link Canvas] イベントリスナー セットアップ開始");
 
     const messageHandler = (event: MessageEvent) => {
       const message = event.data as FileMessage | ZoomMessage;
@@ -73,18 +76,12 @@ function App() {
       if ("type" in message) {
         if (message.type === "addFile") {
           const fileMsg = message as FileMessage;
-          console.log(
-            "[Link Canvas] ファイル受信:",
-            fileMsg.fileName,
-            "サイズ:",
-            fileMsg.content.length
-          );
-
-          // ユニークなノードIDを生成（ファイルパスをベースに）
-          const nodeId = `node-${fileMsg.filePath.replace(
-            /[^a-zA-Z0-9]/g,
-            "-"
-          )}`;
+          // console.log(
+          //   "[Link Canvas] ファイル受信:",
+          //   fileMsg.fileName,
+          //   "サイズ:",
+          //   fileMsg.content.length
+          // );
 
           // ファイル内容からクラスと関数を抽出
           const classes: string[] = [];
@@ -107,36 +104,59 @@ function App() {
             }
           }
 
-          console.log(
-            "[Link Canvas] 抽出結果 - クラス:",
-            classes,
-            "関数:",
-            functions
+          // console.log(
+          //   "[Link Canvas] 抽出結果 - クラス:",
+          //   classes,
+          //   "関数:",
+          //   functions
+          // );
+
+          const windowId = generateWindowId(
+            fileMsg.filePath,
+            fileMsg.highlightLine,
+            fileMsg.highlightColumn
           );
 
-          const newWindow: CodeWindowData & {
-            id: string;
-            position: { x: number; y: number };
-          } = {
-            id: `window-${fileMsg.filePath.replace(/[^a-zA-Z0-9]/g, "-")}`,
-            filePath: fileMsg.filePath,
-            fileName: fileMsg.fileName,
-            content: fileMsg.content,
-            width: 400,
-            height: 300,
-            classes,
-            functions,
-            position: { x: windows.length * 450 + 50, y: 100 },
-          };
-
           setWindows((prev) => {
-            if (prev.some((w) => w.id === newWindow.id)) {
-              console.log(
-                "[Link Canvas] 既存ウィンドウのため追加スキップ:",
-                newWindow.id
-              );
-              return prev;
+            const existingIndex = prev.findIndex((w) => w.id === windowId);
+
+            if (existingIndex >= 0) {
+              const updated = [...prev];
+              const existing = updated[existingIndex];
+              updated[existingIndex] = {
+                ...existing,
+                content: fileMsg.content,
+                classes,
+                functions,
+                highlightLine: fileMsg.highlightLine,
+                highlightColumn: fileMsg.highlightColumn,
+              };
+              console.log("[Link Canvas] 既存ウィンドウ更新:", windowId);
+              return updated;
             }
+
+            const position = {
+              x: prev.length * 450 + 50,
+              y: 100 + prev.length * 40,
+            };
+
+            const newWindow: CodeWindowData & {
+              id: string;
+              position: { x: number; y: number };
+            } = {
+              id: windowId,
+              filePath: fileMsg.filePath,
+              fileName: fileMsg.fileName,
+              content: fileMsg.content,
+              width: 400,
+              height: 300,
+              classes,
+              functions,
+              highlightLine: fileMsg.highlightLine,
+              highlightColumn: fileMsg.highlightColumn,
+              position,
+            };
+
             const updated = [...prev, newWindow];
             console.log("[Link Canvas] 新規ウィンドウ作成:", newWindow.id);
             console.log("[Link Canvas] 現在のウィンドウ数:", updated.length);

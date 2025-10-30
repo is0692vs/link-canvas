@@ -1,222 +1,123 @@
-[Extension Host] [Link Canvas] openCanvasコマンド実行: /Users/hirokimukai/Cloudprojects/link-canvas/test-workspace/src/main.ts (at console.<anonymous> (file:///Applications/Visual%20Studio%20Code%20-%20Insiders.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:203:32169))
-console.ts:139 [Extension Host] [Link Canvas] 新しいWebview Panelを作成 (at console.<anonymous> (file:///Applications/Visual%20Studio%20Code%20-%20Insiders.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:203:32169))
-console.ts:139 [Extension Host] [Link Canvas] ファイル送信: main.ts サイズ: 414 (at console.<anonymous> (file:///Applications/Visual%20Studio%20Code%20-%20Insiders.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:203:32169))
-webview.js:34664 [Link Canvas] CanvasContentコンポーネント レンダリング
-webview.js:34717 [Link Canvas] イベントリスナー セットアップ開始
-webview.js:34664 [Link Canvas] CanvasContentコンポーネント レンダリング
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: main.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'main.ts', isPreviewMode: true, zoomLevel: 0.5}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: main.ts
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'main.ts', zoom: '0.500', isEditorMode: false}
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 0.909 Pan: -174.3 266.7
-webview.js:34666 [Link Canvas] ノード変更 [{…}]
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: main.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'main.ts', isPreviewMode: true, zoomLevel: 0.909328683522232}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: main.ts
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'main.ts', zoom: '0.909', isEditorMode: false}
-webview.js:34664 [Link Canvas] CanvasContentコンポーネント レンダリング
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: main.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'main.ts', isPreviewMode: true, zoomLevel: 0.909328683522232}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: main.ts
-console.ts:139 [Extension Host] [Link Canvas] openCanvasコマンド実行: /Users/hirokimukai/Cloudprojects/link-canvas/test-workspace/src/calculator.ts (at console.<anonymous> (file:///Applications/Visual%20Studio%20Code%20-%20Insiders.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:203:32169))
-console.ts:139 [Extension Host] [Link Canvas] 既存のWebview Panelを再利用 (at console.<anonymous> (file:///Applications/Visual%20Studio%20Code%20-%20Insiders.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:203:32169))
-console.ts:139 [Extension Host] [Link Canvas] ファイル送信: calculator.ts サイズ: 833 (at console.<anonymous> (file:///Applications/Visual%20Studio%20Code%20-%20Insiders.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:203:32169))
-webview.js:34723 [Link Canvas] ファイル受信: calculator.ts サイズ: 833
-webview.js:34748 [Link Canvas] 抽出結果 - クラス: ['Calculator'] 関数: []
-webview.js:34780 [Link Canvas] 新規ノード作成: node--Users-hirokimukai-Cloudprojects-link-canvas-test-workspace-src-calculator-ts
-webview.js:34781 [Link Canvas] 現在のノード数: 2
-webview.js:34664 [Link Canvas] CanvasContentコンポーネント レンダリング
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: calculator.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'calculator.ts', isPreviewMode: true, zoomLevel: 0.909328683522232}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: calculator.ts
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'calculator.ts', zoom: '0.909', isEditorMode: false}
-webview.js:34666 [Link Canvas] ノード変更 [{…}]
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: calculator.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'calculator.ts', isPreviewMode: true, zoomLevel: 0.909328683522232}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: calculator.ts
-webview.js:34664 [Link Canvas] CanvasContentコンポーネント レンダリング
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: calculator.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'calculator.ts', isPreviewMode: true, zoomLevel: 0.909328683522232}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: calculator.ts
-webview.js:34697 [Link Canvas] Shift+ホイール ズームイン: 0.909 → 1.000
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 1.000 Pan: -174.3 266.7
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: main.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'main.ts', isPreviewMode: false, zoomLevel: 1}
-webview.js:34471 [Link Canvas] Monaco表示領域 {fileName: 'main.ts', width: 400, height: 300, contentHeight: 268}
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: calculator.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'calculator.ts', isPreviewMode: false, zoomLevel: 1}
-webview.js:34471 [Link Canvas] Monaco表示領域 {fileName: 'calculator.ts', width: 400, height: 300, contentHeight: 268}
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'main.ts', zoom: '1.000', isEditorMode: true}
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'calculator.ts', zoom: '1.000', isEditorMode: true}
-webview.js:34359 [Link Canvas] Monaco Editor マウント: main.ts
-webview.js:34365 [Link Canvas] Monaco DOM サイズ（マウント時） {fileName: 'main.ts', width: 5, height: 5}
-webview.js:34371 [Link Canvas] DOM サイズが小さいため再レイアウト予定
-webview.js:34359 [Link Canvas] Monaco Editor マウント: calculator.ts
-webview.js:34365 [Link Canvas] Monaco DOM サイズ（マウント時） {fileName: 'calculator.ts', width: 5, height: 5}
-webview.js:34371 [Link Canvas] DOM サイズが小さいため再レイアウト予定
-webview.js:34373 [Link Canvas] Monaco 再レイアウト実行
-webview.js:34376 [Link Canvas] Monaco DOM サイズ（レイアウト後） {fileName: 'main.ts', width: 400, height: 268.0000305175781}
-webview.js:34373 [Link Canvas] Monaco 再レイアウト実行
-webview.js:34376 [Link Canvas] Monaco DOM サイズ（レイアウト後） {fileName: 'calculator.ts', width: 400, height: 268}
-webview.js:34697 [Link Canvas] Shift+ホイール ズームイン: 1.000 → 1.000
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 1.000 Pan: -174.3 266.7
-webview.js:34697 [Link Canvas] Shift+ホイール ズームイン: 1.000 → 1.000
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 1.000 Pan: -174.3 266.7
-webview.js:34697 [Link Canvas] Shift+ホイール ズームイン: 1.000 → 1.000
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 1.000 Pan: -174.3 266.7
-webview.js:34697 [Link Canvas] Shift+ホイール ズームイン: 1.000 → 1.000
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 1.000 Pan: -174.3 266.7
-webview.js:34697 [Link Canvas] Shift+ホイール ズームイン: 1.000 → 1.000
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 1.000 Pan: -174.3 266.7
-webview.js:34697 [Link Canvas] Shift+ホイール ズームイン: 1.000 → 1.000
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 1.000 Pan: -174.3 266.7
-webview.js:34697 [Link Canvas] Shift+ホイール ズームイン: 1.000 → 1.000
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 1.000 Pan: -174.3 266.7
-webview.js:34697 [Link Canvas] Shift+ホイール ズームイン: 1.000 → 1.000
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 1.000 Pan: -174.3 266.7
-webview.js:34697 [Link Canvas] Shift+ホイール ズームイン: 1.000 → 1.000
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 1.000 Pan: -174.3 266.7
-webview.js:34697 [Link Canvas] Shift+ホイール ズームイン: 1.000 → 1.000
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 1.000 Pan: -174.3 266.7
-webview.js:34697 [Link Canvas] Shift+ホイール ズームイン: 1.000 → 1.000
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 1.000 Pan: -174.3 266.7
-webview.js:34697 [Link Canvas] Shift+ホイール ズームイン: 1.000 → 1.000
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 1.000 Pan: -174.3 266.7
-webview.js:34697 [Link Canvas] Shift+ホイール ズームイン: 1.000 → 1.000
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 1.000 Pan: -174.3 266.7
-webview.js:34705 [Link Canvas] Shift+ホイール ズームアウト: 1.000 → 0.900
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 0.900 Pan: -174.3 266.7
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: main.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'main.ts', isPreviewMode: true, zoomLevel: 0.9}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: main.ts
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: calculator.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'calculator.ts', isPreviewMode: true, zoomLevel: 0.9}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: calculator.ts
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'main.ts', zoom: '0.900', isEditorMode: false}
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'calculator.ts', zoom: '0.900', isEditorMode: false}
-webview.js:34705 [Link Canvas] Shift+ホイール ズームアウト: 0.900 → 0.800
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 0.800 Pan: -174.3 266.7
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: main.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'main.ts', isPreviewMode: true, zoomLevel: 0.8}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: main.ts
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: calculator.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'calculator.ts', isPreviewMode: true, zoomLevel: 0.8}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: calculator.ts
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'main.ts', zoom: '0.800', isEditorMode: false}
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'calculator.ts', zoom: '0.800', isEditorMode: false}
-webview.js:34705 [Link Canvas] Shift+ホイール ズームアウト: 0.800 → 0.700
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 0.700 Pan: -174.3 266.7
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: main.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'main.ts', isPreviewMode: true, zoomLevel: 0.7000000000000001}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: main.ts
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: calculator.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'calculator.ts', isPreviewMode: true, zoomLevel: 0.7000000000000001}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: calculator.ts
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'main.ts', zoom: '0.700', isEditorMode: false}
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'calculator.ts', zoom: '0.700', isEditorMode: false}
-webview.js:34705 [Link Canvas] Shift+ホイール ズームアウト: 0.700 → 0.600
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 0.600 Pan: -174.3 266.7
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: main.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'main.ts', isPreviewMode: true, zoomLevel: 0.6000000000000001}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: main.ts
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: calculator.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'calculator.ts', isPreviewMode: true, zoomLevel: 0.6000000000000001}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: calculator.ts
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'main.ts', zoom: '0.600', isEditorMode: false}
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'calculator.ts', zoom: '0.600', isEditorMode: false}
-webview.js:34705 [Link Canvas] Shift+ホイール ズームアウト: 0.600 → 0.500
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 0.500 Pan: -174.3 266.7
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: main.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'main.ts', isPreviewMode: true, zoomLevel: 0.5000000000000001}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: main.ts
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: calculator.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'calculator.ts', isPreviewMode: true, zoomLevel: 0.5000000000000001}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: calculator.ts
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'main.ts', zoom: '0.500', isEditorMode: false}
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'calculator.ts', zoom: '0.500', isEditorMode: false}
-webview.js:34705 [Link Canvas] Shift+ホイール ズームアウト: 0.500 → 0.400
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 0.400 Pan: -174.3 266.7
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: main.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'main.ts', isPreviewMode: true, zoomLevel: 0.40000000000000013}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: main.ts
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: calculator.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'calculator.ts', isPreviewMode: true, zoomLevel: 0.40000000000000013}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: calculator.ts
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'main.ts', zoom: '0.400', isEditorMode: false}
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'calculator.ts', zoom: '0.400', isEditorMode: false}
-webview.js:34697 [Link Canvas] Shift+ホイール ズームイン: 0.400 → 0.500
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 0.500 Pan: -174.3 266.7
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: main.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'main.ts', isPreviewMode: true, zoomLevel: 0.5000000000000001}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: main.ts
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: calculator.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'calculator.ts', isPreviewMode: true, zoomLevel: 0.5000000000000001}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: calculator.ts
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'main.ts', zoom: '0.500', isEditorMode: false}
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'calculator.ts', zoom: '0.500', isEditorMode: false}
-webview.js:34697 [Link Canvas] Shift+ホイール ズームイン: 0.500 → 0.600
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 0.600 Pan: -174.3 266.7
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: main.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'main.ts', isPreviewMode: true, zoomLevel: 0.6000000000000001}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: main.ts
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: calculator.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'calculator.ts', isPreviewMode: true, zoomLevel: 0.6000000000000001}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: calculator.ts
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'main.ts', zoom: '0.600', isEditorMode: false}
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'calculator.ts', zoom: '0.600', isEditorMode: false}
-webview.js:34697 [Link Canvas] Shift+ホイール ズームイン: 0.600 → 0.700
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 0.700 Pan: -174.3 266.7
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: main.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'main.ts', isPreviewMode: true, zoomLevel: 0.7000000000000001}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: main.ts
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: calculator.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'calculator.ts', isPreviewMode: true, zoomLevel: 0.7000000000000001}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: calculator.ts
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'main.ts', zoom: '0.700', isEditorMode: false}
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'calculator.ts', zoom: '0.700', isEditorMode: false}
-webview.js:34697 [Link Canvas] Shift+ホイール ズームイン: 0.700 → 0.800
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 0.800 Pan: -174.3 266.7
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: main.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'main.ts', isPreviewMode: true, zoomLevel: 0.8}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: main.ts
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: calculator.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'calculator.ts', isPreviewMode: true, zoomLevel: 0.8}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: calculator.ts
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'main.ts', zoom: '0.800', isEditorMode: false}
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'calculator.ts', zoom: '0.800', isEditorMode: false}
-webview.js:34697 [Link Canvas] Shift+ホイール ズームイン: 0.800 → 0.900
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 0.900 Pan: -174.3 266.7
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: main.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'main.ts', isPreviewMode: true, zoomLevel: 0.9}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: main.ts
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: calculator.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'calculator.ts', isPreviewMode: true, zoomLevel: 0.9}
-webview.js:33662 [Link Canvas] FilePreview レンダリング: calculator.ts
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'main.ts', zoom: '0.900', isEditorMode: false}
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'calculator.ts', zoom: '0.900', isEditorMode: false}
-webview.js:34697 [Link Canvas] Shift+ホイール ズームイン: 0.900 → 1.000
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 1.000 Pan: -174.3 266.7
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: main.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'main.ts', isPreviewMode: false, zoomLevel: 1}
-webview.js:34471 [Link Canvas] Monaco表示領域 {fileName: 'main.ts', width: 400, height: 300, contentHeight: 268}
-webview.js:34584 [Link Canvas] CodeWindowNode レンダリング: calculator.ts
-webview.js:34464 [Link Canvas] CodeWindow レンダリング {fileName: 'calculator.ts', isPreviewMode: false, zoomLevel: 1}
-webview.js:34471 [Link Canvas] Monaco表示領域 {fileName: 'calculator.ts', width: 400, height: 300, contentHeight: 268}
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'main.ts', zoom: '1.000', isEditorMode: true}
-webview.js:34578 [Link Canvas] CodeWindowNode ズームレベル: {fileName: 'calculator.ts', zoom: '1.000', isEditorMode: true}
-webview.js:34359 [Link Canvas] Monaco Editor マウント: main.ts
-webview.js:34365 [Link Canvas] Monaco DOM サイズ（マウント時） {fileName: 'main.ts', width: 5, height: 5}
-webview.js:34371 [Link Canvas] DOM サイズが小さいため再レイアウト予定
-webview.js:34359 [Link Canvas] Monaco Editor マウント: calculator.ts
-webview.js:34365 [Link Canvas] Monaco DOM サイズ（マウント時） {fileName: 'calculator.ts', width: 5, height: 5}
-webview.js:34371 [Link Canvas] DOM サイズが小さいため再レイアウト予定
-webview.js:34373 [Link Canvas] Monaco 再レイアウト実行
-webview.js:34376 [Link Canvas] Monaco DOM サイズ（レイアウト後） {fileName: 'main.ts', width: 400, height: 268.0000305175781}
-webview.js:34373 [Link Canvas] Monaco 再レイアウト実行
-webview.js:34376 [Link Canvas] Monaco DOM サイズ（レイアウト後） {fileName: 'calculator.ts', width: 400, height: 268}
-webview.js:34697 [Link Canvas] Shift+ホイール ズームイン: 1.000 → 1.000
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 1.000 Pan: -174.3 266.7
-webview.js:34697 [Link Canvas] Shift+ホイール ズームイン: 1.000 → 1.000
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 1.000 Pan: -174.3 266.7
-webview.js:34697 [Link Canvas] Shift+ホイール ズームイン: 1.000 → 1.000
-webview.js:34674 [Link Canvas] ビューポート変更 - Zoom: 1.000 Pan: -174.3 266.7
+[code-mantra] Notification throttle check: 656ms since last notification (min: 1000ms)
+extensionHostProcess.js:207
+[code-mantra] Notification throttled
+extensionHostProcess.js:207
+Activating plugin Api
+extensionHostProcess.js:207
+Activating plugin Secrets
+extensionHostProcess.js:207
+Activating plugin ProjectManager
+extensionHostProcess.js:207
+Activating plugin Apigee
+extensionHostProcess.js:207
+Activating plugin GCE
+extensionHostProcess.js:207
+Activating plugin GCF
+extensionHostProcess.js:207
+Activating plugin CloudStorage
+extensionHostProcess.js:207
+Activating plugin Migrate
+extensionHostProcess.js:207
+Activating plugin MainframeModernization
+extensionHostProcess.js:207
+Activating plugin minikube
+extensionHostProcess.js:207
+Activating plugin BigQuery
+extensionHostProcess.js:207
+Done activating plugin Api, took 4.606499999999869ms
+extensionHostProcess.js:207
+Done activating plugin Secrets, took 4.094166000000769ms
+extensionHostProcess.js:207
+Done activating plugin ProjectManager, took 3.494125000001077ms
+extensionHostProcess.js:207
+Done activating plugin GCE, took 2.4114579999986745ms
+extensionHostProcess.js:207
+Done activating plugin CloudStorage, took 1.8383330000015121ms
+extensionHostProcess.js:207
+Done activating plugin Migrate, took 1.8135409999995318ms
+extensionHostProcess.js:207
+Done activating plugin MainframeModernization, took 1.7575419999993755ms
+extensionHostProcess.js:207
+Done activating plugin minikube, took 1.6658749999987776ms
+extensionHostProcess.js:207
+Done activating plugin BigQuery, took 2.6117919999996957ms
+extensionHostProcess.js:207
+Done activating plugin GCF, took 5.879457999999431ms
+extensionHostProcess.js:207
+[code-mantra] Notification throttle check: 847ms since last notification (min: 1000ms)
+extensionHostProcess.js:207
+[code-mantra] Notification throttled
+extensionHostProcess.js:207
+[Link Canvas] openCanvasコマンド実行: /Users/hirokimukai/Cloudprojects/link-canvas/test-workspace/src/main.ts
+extensionHostProcess.js:207
+[Link Canvas] 新しいWebview Panelを作成
+extensionHostProcess.js:207
+[code-mantra] Notification throttle check: 866ms since last notification (min: 1000ms)
+extensionHostProcess.js:207
+[code-mantra] Notification throttled
+extensionHostProcess.js:207
+Fetched default model from https://api.kilocode.ai/api/defaults: qwen/qwen3-coder
+extensionHostProcess.js:207
+[Link Canvas] ファイル送信: main.ts サイズ: 414
+extensionHostProcess.js:207
+[Storage Migration] No task history to migrate
+extensionHostProcess.js:207
+FileContextTracker: Processed 7 tasks, found 0 pending warnings, 0 orphaned, deleted 0, took 38ms
+extensionHostProcess.js:207
+[DEBUG] Registered request: 9f2e4856-2b41-4ea2-acf7-dade38190ea4
+extensionHostProcess.js:207
+[TelemetryService] Initialized with 1 telemetry provider(s)
+extensionHostProcess.js:207
+[Link Canvas] リサイズ配置: overlay windowId: window--Users-hirokimukai-Cloudprojects-link-canvas-test-workspace-src-main-ts-base
+extensionHostProcess.js:207
+Done activating plugin Apigee, took 2625.7079589999994ms
+extensionHostProcess.js:207
+Starting YAML Language Client
+extensionHostProcess.js:207
+Changing telemetry ID from cl-5df54837-fd33-45b0-8622-1c376f9373f2 to usr-01JZKS7NHJSRTPDJKT8KV46E3Q.
+extensionHostProcess.js:207
+[code-mantra] Notification throttle check: 4693ms since last notification (min: 1000ms)
+extensionHostProcess.js:207
+[code-mantra] handleTrigger called for: /Users/hirokimukai/Library/Application Support/Code - Insiders/User/mcp.json
+extensionHostProcess.js:207
+[code-mantra] Skipping document with language ID: jsonc
+extensionHostProcess.js:207
+[code-mantra] Document should not be processed
+extensionHostProcess.js:207
+YAML Language Client Started
+extensionHostProcess.js:207
+[code-mantra] Notification throttle check: 300ms since last notification (min: 1000ms)
+extensionHostProcess.js:207
+[code-mantra] Notification throttled
+extensionHostProcess.js:207
+[Link Canvas] Zoom In コマンド実行
+extensionHostProcess.js:207
+[Link Canvas] ズームコマンド送信: zoomIn
+extensionHostProcess.js:207
+[code-mantra] Notification throttle check: 1279ms since last notification (min: 1000ms)
+extensionHostProcess.js:207
+[code-mantra] handleTrigger called for: /Users/hirokimukai/Library/Application Support/Code - Insiders/User/mcp.json
+extensionHostProcess.js:207
+[code-mantra] Skipping document with language ID: jsonc
+extensionHostProcess.js:207
+[code-mantra] Document should not be processed
+extensionHostProcess.js:207
+[Link Canvas] Zoom In コマンド実行
+extensionHostProcess.js:207
+[Link Canvas] ズームコマンド送信: zoomIn
+extensionHostProcess.js:207
+[Link Canvas] Zoom In コマンド実行
+extensionHostProcess.js:207
+[Link Canvas] ズームコマンド送信: zoomIn
+extensionHostProcess.js:207
+[Link Canvas] Zoom In コマンド実行
+extensionHostProcess.js:207
+[Link Canvas] ズームコマンド送信: zoomIn
+extensionHostProcess.js:207
+[Link Canvas] Zoom In コマンド実行
+extensionHostProcess.js:207
+[Link Canvas] ズームコマンド送信: zoomIn
+extensionHostProcess.js:207
+[Link Canvas] Zoom In コマンド実行
+extensionHostProcess.js:207
+[Link Canvas] ズームコマンド送信: zoomIn
