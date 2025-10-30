@@ -1,92 +1,70 @@
 # Link Canvas
 
-VSCode 拡張機能として無限キャンバス上でコードの参照関係・呼び出し関係・依存関係を可視化するツール
+Link Canvas is a VS Code extension that visualizes code dependencies, references, and relationships on an infinite canvas. Explore your codebase interactively with OS-window-style code viewers that support zooming, panning, and direct navigation to definitions and references.
 
-## 機能
+## Features
 
-- 📊 コード依存関係の可視化
-- 🎨 無限キャンバス上での表示
-- 🔗 関数の呼び出し関係を追跡
-- 📁 ファイルツリービュー
+- **Infinite Canvas**: Navigate through your code on a boundless canvas with smooth zooming and panning
+- **Interactive Code Windows**: OS-style windows with drag, resize, and Monaco Editor integration
+- **Dependency Visualization**: See how functions, classes, and files are connected
+- **Quick Navigation**: Right-click context menu for jumping to definitions and references
+- **File Tree Integration**: Browse your project structure directly in the sidebar
 
-## インストール
+## Installation
 
-### 前提条件
+### Prerequisites
 
-- Node.js 16 以上
-- VSCode 1.80.0 以上
+- Node.js 16 or higher
+- VS Code 1.80.0 or higher
 
-### セットアップ
+### From Source (Development)
 
-1. リポジトリをクローン
+1. Clone the repository
 
 ```bash
 git clone https://github.com/is0692vs/link-canvas.git
 cd link-canvas
 ```
 
-2. 依存パッケージをインストール
+2. Install dependencies
 
 ```bash
 npm install
 ```
 
-3. ビルド
+3. Build the extension
 
 ```bash
 npm run build
 ```
 
-## 開発
+4. Install in VS Code
 
-### ローカルで実行
+- Open the project in VS Code
+- Press F5 to launch extension development host
+- Or package and install manually
 
-1. VSCode でプロジェクトを開く
+## Usage
 
-```bash
-code .
-```
+1. Click the "Link Canvas" icon in the VS Code activity bar
+2. Browse your project files in the sidebar
+3. Click on a file to open it on the canvas
+4. Zoom in to see full code with Monaco Editor, zoom out for overview
+5. Right-click in any editor to jump to definitions or references on the canvas
 
-2. F5 キーを押してデバッグ実行を開始
+## Screenshots
 
-または
+_Screenshots and demo GIFs will be added soon._
 
-```bash
-npm run watch
-```
+## System Requirements
 
-で監視モードでビルドしながら開発できます。
+- VS Code 1.80.0+
+- Node.js 16+ (for development)
 
-### プロジェクト構造
-
-```
-link-canvas/
-├── src/
-│   ├── extension.ts           # Extension本体
-│   ├── FileTreeProvider.ts    # ファイルツリービュー
-│   ├── CanvasViewProvider.ts  # キャンバスビュー
-│   └── webview/
-│       └── index.tsx          # Reactコンポーネント
-├── resources/
-│   └── icon.svg               # アクティビティバーアイコン
-├── .vscode/
-│   └── launch.json            # デバッグ設定
-├── package.json
-├── tsconfig.json
-├── build.js                   # esbuild設定
-└── README.md
-```
-
-## 使い方
-
-1. VSCode の左側アクティビティバーから「Link Canvas」アイコンをクリック
-2. サイドバーにファイルツリーが表示されます
-3. ファイルをクリックするとキャンバスが開き、依存関係が表示されます
-
-## ライセンス
+## License
 
 MIT
 
-## 貢献
+## Contributing
 
-プルリクエストを歓迎します。大きな変更の場合はまず issue を開いて変更内容を説明してください。
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
