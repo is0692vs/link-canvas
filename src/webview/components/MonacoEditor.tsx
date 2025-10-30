@@ -1,6 +1,7 @@
 import React from "react";
 import Editor from "@monaco-editor/react";
 import type { Monaco } from "@monaco-editor/react";
+import { ActionType, MessageType } from "../constants";
 
 interface MonacoEditorProps {
   content: string;
@@ -182,7 +183,7 @@ function registerCustomContextMenuActions(
   }
 
   // コンテキストメニューアクション実行用の共通関数
-  const executeAction = (actionName: "definition" | "references") => {
+  const executeAction = (actionName: typeof ActionType[keyof typeof ActionType]) => {
     console.log("[Link Canvas] executeAction 開始", {
       action: actionName,
       filePath,
@@ -210,7 +211,7 @@ function registerCustomContextMenuActions(
       return;
     }
 
-    const messageType = actionName === 'definition' ? 'showDefinition' : 'showReferences';
+    const messageType = actionName === ActionType.DEFINITION ? MessageType.SHOW_DEFINITION : MessageType.SHOW_REFERENCES;
 
     console.log("[Link Canvas] postMessage 送信:", {
         type: messageType,
@@ -241,7 +242,7 @@ function registerCustomContextMenuActions(
     ],
     run: () => {
       console.log("[Link Canvas] 定義アクション run 呼び出し");
-      executeAction("definition");
+      executeAction(ActionType.DEFINITION);
     },
   });
   console.log("[Link Canvas] 定義アクション登録完了", definitionAction);
@@ -258,7 +259,7 @@ function registerCustomContextMenuActions(
     ],
     run: () => {
       console.log("[Link Canvas] 参照アクション run 呼び出し");
-      executeAction("references");
+      executeAction(ActionType.REFERENCES);
     },
   });
   console.log("[Link Canvas] 参照アクション登録完了", referencesAction);

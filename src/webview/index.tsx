@@ -2,6 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { InfiniteCanvas } from "./components/InfiniteCanvas";
 import type { CodeWindowData } from "./components/CodeWindow";
+import { generateWindowId } from "./utils";
 
 interface FileMessage {
   type: string;
@@ -110,16 +111,11 @@ function App() {
           //   functions
           // );
 
-          const sanitizedPath = fileMsg.filePath.replace(/[^a-zA-Z0-9]/g, "-");
-          const highlightKey =
-            typeof fileMsg.highlightLine === "number"
-              ? `line-${fileMsg.highlightLine}-col-${
-                  typeof fileMsg.highlightColumn === "number"
-                    ? fileMsg.highlightColumn
-                    : 0
-                }`
-              : "base";
-          const windowId = `window-${sanitizedPath}-${highlightKey}`;
+          const windowId = generateWindowId(
+            fileMsg.filePath,
+            fileMsg.highlightLine,
+            fileMsg.highlightColumn
+          );
 
           setWindows((prev) => {
             const existingIndex = prev.findIndex((w) => w.id === windowId);
