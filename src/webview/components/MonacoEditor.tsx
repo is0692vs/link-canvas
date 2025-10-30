@@ -1,76 +1,118 @@
 import React from "react";
 import Editor from "@monaco-editor/react";
 import type { Monaco } from "@monaco-editor/react";
+import { ActionType, MessageType } from "../constants";
 
 interface MonacoEditorProps {
   content: string;
   fileName: string;
+  filePath: string;
   onChange?: (value: string | undefined) => void;
+  highlightLine?: number;
+  highlightColumn?: number;
 }
+
+// VSCode APIは一度だけ取得して保持する
+const vscodeApi = (window as any).acquireVsCodeApi?.();
 
 /**
  * ズームイン時に表示されるMonaco Editorコンポーネント
+ * 右クリックで「参照を表示」「定義を表示」メニュー対応
  */
-export const MonacoEditorComponent: React.FC<MonacoEditorProps> = ({
-  content,
-  fileName,
-  onChange,
-}) => {
+export const MonacoEditorComponent: React.FC<MonacoEditorProps> = (props) => {
+  const {
+    content,
+    fileName,
+    filePath,
+    onChange,
+    highlightLine,
+    highlightColumn,
+  } = props;
+
   const editorRef = React.useRef<any>(null);
   const monacoRef = React.useRef<Monaco | null>(null);
+  const highlightCollectionRef = React.useRef<any>(null);
 
   const handleEditorMount = (editor: any, monaco: Monaco) => {
-    console.log("[Link Canvas] Monaco Editor マウント:", fileName);
+    console.log("[Link Canvas] Monaco Editor handleEditorMount 呼び出し", {
+      fileName,
+      filePath,
+    });
+
     editorRef.current = editor;
     monacoRef.current = monaco;
 
     const domNode = editor.getDomNode();
     if (domNode) {
       const rect = domNode.getBoundingClientRect();
-      console.log("[Link Canvas] Monaco DOM サイズ（マウント時）", {
-        fileName,
-        width: rect.width,
-        height: rect.height,
-      });
-
-      // DOM サイズが小さすぎる場合は再レイアウトを実行
       if (rect.width < 100 || rect.height < 100) {
-        console.log("[Link Canvas] DOM サイズが小さいため再レイアウト予定");
         setTimeout(() => {
-          console.log("[Link Canvas] Monaco 再レイアウト実行");
           editor.layout();
-
-          // レイアウト後のサイズを確認
-          const updatedRect = domNode.getBoundingClientRect();
-          console.log("[Link Canvas] Monaco DOM サイズ（レイアウト後）", {
-            fileName,
-            width: updatedRect.width,
-            height: updatedRect.height,
-          });
         }, 100);
       }
     }
+
+    // コンテキストメニューアクション登録（メニュー項目を表示）
+    console.log("[Link Canvas] コンテキストメニューアクション登録開始");
+    registerCustomContextMenuActions(editor, monaco, filePath);
+    console.log("[Link Canvas] コンテキストメニューアクション登録完了");
 
     // Cmd +/- でフォントサイズ変更するコマンドを追加
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Equal, () => {
       const currentSize = editor.getOption(monaco.editor.EditorOption.fontSize);
       const newSize = Math.min(currentSize + 2, 32);
       editor.updateOptions({ fontSize: newSize });
-      console.log("[Link Canvas] フォントサイズ増加:", newSize);
     });
 
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Minus, () => {
       const currentSize = editor.getOption(monaco.editor.EditorOption.fontSize);
       const newSize = Math.max(currentSize - 2, 8);
       editor.updateOptions({ fontSize: newSize });
-      console.log("[Link Canvas] フォントサイズ減少:", newSize);
     });
 
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Digit0, () => {
       editor.updateOptions({ fontSize: 14 });
-      console.log("[Link Canvas] フォントサイズリセット: 14px");
     });
   };
+
+  /**
+   * ハイライト機能: highlightLine が変わったときに、該当行を視認しやすくハイライト
+   */
+  React.useEffect(() => {
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+
+    if (!editor || !monaco) {
+      return;
+    }
+
+    if (typeof highlightLine !== "number") {
+      // ハイライトを解除
+      highlightCollectionRef.current?.set([]);
+      return;
+    }
+
+    const lineNumber = highlightLine + 1; // 0-based → 1-based
+    const decorations = [
+      {
+        range: new monaco.Range(lineNumber, 1, lineNumber, 1000),
+        options: {
+          isWholeLine: true,
+          backgroundColor: "rgba(255, 200, 0, 0.2)",
+          borderColor: "rgba(255, 150, 0, 0.5)",
+          borderStyle: "solid",
+          borderWidth: "1px",
+        },
+      },
+    ];
+
+    if (!highlightCollectionRef.current) {
+      highlightCollectionRef.current = editor.createDecorationsCollection([]);
+    }
+
+    highlightCollectionRef.current.set(decorations);
+    editor.revealLineInCenter(lineNumber);
+  }, [highlightLine, highlightColumn, fileName]);
 
   return (
     <Editor
@@ -116,4 +158,109 @@ function getLanguageFromFileName(fileName: string): string {
     sql: "sql",
   };
   return languageMap[ext || ""] || "plaintext";
+}
+
+/**
+ * Monaco Editor にカスタムコンテキストメニューアクションを登録
+ */
+function registerCustomContextMenuActions(
+  editor: any,
+  monaco: any,
+  filePath: string
+) {
+  console.log("[Link Canvas] registerCustomContextMenuActions 呼び出し", {
+    filePath,
+  });
+
+  // 既にアクションが登録されているかチェック
+  try {
+    if (editor.getAction && editor.getAction("link-canvas.showDefinition")) {
+      console.log("[Link Canvas] アクション既に登録済み - スキップ");
+      return; // 既に登録されている場合はスキップ
+    }
+  } catch (e) {
+    console.log("[Link Canvas] getAction チェック失敗 - 新規登録", e);
+  }
+
+  // コンテキストメニューアクション実行用の共通関数
+  const executeAction = (actionName: typeof ActionType[keyof typeof ActionType]) => {
+    console.log("[Link Canvas] executeAction 開始", {
+      action: actionName,
+      filePath,
+    });
+
+    const position = editor.getPosition();
+    if (!position) {
+      console.log("[Link Canvas] position が取得できない");
+      return;
+    }
+
+    const model = editor.getModel();
+    const selection = editor.getSelection();
+    let selectedText = "";
+
+    if (selection && !selection.isEmpty()) {
+      selectedText = model.getValueInRange(selection);
+    } else {
+      const wordInfo = model.getWordAtPosition(position);
+      selectedText = wordInfo?.word || "";
+    }
+
+    if (!vscodeApi) {
+      console.error("[Link Canvas] VS Code API が利用できません");
+      return;
+    }
+
+    const messageType = actionName === ActionType.DEFINITION ? MessageType.SHOW_DEFINITION : MessageType.SHOW_REFERENCES;
+
+    console.log("[Link Canvas] postMessage 送信:", {
+        type: messageType,
+        filePath,
+        line: position.lineNumber - 1,
+        column: position.column - 1,
+        selectedText,
+    });
+
+    vscodeApi.postMessage({
+        type: messageType,
+        filePath,
+        line: position.lineNumber - 1,
+        column: position.column - 1,
+        selectedText,
+    });
+  };
+
+  // 定義を表示アクション
+  console.log("[Link Canvas] 定義アクション登録中...");
+  const definitionAction = editor.addAction({
+    id: "link-canvas.showDefinition",
+    label: "[Canvas] 定義を表示",
+    contextMenuGroupId: "navigation",
+    contextMenuOrder: 1.5,
+    keybindings: [
+      monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyD,
+    ],
+    run: () => {
+      console.log("[Link Canvas] 定義アクション run 呼び出し");
+      executeAction(ActionType.DEFINITION);
+    },
+  });
+  console.log("[Link Canvas] 定義アクション登録完了", definitionAction);
+
+  // 参照を表示アクション
+  console.log("[Link Canvas] 参照アクション登録中...");
+  const referencesAction = editor.addAction({
+    id: "link-canvas.showReferences",
+    label: "[Canvas] 参照を表示",
+    contextMenuGroupId: "navigation",
+    contextMenuOrder: 1.6,
+    keybindings: [
+      monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyR,
+    ],
+    run: () => {
+      console.log("[Link Canvas] 参照アクション run 呼び出し");
+      executeAction(ActionType.REFERENCES);
+    },
+  });
+  console.log("[Link Canvas] 参照アクション登録完了", referencesAction);
 }

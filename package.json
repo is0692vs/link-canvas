@@ -10,7 +10,9 @@
     "Visualization"
   ],
   "activationEvents": [
-    "onView:linkCanvas.fileTree"
+    "onView:linkCanvas.fileTree",
+    "onCommand:linkCanvas.showDefinition",
+    "onCommand:linkCanvas.showReferences"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -37,6 +39,16 @@
         "title": "Open Canvas"
       },
       {
+        "command": "linkCanvas.showDefinition",
+        "title": "Show Definition in Canvas",
+        "category": "Link Canvas"
+      },
+      {
+        "command": "linkCanvas.showReferences",
+        "title": "Show References in Canvas",
+        "category": "Link Canvas"
+      },
+      {
         "command": "linkCanvas.zoomIn",
         "title": "Zoom In",
         "category": "Link Canvas",
@@ -50,6 +62,16 @@
       }
     ],
     "menus": {
+      "editor/context": [
+        {
+          "command": "linkCanvas.showDefinition",
+          "when": "editorTextFocus"
+        },
+        {
+          "command": "linkCanvas.showReferences",
+          "when": "editorTextFocus"
+        }
+      ],
       "view/title": [
         {
           "command": "linkCanvas.zoomIn",
