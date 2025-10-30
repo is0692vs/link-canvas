@@ -130,11 +130,13 @@ export class CanvasViewProvider {
             await this.openOrAddFile();
 
             // 定義情報を取得
+            console.log('[Link Canvas] executeDefinitionProvider 呼び出し前:', { uri: uri.fsPath, line: position.line, character: position.character });
             const definitionsResult = await vscode.commands.executeCommand<vscode.Location | vscode.Location[]>(
                 'vscode.executeDefinitionProvider',
                 uri,
                 position
             );
+            console.log('[Link Canvas] executeDefinitionProvider 呼び出し後:', definitionsResult);
 
             if (!definitionsResult) {
                 vscode.window.showInformationMessage('定義が見つかりませんでした');
@@ -152,8 +154,12 @@ export class CanvasViewProvider {
             await this.addFileToCanvas(uri);
 
             // 各定義をキャンバスに追加
-            for (const definition of definitions) {
-                await this.addDefinitionToCanvas(definition);
+            for (const def of definitions) {
+                if ('targetUri' in def) {
+                    await this.addDefinitionToCanvas(new vscode.Location(def.targetUri, def.targetRange));
+                } else {
+                    await this.addDefinitionToCanvas(def);
+                }
             }
 
             console.log('[Link Canvas] 定義数:', definitions.length);
@@ -212,8 +218,12 @@ export class CanvasViewProvider {
             await this.addFileToCanvas(uri);
 
             // 各参照をキャンバスに追加
-            for (const reference of references) {
-                await this.addReferenceToCanvas(reference);
+            for (const ref of references) {
+                if ('targetUri' in ref) {
+                    await this.addReferenceToCanvas(new vscode.Location(ref.targetUri, ref.targetRange));
+                } else {
+                    await this.addReferenceToCanvas(ref);
+                }
             }
 
             console.log('[Link Canvas] 参照数:', references.length);
@@ -339,11 +349,13 @@ export class CanvasViewProvider {
             const position = new vscode.Position(message.line, message.column);
 
             console.log('[Link Canvas] VSCode API 実行: vscode.executeDefinitionProvider');
+            console.log('[Link Canvas] executeDefinitionProvider 呼び出し前 (from Webview):', { uri: uri.fsPath, line: position.line, character: position.column });
             const definitionsResult = await vscode.commands.executeCommand<vscode.Location | vscode.Location[]>(
                 'vscode.executeDefinitionProvider',
                 uri,
                 position
             );
+            console.log('[Link Canvas] executeDefinitionProvider 呼び出し後 (from Webview):', definitionsResult);
 
             console.log('[Link Canvas] 定義取得完了:', {
                 count: definitionsResult ? (Array.isArray(definitionsResult) ? definitionsResult.length : 1) : 0,
@@ -360,7 +372,11 @@ export class CanvasViewProvider {
             if (definitions.length > 0) {
                 console.log('[Link Canvas] 定義をキャンバスに追加 (数:', definitions.length, ')');
                 for (const def of definitions) {
-                    await this.addDefinitionToCanvas(def);
+                    if ('targetUri' in def) {
+                        await this.addDefinitionToCanvas(new vscode.Location(def.targetUri, def.targetRange));
+                    } else {
+                        await this.addDefinitionToCanvas(def);
+                    }
                 }
                 console.log('[Link Canvas] 定義処理完了');
             } else {
@@ -410,7 +426,11 @@ export class CanvasViewProvider {
             if (references.length > 0) {
                 console.log('[Link Canvas] 参照をキャンバスに追加 (数:', references.length, ')');
                 for (const ref of references) {
-                    await this.addReferenceToCanvas(ref);
+                    if ('targetUri' in ref) {
+                        await this.addReferenceToCanvas(new vscode.Location(ref.targetUri, ref.targetRange));
+                    } else {
+                        await this.addReferenceToCanvas(ref);
+                    }
                 }
                 console.log('[Link Canvas] 参照処理完了');
             } else {
