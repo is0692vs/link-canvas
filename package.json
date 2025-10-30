@@ -2,7 +2,7 @@
   "name": "link-canvas",
   "displayName": "Link Canvas",
   "description": "Visualize and explore code dependencies on an infinite canvas with interactive code windows.",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "publisher": "hirokimukai",
   "license": "MIT",
   "icon": "icon.png",
