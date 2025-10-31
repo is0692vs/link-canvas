@@ -147,7 +147,7 @@ export function parseConfigFromMessage(config: Partial<LinkCanvasConfig>): LinkC
       borderRadius: config.window?.borderRadius ?? DEFAULT_CONFIG.window.borderRadius,
       backgroundColor: config.window?.backgroundColor || DEFAULT_CONFIG.window.backgroundColor,
       titleBarColor: config.window?.titleBarColor || DEFAULT_CONFIG.window.titleBarColor,
-      shadowColor: config.window?.shadowColor || DEFAULT_CONFIG.window.shadowColor,
+      shadowColor: config.window?.shadowColor ?? DEFAULT_CONFIG.window.shadowColor,
     },
     font: {
       family: config.font?.family ?? DEFAULT_CONFIG.font.family,
