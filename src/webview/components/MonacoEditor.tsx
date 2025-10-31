@@ -138,6 +138,9 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = (props) => {
       startLine = highlightLine;
       endLine = highlightLine;
       startColumn = highlightColumn;
+      // highlightColumn が指定されている場合、endColumn も同じ値にする（単一位置のハイライト）
+      // 指定されていない場合は行全体をハイライト
+      endColumn = highlightColumn;
       console.log("[Link Canvas] 単一行ハイライト適用:", {
         line: highlightLine,
         column: highlightColumn,
@@ -161,7 +164,14 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = (props) => {
       monacoEndColumn = endColumn + 1;
     } else {
       const model = editor.getModel();
-      monacoEndColumn = model?.getLineMaxColumn(monacoEndLine) || 1;
+      if (model) {
+        monacoEndColumn = model.getLineMaxColumn(monacoEndLine);
+      } else {
+        // モデルが null の場合は、startColumn より大きい値を使用
+        // これにより無効な範囲を避ける
+        monacoEndColumn = Math.max(monacoStartColumn + 1, 1000);
+        console.warn("[Link Canvas] エディタモデルが null です");
+      }
     }
 
     // デコレーション（ハイライト）を設定

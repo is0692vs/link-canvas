@@ -3,7 +3,7 @@
  */
 
 /**
- * ハイライト範囲を表すインターフェース
+ * Interface representing a highlight range in the editor
  */
 export interface HighlightRange {
   startLine: number;
