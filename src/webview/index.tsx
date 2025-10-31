@@ -4,6 +4,7 @@ import { InfiniteCanvas } from "./components/InfiniteCanvas";
 import type { CodeWindowData } from "./components/CodeWindow";
 import type { EdgeData } from "./types/EdgeData";
 import { generateWindowId, generateEdgeId } from "./utils";
+import type { HighlightRange } from "./types";
 
 interface FileMessage {
   type: string;
@@ -12,6 +13,7 @@ interface FileMessage {
   content: string;
   highlightLine?: number;
   highlightColumn?: number;
+  highlightRange?: HighlightRange;
   relationshipType?: "definition" | "reference" | "import" | null;
   relatedFilePath?: string | null;
 }
@@ -230,6 +232,7 @@ function App() {
                 functions,
                 highlightLine: fileMsg.highlightLine,
                 highlightColumn: fileMsg.highlightColumn,
+                highlightRange: fileMsg.highlightRange,
               };
               console.log("[Link Canvas] 既存ウィンドウ更新:", windowId);
               return updated;
@@ -254,6 +257,7 @@ function App() {
               functions,
               highlightLine: fileMsg.highlightLine,
               highlightColumn: fileMsg.highlightColumn,
+              highlightRange: fileMsg.highlightRange,
               position,
             };
 

@@ -291,21 +291,29 @@ export class CanvasViewProvider {
 
             const relationshipType: RelationshipType = type === '定義' ? 'definition' : 'reference';
 
+            // ハイライト範囲情報を送信
+            const highlightRange = {
+                startLine: location.range.start.line,
+                endLine: location.range.end.line,
+                startColumn: location.range.start.character,
+                endColumn: location.range.end.character,
+            };
+
             this.panel.webview.postMessage({
                 type: 'addFile',
                 filePath: location.uri.fsPath,
                 fileName: fileName,
                 content: content,
-                highlightLine: location.range.start.line,
-                highlightColumn: location.range.start.character,
+                highlightLine: location.range.start.line,  // 後方互換性のため保持
+                highlightColumn: location.range.start.character,  // 後方互換性のため保持
+                highlightRange: highlightRange,  // 新しい範囲情報
                 relationshipType: relationshipType,
                 relatedFilePath: sourceFilePath || null,
             });
 
             console.log(`[Link Canvas] ${type}送信完了`, {
                 filePath: location.uri.fsPath,
-                line: location.range.start.line,
-                column: location.range.start.character,
+                range: highlightRange,
                 relationshipType,
                 relatedFilePath: sourceFilePath,
             });

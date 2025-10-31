@@ -179,3 +179,20 @@
   width: 8px;
   cursor: e-resize;
 }
+
+/* Monaco Editor ハイライト用スタイル */
+.highlight-line {
+  background-color: rgba(255, 230, 100, 0.25) !important;
+  border-left: 3px solid rgba(255, 180, 0, 0.6);
+}
+
+.highlight-inline {
+  background-color: rgba(255, 230, 100, 0.25) !important;
+}
+
+.highlight-glyph {
+  background-color: rgba(255, 180, 0, 0.8);
+  width: 3px !important;
+}
+
+/* オーバービュールーラーの色は JavaScript の monaco.editor.OverviewRulerLane で設定 */

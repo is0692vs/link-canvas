@@ -2,6 +2,7 @@ import React from "react";
 import { useResize } from "../hooks/useResize";
 import { FilePreview } from "./FilePreview";
 import { MonacoEditorComponent } from "./MonacoEditor";
+import type { HighlightRange } from "../types";
 import "./CodeWindow.css";
 
 export interface CodeWindowData {
@@ -14,6 +15,7 @@ export interface CodeWindowData {
   functions?: string[];
   highlightLine?: number;
   highlightColumn?: number;
+  highlightRange?: HighlightRange;
   [key: string]: unknown;
 }
 
@@ -157,6 +159,7 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
             filePath={data.filePath}
             highlightLine={data.highlightLine}
             highlightColumn={data.highlightColumn}
+            highlightRange={data.highlightRange}
           />
         )}
       </div>
