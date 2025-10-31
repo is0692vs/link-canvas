@@ -11,6 +11,7 @@ Link Canvas is a VS Code extension that visualizes code dependencies, references
 - **Dependency Visualization**: See how functions, classes, and files are connected
 - **Quick Navigation**: Right-click context menu for jumping to definitions and references
 - **File Tree Integration**: Browse your project structure directly in the sidebar
+- **Style Customization**: Fully customizable themes, window styles, and fonts ([details](STYLE_CUSTOMIZATION.md))
 
 ## Installation
 
@@ -53,6 +54,21 @@ npm run build
 3. Click on a file to open it on the canvas
 4. Zoom in to see full code with Monaco Editor, zoom out for overview
 5. Right-click in any editor to jump to definitions or references on the canvas
+
+### Style Customization
+
+Link Canvas allows you to customize themes, window styles, and fonts via VSCode settings (settings.json).
+
+```json
+{
+  "linkCanvas.theme": "dark",
+  "linkCanvas.window.borderColor": "#3c3c3c",
+  "linkCanvas.window.borderRadius": 8,
+  "linkCanvas.font.size": 14
+}
+```
+
+See the [Style Customization Guide](STYLE_CUSTOMIZATION.md) for detailed configuration options.
 
 ## Screenshots
 
