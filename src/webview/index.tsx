@@ -5,7 +5,12 @@ import type { CodeWindowData } from "./components/CodeWindow";
 import type { EdgeData } from "./types/EdgeData";
 import { generateWindowId, generateEdgeId } from "./utils";
 import type { HighlightRange } from "./types";
-import { applyConfigToCSS, parseConfigFromMessage, DEFAULT_CONFIG, type LinkCanvasConfig } from "./config";
+import {
+  applyConfigToCSS,
+  parseConfigFromMessage,
+  DEFAULT_CONFIG,
+  type LinkCanvasConfig,
+} from "./config";
 
 interface FileMessage {
   type: string;
@@ -485,7 +490,10 @@ function App() {
           handleZoomChange(newZoom);
         } else if (message.type === "updateConfig") {
           const configMsg = message as ConfigMessage;
-          console.log("[Link Canvas] 設定更新メッセージ受信:", configMsg.config);
+          console.log(
+            "[Link Canvas] 設定更新メッセージ受信:",
+            configMsg.config
+          );
           const parsedConfig = parseConfigFromMessage(configMsg.config);
           applyConfigToCSS(parsedConfig);
         }
