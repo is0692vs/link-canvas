@@ -12,6 +12,8 @@ interface FileMessage {
   content: string;
   highlightLine?: number;
   highlightColumn?: number;
+  relationshipType?: "definition" | "reference" | "import" | null;
+  relatedFilePath?: string | null;
 }
 
 interface ZoomMessage {
@@ -66,9 +68,7 @@ function App() {
   const handleWindowClose = React.useCallback((id: string) => {
     setWindows((prev) => prev.filter((w) => w.id !== id));
     // ウィンドウ削除時に関連するエッジも削除
-    setEdges((prev) =>
-      prev.filter((e) => e.source !== id && e.target !== id)
-    );
+    setEdges((prev) => prev.filter((e) => e.source !== id && e.target !== id));
     // console.log("[Link Canvas] ウィンドウ削除:", id);
   }, []);
 
@@ -86,11 +86,11 @@ function App() {
     // 環境変数やクエリパラメータでテストモードを判定できるが、
     // ここでは簡易的にウィンドウ数が0の場合のみテストデータを追加
     // NODE_ENVが'production'でない場合のみテストデータを追加
-    const addTestData = process.env.NODE_ENV !== 'production';
-    
+    const addTestData = process.env.NODE_ENV !== "production";
+
     if (addTestData && windows.length === 0) {
       console.log("[Link Canvas] テストデータを追加します");
-      
+
       // テストウィンドウ1
       const testWindow1: CodeWindowData & {
         id: string;
@@ -306,17 +306,85 @@ function App() {
           });
 
           // 依存関係の自動検出とエッジ作成
-          // 新しいウィンドウが追加された場合、既存のウィンドウとの依存関係を検出
           setWindows((currentWindows) => {
             // ウィンドウは既に更新されているので、そのまま返す
-            
-            // エッジを更新（現在のウィンドウリストを使用）
+
+            // エッジを更新
             setEdges((prevEdges) => {
               const newEdges: EdgeData[] = [...prevEdges];
 
-              // import文から依存関係を検出（より包括的な正規表現）
-              const importRegex =
-                /import\s+(?:.*\s+)?from\s*['"]([^'"]+)['"]/g;
+              // 1. 明示的な依存関係（definition/reference）を処理
+              if (fileMsg.relationshipType && fileMsg.relatedFilePath) {
+                console.log(
+                  "[Link Canvas] 明示的依存関係検出:",
+                  fileMsg.relationshipType,
+                  "from",
+                  fileMsg.relatedFilePath,
+                  "to",
+                  fileMsg.filePath
+                );
+
+                // 元ファイルのウィンドウを検索
+                const sourceWindow = currentWindows.find(
+                  (w) => w.filePath === fileMsg.relatedFilePath
+                );
+
+                if (sourceWindow) {
+                  let edgeId: string;
+                  let sourceId: string;
+                  let targetId: string;
+                  let edgeColor: string;
+                  let edgeLabel: string;
+
+                  // definition: 元ファイル → 定義ファイル
+                  // reference: 元ファイル ← 参照元ファイル
+                  if (fileMsg.relationshipType === "definition") {
+                    sourceId = sourceWindow.id;
+                    targetId = windowId;
+                    edgeId = generateEdgeId(sourceId, targetId);
+                    edgeColor = "#4caf50"; // 緑
+                    edgeLabel = "definition";
+                  } else {
+                    // reference
+                    sourceId = windowId;
+                    targetId = sourceWindow.id;
+                    edgeId = generateEdgeId(sourceId, targetId);
+                    edgeColor = "#2196f3"; // 青
+                    edgeLabel = "reference";
+                  }
+
+                  // 既存のエッジがない場合のみ追加
+                  if (!newEdges.some((e) => e.id === edgeId)) {
+                    newEdges.push({
+                      id: edgeId,
+                      source: sourceId,
+                      target: targetId,
+                      sourceHandle: "right",
+                      targetHandle: "left",
+                      style: {
+                        color: edgeColor,
+                        width: 2,
+                        dashed: false,
+                      },
+                      label: edgeLabel,
+                    });
+                    console.log(
+                      `[Link Canvas] ${fileMsg.relationshipType}エッジ作成:`,
+                      sourceWindow.fileName,
+                      "→",
+                      fileMsg.fileName
+                    );
+                  }
+                } else {
+                  console.warn(
+                    "[Link Canvas] 元ファイルウィンドウが見つかりません:",
+                    fileMsg.relatedFilePath
+                  );
+                }
+              }
+
+              // 2. import文から依存関係を検出（既存のロジック）
+              const importRegex = /import\s+(?:.*\s+)?from\s*['"]([^'"]+)['"]/g;
               let importMatch;
 
               while (
@@ -330,46 +398,50 @@ function App() {
                   fileMsg.fileName
                 );
 
-                // importパスに基づいて対象ウィンドウを検索
-                // より正確なファイル名マッチング
                 const targetWindow = currentWindows.find((w) => {
-                  const baseName = importPath.split("/").pop()?.replace(/\.(ts|tsx|js|jsx)$/, "");
+                  const baseName = importPath
+                    .split("/")
+                    .pop()
+                    ?.replace(/\.(ts|tsx|js|jsx)$/, "");
                   if (!baseName) return false;
-                  
-                  // ファイル名から拡張子を除いた部分で正確にマッチ
-                  const windowBaseName = w.fileName.replace(/\.(ts|tsx|js|jsx)$/, "");
-                  return baseName.toLowerCase() === windowBaseName.toLowerCase();
+
+                  const windowBaseName = w.fileName.replace(
+                    /\.(ts|tsx|js|jsx)$/,
+                    ""
+                  );
+                  return (
+                    baseName.toLowerCase() === windowBaseName.toLowerCase()
+                  );
                 });
 
-              if (targetWindow) {
-                const edgeId = generateEdgeId(windowId, targetWindow.id);
-                // 既存のエッジがない場合のみ追加
-                if (!newEdges.some((e) => e.id === edgeId)) {
-                  newEdges.push({
-                    id: edgeId,
-                    source: windowId,
-                    target: targetWindow.id,
-                    sourceHandle: "right",
-                    targetHandle: "left",
-                    style: {
-                      color: "#888",
-                      width: 2,
-                      dashed: false,
-                    },
-                  });
-                  console.log(
-                    "[Link Canvas] エッジ作成:",
-                    fileMsg.fileName,
-                    "→",
-                    targetWindow.fileName
-                  );
+                if (targetWindow) {
+                  const edgeId = generateEdgeId(windowId, targetWindow.id);
+                  if (!newEdges.some((e) => e.id === edgeId)) {
+                    newEdges.push({
+                      id: edgeId,
+                      source: windowId,
+                      target: targetWindow.id,
+                      sourceHandle: "right",
+                      targetHandle: "left",
+                      style: {
+                        color: "#888",
+                        width: 2,
+                        dashed: false,
+                      },
+                    });
+                    console.log(
+                      "[Link Canvas] importエッジ作成:",
+                      fileMsg.fileName,
+                      "→",
+                      targetWindow.fileName
+                    );
+                  }
                 }
               }
-            }
 
               return newEdges;
             });
-            
+
             return currentWindows;
           });
         } else if (message.type === "zoomIn" || message.type === "zoomOut") {
