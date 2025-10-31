@@ -4,6 +4,13 @@ import { InfiniteCanvas } from "./components/InfiniteCanvas";
 import type { CodeWindowData } from "./components/CodeWindow";
 import { generateWindowId } from "./utils";
 
+interface HighlightRange {
+  startLine: number;
+  endLine: number;
+  startColumn?: number;
+  endColumn?: number;
+}
+
 interface FileMessage {
   type: string;
   filePath: string;
@@ -11,6 +18,7 @@ interface FileMessage {
   content: string;
   highlightLine?: number;
   highlightColumn?: number;
+  highlightRange?: HighlightRange;
 }
 
 interface ZoomMessage {
@@ -130,6 +138,7 @@ function App() {
                 functions,
                 highlightLine: fileMsg.highlightLine,
                 highlightColumn: fileMsg.highlightColumn,
+                highlightRange: fileMsg.highlightRange,
               };
               console.log("[Link Canvas] 既存ウィンドウ更新:", windowId);
               return updated;
@@ -154,6 +163,7 @@ function App() {
               functions,
               highlightLine: fileMsg.highlightLine,
               highlightColumn: fileMsg.highlightColumn,
+              highlightRange: fileMsg.highlightRange,
               position,
             };
 

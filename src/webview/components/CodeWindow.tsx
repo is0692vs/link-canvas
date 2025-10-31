@@ -4,6 +4,13 @@ import { FilePreview } from "./FilePreview";
 import { MonacoEditorComponent } from "./MonacoEditor";
 import "./CodeWindow.css";
 
+export interface HighlightRange {
+  startLine: number;
+  endLine: number;
+  startColumn?: number;
+  endColumn?: number;
+}
+
 export interface CodeWindowData {
   filePath: string;
   fileName: string;
@@ -14,6 +21,7 @@ export interface CodeWindowData {
   functions?: string[];
   highlightLine?: number;
   highlightColumn?: number;
+  highlightRange?: HighlightRange;
   [key: string]: unknown;
 }
 
@@ -157,6 +165,7 @@ export const CodeWindow: React.FC<CodeWindowProps> = ({
             filePath={data.filePath}
             highlightLine={data.highlightLine}
             highlightColumn={data.highlightColumn}
+            highlightRange={data.highlightRange}
           />
         )}
       </div>

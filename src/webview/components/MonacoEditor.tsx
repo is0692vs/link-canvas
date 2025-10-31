@@ -3,6 +3,13 @@ import Editor from "@monaco-editor/react";
 import type { Monaco } from "@monaco-editor/react";
 import { ActionType, MessageType } from "../constants";
 
+interface HighlightRange {
+  startLine: number;
+  endLine: number;
+  startColumn?: number;
+  endColumn?: number;
+}
+
 interface MonacoEditorProps {
   content: string;
   fileName: string;
@@ -10,6 +17,7 @@ interface MonacoEditorProps {
   onChange?: (value: string | undefined) => void;
   highlightLine?: number;
   highlightColumn?: number;
+  highlightRange?: HighlightRange;
 }
 
 // VSCode APIは一度だけ取得して保持する
@@ -27,6 +35,7 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = (props) => {
     onChange,
     highlightLine,
     highlightColumn,
+    highlightRange,
   } = props;
 
   const editorRef = React.useRef<any>(null);
@@ -76,7 +85,8 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = (props) => {
   };
 
   /**
-   * ハイライト機能: highlightLine が変わったときに、該当行を視認しやすくハイライト
+   * ハイライト機能: highlightRange または highlightLine が変わったときに、該当範囲を視認しやすくハイライト
+   * 範囲を自動スクロールで表示
    */
   React.useEffect(() => {
     const editor = editorRef.current;
@@ -86,22 +96,70 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = (props) => {
       return;
     }
 
-    if (typeof highlightLine !== "number") {
-      // ハイライトを解除
+    // highlightRange が優先、なければ highlightLine を使用
+    let startLine: number;
+    let endLine: number;
+    let startColumn: number | undefined;
+    let endColumn: number | undefined;
+
+    if (highlightRange) {
+      startLine = highlightRange.startLine;
+      endLine = highlightRange.endLine;
+      startColumn = highlightRange.startColumn;
+      endColumn = highlightRange.endColumn;
+      console.log("[Link Canvas] ハイライト範囲適用:", {
+        startLine,
+        endLine,
+        startColumn,
+        endColumn,
+        fileName,
+      });
+    } else if (typeof highlightLine === "number") {
+      // 後方互換性: highlightLine のみの場合は単一行ハイライト
+      startLine = highlightLine;
+      endLine = highlightLine;
+      startColumn = highlightColumn;
+      console.log("[Link Canvas] 単一行ハイライト適用:", {
+        line: highlightLine,
+        column: highlightColumn,
+        fileName,
+      });
+    } else {
+      // ハイライトなし - デコレーションを解除
       highlightCollectionRef.current?.set([]);
       return;
     }
 
-    const lineNumber = highlightLine + 1; // 0-based → 1-based
+    // Monaco は 1-based の行番号を使用、VSCode は 0-based
+    const monacoStartLine = startLine + 1;
+    const monacoEndLine = endLine + 1;
+    const monacoStartColumn = startColumn !== undefined ? startColumn + 1 : 1;
+    const monacoEndColumn =
+      endColumn !== undefined ? endColumn + 1 : Number.MAX_VALUE;
+
+    // デコレーション（ハイライト）を設定
     const decorations = [
       {
-        range: new monaco.Range(lineNumber, 1, lineNumber, 1000),
+        range: new monaco.Range(
+          monacoStartLine,
+          1,
+          monacoEndLine,
+          Number.MAX_VALUE
+        ),
         options: {
           isWholeLine: true,
-          backgroundColor: "rgba(255, 200, 0, 0.2)",
-          borderColor: "rgba(255, 150, 0, 0.5)",
-          borderStyle: "solid",
-          borderWidth: "1px",
+          className: "highlight-line",
+          // 背景色: 薄い黄色
+          inlineClassName: "highlight-inline",
+          // Monaco の組み込みスタイルオプション
+          backgroundColor: "rgba(255, 230, 100, 0.25)",
+          // 左側のグリフマージン（行番号の左側）にマーカーを表示
+          glyphMarginClassName: "highlight-glyph",
+          // オーバービュールーラー（スクロールバー）にマーカーを表示
+          overviewRuler: {
+            color: "rgba(255, 200, 0, 0.8)",
+            position: monaco.editor.OverviewRulerLane.Full,
+          },
         },
       },
     ];
@@ -111,8 +169,24 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = (props) => {
     }
 
     highlightCollectionRef.current.set(decorations);
-    editor.revealLineInCenter(lineNumber);
-  }, [highlightLine, highlightColumn, fileName]);
+
+    // 自動スクロール: ハイライト範囲をウィンドウの上部に表示
+    const revealRange = new monaco.Range(
+      monacoStartLine,
+      monacoStartColumn,
+      monacoEndLine,
+      monacoEndColumn
+    );
+
+    // revealRangeAtTop: 範囲がビューポートの上部に来るようにスクロール
+    editor.revealRangeAtTop(revealRange);
+
+    console.log("[Link Canvas] ハイライト適用完了、自動スクロール実行:", {
+      monacoStartLine,
+      monacoEndLine,
+      fileName,
+    });
+  }, [highlightLine, highlightColumn, highlightRange, fileName]);
 
   return (
     <Editor
