@@ -8,21 +8,16 @@ interface EdgeCanvasProps {
   windows: Array<
     CodeWindowData & { id: string; position: { x: number; y: number } }
   >;
-  zoom: number; // 将来の座標変換用（現在未使用）
-  pan: { x: number; y: number }; // 将来の座標変換用（現在未使用）
   onEdgeClick?: (edgeId: string) => void;
   onEdgeHover?: (edgeId: string | null) => void;
 }
 
 /**
  * エッジ（依存関係の線）を描画するSVGキャンバス
- * 注: zoom/panは将来の機能拡張用に保持していますが、現在は使用していません
  */
 export const EdgeCanvas: React.FC<EdgeCanvasProps> = ({
   edges,
   windows,
-  zoom,
-  pan,
   onEdgeClick,
   onEdgeHover,
 }) => {
