@@ -1,12 +1,15 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { CodeWindow, type CodeWindowData } from "./CodeWindow";
+import { EdgeCanvas } from "./EdgeCanvas";
+import type { EdgeData } from "../types/EdgeData";
 import "./InfiniteCanvas.css";
 
 interface InfiniteCanvasProps {
   windows: Array<
     CodeWindowData & { id: string; position: { x: number; y: number } }
   >;
+  edges: EdgeData[];
   zoom: number;
   pan: { x: number; y: number };
   onZoomChange: (zoom: number) => void;
@@ -14,6 +17,8 @@ interface InfiniteCanvasProps {
   onWindowMove: (id: string, position: { x: number; y: number }) => void;
   onWindowResize: (id: string, width: number, height: number) => void;
   onWindowClose: (id: string) => void;
+  onEdgeClick?: (edgeId: string) => void;
+  onEdgeHover?: (edgeId: string | null) => void;
 }
 
 /**
@@ -22,6 +27,7 @@ interface InfiniteCanvasProps {
  */
 export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
   windows,
+  edges,
   zoom,
   pan,
   onZoomChange,
@@ -29,6 +35,8 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
   onWindowMove,
   onWindowResize,
   onWindowClose,
+  onEdgeClick,
+  onEdgeHover,
 }) => {
   const canvasRef = React.useRef<HTMLDivElement>(null);
   const viewportRef = React.useRef<HTMLDivElement>(null);
@@ -315,6 +323,16 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
       style={{ cursor: isPanning ? "grabbing" : "grab" }}
     >
       <div ref={canvasRef} className="infinite-canvas" style={canvasStyle}>
+        {/* エッジ（依存関係の線）を描画 */}
+        <EdgeCanvas
+          edges={edges}
+          windows={windows}
+          zoom={zoom}
+          pan={pan}
+          onEdgeClick={onEdgeClick}
+          onEdgeHover={onEdgeHover}
+        />
+
         {windows.map((window) => (
           <div
             key={window.id}

@@ -1,5 +1,9 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+
+// 依存関係の種類
+type RelationshipType = 'definition' | 'reference' | 'import' | null;
+
 // メッセージ型定義
 interface DefinitionMessage {
     type: 'showDefinition';
@@ -140,9 +144,9 @@ export class CanvasViewProvider {
                 vscode.window.showInformationMessage('定義が見つかりませんでした');
                 return;
             }
-    
+
             const definitions = Array.isArray(definitionsResult) ? definitionsResult : [definitionsResult];
-    
+
             if (definitions.length === 0) {
                 vscode.window.showInformationMessage('定義が見つかりませんでした');
                 return;
@@ -151,16 +155,16 @@ export class CanvasViewProvider {
             // 元のファイルもキャンバスに追加
             await this.addFileToCanvas(uri);
 
-            // 各定義をキャンバスに追加
+            // 各定義をキャンバスに追加（元ファイルとの関係を記録）
             for (const def of definitions) {
                 if ('targetUri' in def) {
-                    await this.addDefinitionToCanvas(new vscode.Location(def.targetUri, def.targetRange));
+                    await this.addDefinitionToCanvas(new vscode.Location(def.targetUri, def.targetRange), uri.fsPath);
                 } else {
-                    await this.addDefinitionToCanvas(def);
+                    await this.addDefinitionToCanvas(def, uri.fsPath);
                 }
             }
 
-            console.log('[Link Canvas] 定義数:', definitions.length);
+            console.log('[Link Canvas] 定義数:', definitions.length, '元ファイル:', uri.fsPath);
         } catch (error) {
             console.error('[Link Canvas] 定義取得エラー:', error);
             vscode.window.showErrorMessage('定義の取得に失敗しました');
@@ -215,16 +219,16 @@ export class CanvasViewProvider {
             // 元のファイルもキャンバスに追加
             await this.addFileToCanvas(uri);
 
-            // 各参照をキャンバスに追加
+            // 各参照をキャンバスに追加（元ファイルとの関係を記録）
             for (const ref of references) {
                 if ('targetUri' in ref) {
-                    await this.addReferenceToCanvas(new vscode.Location(ref.targetUri, ref.targetRange));
+                    await this.addReferenceToCanvas(new vscode.Location(ref.targetUri, ref.targetRange), uri.fsPath);
                 } else {
-                    await this.addReferenceToCanvas(ref);
+                    await this.addReferenceToCanvas(ref, uri.fsPath);
                 }
             }
 
-            console.log('[Link Canvas] 参照数:', references.length);
+            console.log('[Link Canvas] 参照数:', references.length, '元ファイル:', uri.fsPath);
         } catch (error) {
             console.error('[Link Canvas] 参照取得エラー:', error);
             vscode.window.showErrorMessage('参照の取得に失敗しました');
@@ -234,7 +238,11 @@ export class CanvasViewProvider {
     /**
      * URIからファイル情報を取得してキャンバスに追加
      */
-    private async addFileToCanvas(fileUri: vscode.Uri): Promise<void> {
+    private async addFileToCanvas(
+        fileUri: vscode.Uri,
+        relationshipType?: RelationshipType,
+        relatedFilePath?: string
+    ): Promise<void> {
         if (!this.panel) {
             console.log('[Link Canvas] Webview Panelが存在しません。addFileToCanvasを中断。');
             return;
@@ -244,13 +252,15 @@ export class CanvasViewProvider {
             const content = Buffer.from(fileContent).toString('utf8');
             const fileName = fileUri.path.split('/').pop() || 'unknown';
 
-            console.log('[Link Canvas] ファイル送信:', fileName, 'サイズ:', content.length);
+            console.log('[Link Canvas] ファイル送信:', fileName, 'サイズ:', content.length, '関係:', relationshipType);
 
             this.panel.webview.postMessage({
                 type: 'addFile',
                 filePath: fileUri.fsPath,
                 fileName: fileName,
                 content: content,
+                relationshipType: relationshipType || null,
+                relatedFilePath: relatedFilePath || null,
             });
         } catch (error) {
             console.error('[Link Canvas] ファイル読み込みエラー:', error);
@@ -262,7 +272,11 @@ export class CanvasViewProvider {
     /**
      * Locationオブジェクトからファイル情報を取得してキャンバスに追加する共通メソッド
      */
-    private async addLocationToCanvas(location: vscode.Location, type: '定義' | '参照'): Promise<void> {
+    private async addLocationToCanvas(
+        location: vscode.Location,
+        type: '定義' | '参照',
+        sourceFilePath?: string
+    ): Promise<void> {
         // uriが有効かチェック
         if (!location || !location.uri || typeof location.uri.scheme === 'undefined') {
             console.error(`[Link Canvas] 無効な${type}オブジェクトを受け取りました。処理をスキップします。`, location);
@@ -275,6 +289,8 @@ export class CanvasViewProvider {
 
             console.log(`[Link Canvas] ${type}ファイルをキャンバスに追加:`, fileName);
 
+            const relationshipType: RelationshipType = type === '定義' ? 'definition' : 'reference';
+
             this.panel.webview.postMessage({
                 type: 'addFile',
                 filePath: location.uri.fsPath,
@@ -282,12 +298,16 @@ export class CanvasViewProvider {
                 content: content,
                 highlightLine: location.range.start.line,
                 highlightColumn: location.range.start.character,
+                relationshipType: relationshipType,
+                relatedFilePath: sourceFilePath || null,
             });
 
             console.log(`[Link Canvas] ${type}送信完了`, {
                 filePath: location.uri.fsPath,
                 line: location.range.start.line,
                 column: location.range.start.character,
+                relationshipType,
+                relatedFilePath: sourceFilePath,
             });
         } catch (error) {
             console.error(`[Link Canvas] ${type}ファイル読み込みエラー:`, error);
@@ -297,15 +317,15 @@ export class CanvasViewProvider {
     /**
      * Locationからファイル情報を取得してキャンバスに追加
      */
-    private async addDefinitionToCanvas(definition: vscode.Location): Promise<void> {
-        await this.addLocationToCanvas(definition, '定義');
+    private async addDefinitionToCanvas(definition: vscode.Location, sourceFilePath?: string): Promise<void> {
+        await this.addLocationToCanvas(definition, '定義', sourceFilePath);
     }
 
     /**
      * Locationからファイル情報を取得してキャンバスに追加
      */
-    private async addReferenceToCanvas(reference: vscode.Location): Promise<void> {
-        await this.addLocationToCanvas(reference, '参照');
+    private async addReferenceToCanvas(reference: vscode.Location, sourceFilePath?: string): Promise<void> {
+        await this.addLocationToCanvas(reference, '参照', sourceFilePath);
     }
 
     /**
@@ -343,16 +363,16 @@ export class CanvasViewProvider {
                 console.log('[Link Canvas] 定義が見つかりませんでした');
                 return;
             }
-    
+
             const definitions = Array.isArray(definitionsResult) ? definitionsResult : [definitionsResult];
 
             if (definitions.length > 0) {
                 console.log('[Link Canvas] 定義をキャンバスに追加 (数:', definitions.length, ')');
                 for (const def of definitions) {
                     if ('targetUri' in def) {
-                        await this.addDefinitionToCanvas(new vscode.Location(def.targetUri, def.targetRange));
+                        await this.addDefinitionToCanvas(new vscode.Location(def.targetUri, def.targetRange), message.filePath);
                     } else {
-                        await this.addDefinitionToCanvas(def);
+                        await this.addDefinitionToCanvas(def, message.filePath);
                     }
                 }
                 console.log('[Link Canvas] 定義処理完了');
@@ -404,9 +424,9 @@ export class CanvasViewProvider {
                 console.log('[Link Canvas] 参照をキャンバスに追加 (数:', references.length, ')');
                 for (const ref of references) {
                     if ('targetUri' in ref) {
-                        await this.addReferenceToCanvas(new vscode.Location(ref.targetUri, ref.targetRange));
+                        await this.addReferenceToCanvas(new vscode.Location(ref.targetUri, ref.targetRange), message.filePath);
                     } else {
-                        await this.addReferenceToCanvas(ref);
+                        await this.addReferenceToCanvas(ref, message.filePath);
                     }
                 }
                 console.log('[Link Canvas] 参照処理完了');

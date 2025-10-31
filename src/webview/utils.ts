@@ -18,3 +18,14 @@ export function generateWindowId(
       : "base";
   return `window-${sanitizedPath}-${highlightKey}`;
 }
+
+/**
+ * 2つのウィンドウID間のエッジIDを生成します。
+ *
+ * @param sourceId 始点ウィンドウのID
+ * @param targetId 終点ウィンドウのID
+ * @returns 生成されたエッジID
+ */
+export function generateEdgeId(sourceId: string, targetId: string): string {
+  return `edge-${sourceId}-to-${targetId}`;
+}
