@@ -32,7 +32,7 @@ export const DEFAULT_CONFIG: LinkCanvasConfig = {
     gridColor: 'rgba(255, 255, 255, 0.05)',
   },
   window: {
-    borderColor: '#444444',
+    borderColor: '#666666',
     borderWidth: 1,
     borderRadius: 8,
     backgroundColor: '#23272e',
@@ -54,7 +54,7 @@ export const LIGHT_THEME_PRESET: Partial<LinkCanvasConfig> = {
     gridColor: 'rgba(0, 0, 0, 0.05)',
   },
   window: {
-    borderColor: '#cccccc',
+    borderColor: '#888888',
     borderWidth: 1,
     borderRadius: 8,
     backgroundColor: '#ffffff',
@@ -72,7 +72,7 @@ export const DARK_THEME_PRESET: Partial<LinkCanvasConfig> = {
     gridColor: 'rgba(255, 255, 255, 0.05)',
   },
   window: {
-    borderColor: '#3c3c3c',
+    borderColor: '#666666',
     borderWidth: 1,
     borderRadius: 8,
     backgroundColor: '#252526',

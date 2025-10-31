@@ -19,7 +19,7 @@ export class ConfigManager {
                 gridColor: config.get('customTheme.gridColor', 'rgba(255, 255, 255, 0.05)'),
             },
             window: {
-                borderColor: config.get('window.borderColor', '#cccccc'),
+                borderColor: config.get('window.borderColor', '#666666'),
                 borderWidth: config.get('window.borderWidth', 1),
                 borderRadius: config.get('window.borderRadius', 8),
                 backgroundColor: config.get('window.backgroundColor', '#ffffff'),
