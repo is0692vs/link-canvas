@@ -3,13 +3,7 @@ import { createRoot } from "react-dom/client";
 import { InfiniteCanvas } from "./components/InfiniteCanvas";
 import type { CodeWindowData } from "./components/CodeWindow";
 import { generateWindowId } from "./utils";
-
-interface HighlightRange {
-  startLine: number;
-  endLine: number;
-  startColumn?: number;
-  endColumn?: number;
-}
+import type { HighlightRange } from "./types";
 
 interface FileMessage {
   type: string;

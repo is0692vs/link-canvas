@@ -2,13 +2,7 @@ import React from "react";
 import Editor from "@monaco-editor/react";
 import type { Monaco } from "@monaco-editor/react";
 import { ActionType, MessageType } from "../constants";
-
-interface HighlightRange {
-  startLine: number;
-  endLine: number;
-  startColumn?: number;
-  endColumn?: number;
-}
+import type { HighlightRange } from "../types";
 
 interface MonacoEditorProps {
   content: string;
@@ -159,28 +153,31 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = (props) => {
     const monacoStartLine = startLine + 1;
     const monacoEndLine = endLine + 1;
     const monacoStartColumn = startColumn !== undefined ? startColumn + 1 : 1;
-    const monacoEndColumn =
-      endColumn !== undefined ? endColumn + 1 : Number.MAX_VALUE;
+    
+    // 終了列の計算: endColumn が指定されている場合はそれを使用、
+    // なければ行の最大列を取得（行全体をハイライト）
+    let monacoEndColumn: number;
+    if (endColumn !== undefined) {
+      monacoEndColumn = endColumn + 1;
+    } else {
+      const model = editor.getModel();
+      monacoEndColumn = model?.getLineMaxColumn(monacoEndLine) || 1;
+    }
 
     // デコレーション（ハイライト）を設定
     const decorations = [
       {
         range: new monaco.Range(
           monacoStartLine,
-          1,
+          monacoStartColumn,
           monacoEndLine,
-          Number.MAX_VALUE
+          monacoEndColumn
         ),
         options: {
           isWholeLine: true,
           className: "highlight-line",
-          // 背景色: 薄い黄色
           inlineClassName: "highlight-inline",
-          // Monaco の組み込みスタイルオプション
-          backgroundColor: "rgba(255, 230, 100, 0.25)",
-          // 左側のグリフマージン（行番号の左側）にマーカーを表示
           glyphMarginClassName: "highlight-glyph",
-          // オーバービュールーラー（スクロールバー）にマーカーを表示
           overviewRuler: {
             color: "rgba(255, 200, 0, 0.8)",
             position: monaco.editor.OverviewRulerLane.Full,

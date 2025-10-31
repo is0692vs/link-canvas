@@ -2,14 +2,8 @@ import React from "react";
 import { useResize } from "../hooks/useResize";
 import { FilePreview } from "./FilePreview";
 import { MonacoEditorComponent } from "./MonacoEditor";
+import type { HighlightRange } from "../types";
 import "./CodeWindow.css";
-
-export interface HighlightRange {
-  startLine: number;
-  endLine: number;
-  startColumn?: number;
-  endColumn?: number;
-}
 
 export interface CodeWindowData {
   filePath: string;
