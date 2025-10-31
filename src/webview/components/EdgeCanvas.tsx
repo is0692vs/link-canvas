@@ -8,14 +8,15 @@ interface EdgeCanvasProps {
   windows: Array<
     CodeWindowData & { id: string; position: { x: number; y: number } }
   >;
-  zoom: number;
-  pan: { x: number; y: number };
+  zoom: number; // 将来の座標変換用（現在未使用）
+  pan: { x: number; y: number }; // 将来の座標変換用（現在未使用）
   onEdgeClick?: (edgeId: string) => void;
   onEdgeHover?: (edgeId: string | null) => void;
 }
 
 /**
  * エッジ（依存関係の線）を描画するSVGキャンバス
+ * 注: zoom/panは将来の機能拡張用に保持していますが、現在は使用していません
  */
 export const EdgeCanvas: React.FC<EdgeCanvasProps> = ({
   edges,
@@ -27,11 +28,13 @@ export const EdgeCanvas: React.FC<EdgeCanvasProps> = ({
 }) => {
   const [hoveredEdge, setHoveredEdge] = React.useState<string | null>(null);
 
-  console.log("[Link Canvas] EdgeCanvas レンダリング", {
-    edgeCount: edges.length,
-    windowCount: windows.length,
-    zoom: zoom.toFixed(3),
-  });
+  // 開発時のみログ出力
+  if (edges.length > 0) {
+    console.log("[Link Canvas] EdgeCanvas レンダリング", {
+      edgeCount: edges.length,
+      windowCount: windows.length,
+    });
+  }
 
   /**
    * ウィンドウの接続ポイントの座標を計算

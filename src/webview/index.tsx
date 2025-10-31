@@ -81,6 +81,90 @@ function App() {
     // エッジホバー時の処理（必要に応じて実装）
   }, []);
 
+  // デバッグ用：テストデータの初期化（開発時のみ）
+  React.useEffect(() => {
+    // 環境変数やクエリパラメータでテストモードを判定できるが、
+    // ここでは簡易的にウィンドウ数が0の場合のみテストデータを追加
+    const addTestData = false; // 本番では false にする
+    
+    if (addTestData && windows.length === 0) {
+      console.log("[Link Canvas] テストデータを追加します");
+      
+      // テストウィンドウ1
+      const testWindow1: CodeWindowData & {
+        id: string;
+        position: { x: number; y: number };
+      } = {
+        id: "test-window-1",
+        filePath: "/test/main.ts",
+        fileName: "main.ts",
+        content: `import { Calculator } from './calculator';\nimport { Logger } from './logger';\n\nconst calc = new Calculator();\nconst logger = new Logger();\n\nfunction main() {\n  const result = calc.add(5, 3);\n  logger.log(\`Result: \${result}\`);\n  return result;\n}`,
+        width: 400,
+        height: 300,
+        classes: [],
+        functions: ["main"],
+        position: { x: 100, y: 100 },
+      };
+
+      // テストウィンドウ2
+      const testWindow2: CodeWindowData & {
+        id: string;
+        position: { x: number; y: number };
+      } = {
+        id: "test-window-2",
+        filePath: "/test/calculator.ts",
+        fileName: "calculator.ts",
+        content: `export class Calculator {\n  add(a: number, b: number): number {\n    return a + b;\n  }\n\n  subtract(a: number, b: number): number {\n    return a - b;\n  }\n}`,
+        width: 400,
+        height: 300,
+        classes: ["Calculator"],
+        functions: ["add", "subtract"],
+        position: { x: 600, y: 100 },
+      };
+
+      // テストウィンドウ3
+      const testWindow3: CodeWindowData & {
+        id: string;
+        position: { x: number; y: number };
+      } = {
+        id: "test-window-3",
+        filePath: "/test/logger.ts",
+        fileName: "logger.ts",
+        content: `export class Logger {\n  log(message: string): void {\n    console.log('[Log]', message);\n  }\n}`,
+        width: 400,
+        height: 300,
+        classes: ["Logger"],
+        functions: ["log"],
+        position: { x: 600, y: 450 },
+      };
+
+      setWindows([testWindow1, testWindow2, testWindow3]);
+
+      // テストエッジ
+      const testEdges: EdgeData[] = [
+        {
+          id: "test-edge-1",
+          source: "test-window-1",
+          target: "test-window-2",
+          sourceHandle: "right",
+          targetHandle: "left",
+          style: { color: "#888", width: 2 },
+        },
+        {
+          id: "test-edge-2",
+          source: "test-window-1",
+          target: "test-window-3",
+          sourceHandle: "right",
+          targetHandle: "left",
+          style: { color: "#888", width: 2, dashed: true },
+        },
+      ];
+
+      setEdges(testEdges);
+      console.log("[Link Canvas] テストデータ追加完了");
+    }
+  }, []); // 初回マウント時のみ実行
+
   // postMessageリスナーのセットアップ
   React.useEffect(() => {
     // console.log("[Link Canvas] イベントリスナー セットアップ開始");
@@ -222,35 +306,39 @@ function App() {
 
           // 依存関係の自動検出とエッジ作成
           // 新しいウィンドウが追加された場合、既存のウィンドウとの依存関係を検出
-          setEdges((prevEdges) => {
-            const newEdges: EdgeData[] = [...prevEdges];
-            const allWindows = windows;
+          setWindows((currentWindows) => {
+            // ウィンドウは既に更新されているので、そのまま返す
+            
+            // エッジを更新（現在のウィンドウリストを使用）
+            setEdges((prevEdges) => {
+              const newEdges: EdgeData[] = [...prevEdges];
 
-            // import文から依存関係を検出
-            const importRegex =
-              /import\s+.*\s+from\s+['"]([^'"]+)['"]/g;
-            let importMatch;
+              // import文から依存関係を検出（より包括的な正規表現）
+              const importRegex =
+                /import\s+(?:.*\s+)?from\s*['"]([^'"]+)['"]/g;
+              let importMatch;
 
-            while (
-              (importMatch = importRegex.exec(fileMsg.content)) !== null
-            ) {
-              const importPath = importMatch[1];
-              console.log(
-                "[Link Canvas] import検出:",
-                importPath,
-                "from",
-                fileMsg.fileName
-              );
-
-              // importパスに基づいて対象ウィンドウを検索
-              // 簡易実装：ファイル名の一部が一致するウィンドウを検索
-              const targetWindow = allWindows.find((w) => {
-                const baseName = importPath.split("/").pop()?.replace(/\..*$/, "");
-                return (
-                  baseName &&
-                  w.fileName.toLowerCase().includes(baseName.toLowerCase())
+              while (
+                (importMatch = importRegex.exec(fileMsg.content)) !== null
+              ) {
+                const importPath = importMatch[1];
+                console.log(
+                  "[Link Canvas] import検出:",
+                  importPath,
+                  "from",
+                  fileMsg.fileName
                 );
-              });
+
+                // importパスに基づいて対象ウィンドウを検索
+                // より正確なファイル名マッチング
+                const targetWindow = currentWindows.find((w) => {
+                  const baseName = importPath.split("/").pop()?.replace(/\.(ts|tsx|js|jsx)$/, "");
+                  if (!baseName) return false;
+                  
+                  // ファイル名から拡張子を除いた部分で正確にマッチ
+                  const windowBaseName = w.fileName.replace(/\.(ts|tsx|js|jsx)$/, "");
+                  return baseName.toLowerCase() === windowBaseName.toLowerCase();
+                });
 
               if (targetWindow) {
                 const edgeId = generateEdgeId(windowId, targetWindow.id);
@@ -278,7 +366,10 @@ function App() {
               }
             }
 
-            return newEdges;
+              return newEdges;
+            });
+            
+            return currentWindows;
           });
         } else if (message.type === "zoomIn" || message.type === "zoomOut") {
           const zoomMsg = message as ZoomMessage;
