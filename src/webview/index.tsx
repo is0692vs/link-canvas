@@ -85,7 +85,8 @@ function App() {
   React.useEffect(() => {
     // 環境変数やクエリパラメータでテストモードを判定できるが、
     // ここでは簡易的にウィンドウ数が0の場合のみテストデータを追加
-    const addTestData = false; // 本番では false にする
+    // NODE_ENVが'production'でない場合のみテストデータを追加
+    const addTestData = process.env.NODE_ENV !== 'production';
     
     if (addTestData && windows.length === 0) {
       console.log("[Link Canvas] テストデータを追加します");
