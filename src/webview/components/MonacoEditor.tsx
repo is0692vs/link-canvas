@@ -41,6 +41,7 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = (props) => {
   const editorRef = React.useRef<any>(null);
   const monacoRef = React.useRef<Monaco | null>(null);
   const highlightCollectionRef = React.useRef<any>(null);
+  const [shouldClearHighlight, setShouldClearHighlight] = React.useState(false);
 
   const handleEditorMount = (editor: any, monaco: Monaco) => {
     console.log("[Link Canvas] Monaco Editor handleEditorMount 呼び出し", {
@@ -60,6 +61,14 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = (props) => {
         }, 100);
       }
     }
+
+    // エディタ内をクリックしたらハイライトを解除
+    editor.onMouseDown(() => {
+      if (highlightCollectionRef.current) {
+        console.log("[Link Canvas] エディタクリック - ハイライト解除");
+        setShouldClearHighlight(true);
+      }
+    });
 
     // コンテキストメニューアクション登録（メニュー項目を表示）
     console.log("[Link Canvas] コンテキストメニューアクション登録開始");
@@ -85,6 +94,17 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = (props) => {
   };
 
   /**
+   * ハイライト解除の処理
+   */
+  React.useEffect(() => {
+    if (shouldClearHighlight && highlightCollectionRef.current) {
+      highlightCollectionRef.current.set([]);
+      setShouldClearHighlight(false);
+      console.log("[Link Canvas] ハイライト解除完了");
+    }
+  }, [shouldClearHighlight]);
+
+  /**
    * ハイライト機能: highlightRange または highlightLine が変わったときに、該当範囲を視認しやすくハイライト
    * 範囲を自動スクロールで表示
    */
@@ -93,6 +113,11 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = (props) => {
     const monaco = monacoRef.current;
 
     if (!editor || !monaco) {
+      return;
+    }
+
+    // クリアフラグが立っている場合は新しいハイライトを適用しない
+    if (shouldClearHighlight) {
       return;
     }
 
@@ -186,7 +211,7 @@ export const MonacoEditorComponent: React.FC<MonacoEditorProps> = (props) => {
       monacoEndLine,
       fileName,
     });
-  }, [highlightLine, highlightColumn, highlightRange, fileName]);
+  }, [highlightLine, highlightColumn, highlightRange, fileName, shouldClearHighlight]);
 
   return (
     <Editor
