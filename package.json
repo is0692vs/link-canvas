@@ -93,6 +93,73 @@
           "group": "navigation@2"
         }
       ]
+    },
+    "configuration": {
+      "title": "Link Canvas",
+      "properties": {
+        "linkCanvas.theme": {
+          "type": "string",
+          "enum": ["light", "dark", "custom"],
+          "default": "dark",
+          "description": "テーマ設定（ライト/ダーク/カスタム）"
+        },
+        "linkCanvas.customTheme.backgroundColor": {
+          "type": "string",
+          "default": "#1e1e1e",
+          "description": "カスタムテーマの背景色（テーマが'custom'の時のみ有効）"
+        },
+        "linkCanvas.customTheme.gridColor": {
+          "type": "string",
+          "default": "rgba(255, 255, 255, 0.05)",
+          "description": "カスタムテーマのグリッド線の色（テーマが'custom'の時のみ有効）"
+        },
+        "linkCanvas.window.borderColor": {
+          "type": "string",
+          "default": "#cccccc",
+          "description": "ウィンドウの枠線の色"
+        },
+        "linkCanvas.window.borderWidth": {
+          "type": "number",
+          "default": 1,
+          "minimum": 0,
+          "maximum": 10,
+          "description": "ウィンドウの枠線の太さ（px）"
+        },
+        "linkCanvas.window.borderRadius": {
+          "type": "number",
+          "default": 8,
+          "minimum": 0,
+          "maximum": 20,
+          "description": "ウィンドウの角丸の大きさ（px）"
+        },
+        "linkCanvas.window.backgroundColor": {
+          "type": "string",
+          "default": "#ffffff",
+          "description": "ウィンドウの背景色"
+        },
+        "linkCanvas.window.titleBarColor": {
+          "type": "string",
+          "default": "#f0f0f0",
+          "description": "ウィンドウのタイトルバーの背景色"
+        },
+        "linkCanvas.window.shadowColor": {
+          "type": "string",
+          "default": "rgba(0, 0, 0, 0.15)",
+          "description": "ウィンドウの影の色"
+        },
+        "linkCanvas.font.family": {
+          "type": "string",
+          "default": "",
+          "description": "フォントファミリー（空の場合はVSCodeのデフォルト）"
+        },
+        "linkCanvas.font.size": {
+          "type": "number",
+          "default": 14,
+          "minimum": 8,
+          "maximum": 32,
+          "description": "フォントサイズ（px）"
+        }
+      }
     }
   },
   "scripts": {

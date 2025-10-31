@@ -1,15 +1,17 @@
 .code-window {
   display: flex;
   flex-direction: column;
-  background: white;
-  border: 1px solid #cccccc;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  background: var(--lc-window-background-color, white);
+  border: var(--lc-window-border-width, 1px) solid var(--lc-window-border-color, #cccccc);
+  border-radius: var(--lc-window-border-radius, 8px);
+  box-shadow: 0 2px 12px var(--lc-window-shadow-color, rgba(0, 0, 0, 0.15));
   overflow: hidden;
   position: relative;
   min-width: 200px;
   min-height: 150px;
   pointer-events: auto; /* ウィンドウ全体でイベント受け取り */
+  font-family: var(--lc-font-family, var(--vscode-font-family));
+  font-size: var(--lc-font-size, 14px);
 }
 
 /* タイトルバー */
@@ -19,8 +21,8 @@
   align-items: center;
   height: 32px;
   padding: 0 12px;
-  background-color: #f0f0f0;
-  border-bottom: 1px solid #e0e0e0;
+  background-color: var(--lc-window-titlebar-color, #f0f0f0);
+  border-bottom: 1px solid var(--lc-window-border-color, #e0e0e0);
   user-select: none;
   flex-shrink: 0;
   pointer-events: none; /* ウィンドウのonMouseDownで制御 */

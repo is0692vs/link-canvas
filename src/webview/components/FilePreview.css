@@ -4,6 +4,8 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  font-family: var(--lc-font-family, var(--vscode-font-family));
+  font-size: var(--lc-font-size, 14px);
 }
 
 .file-preview__name {

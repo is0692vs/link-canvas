@@ -5,6 +5,7 @@ import type { CodeWindowData } from "./components/CodeWindow";
 import type { EdgeData } from "./types/EdgeData";
 import { generateWindowId, generateEdgeId } from "./utils";
 import type { HighlightRange } from "./types";
+import { applyConfigToCSS, parseConfigFromMessage, DEFAULT_CONFIG } from "./config";
 
 interface FileMessage {
   type: string;
@@ -20,6 +21,11 @@ interface FileMessage {
 
 interface ZoomMessage {
   type: "zoomIn" | "zoomOut";
+}
+
+interface ConfigMessage {
+  type: "updateConfig";
+  config: any;
 }
 
 function App() {
@@ -71,7 +77,6 @@ function App() {
     setWindows((prev) => prev.filter((w) => w.id !== id));
     // ウィンドウ削除時に関連するエッジも削除
     setEdges((prev) => prev.filter((e) => e.source !== id && e.target !== id));
-    // console.log("[Link Canvas] ウィンドウ削除:", id);
   }, []);
 
   const handleEdgeClick = React.useCallback((edgeId: string) => {
@@ -168,12 +173,18 @@ function App() {
     }
   }, []); // 初回マウント時のみ実行
 
+  // 初期設定を適用
+  React.useEffect(() => {
+    console.log("[Link Canvas] 初期設定を適用");
+    applyConfigToCSS(DEFAULT_CONFIG);
+  }, []);
+
   // postMessageリスナーのセットアップ
   React.useEffect(() => {
     // console.log("[Link Canvas] イベントリスナー セットアップ開始");
 
     const messageHandler = (event: MessageEvent) => {
-      const message = event.data as FileMessage | ZoomMessage;
+      const message = event.data as FileMessage | ZoomMessage | ConfigMessage;
 
       if ("type" in message) {
         if (message.type === "addFile") {
@@ -472,6 +483,11 @@ function App() {
           }
 
           handleZoomChange(newZoom);
+        } else if (message.type === "updateConfig") {
+          const configMsg = message as ConfigMessage;
+          console.log("[Link Canvas] 設定更新メッセージ受信:", configMsg.config);
+          const parsedConfig = parseConfigFromMessage(configMsg.config);
+          applyConfigToCSS(parsedConfig);
         }
       }
     };
