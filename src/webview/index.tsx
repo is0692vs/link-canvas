@@ -2,7 +2,8 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { InfiniteCanvas } from "./components/InfiniteCanvas";
 import type { CodeWindowData } from "./components/CodeWindow";
-import { generateWindowId } from "./utils";
+import type { EdgeData } from "./types/EdgeData";
+import { generateWindowId, generateEdgeId } from "./utils";
 
 interface FileMessage {
   type: string;
@@ -21,6 +22,7 @@ function App() {
   const [windows, setWindows] = React.useState<
     Array<CodeWindowData & { id: string; position: { x: number; y: number } }>
   >([]);
+  const [edges, setEdges] = React.useState<EdgeData[]>([]);
   const [zoom, setZoom] = React.useState(0.5);
   const [pan, setPan] = React.useState({ x: 0, y: 0 });
 
@@ -63,7 +65,20 @@ function App() {
 
   const handleWindowClose = React.useCallback((id: string) => {
     setWindows((prev) => prev.filter((w) => w.id !== id));
+    // ウィンドウ削除時に関連するエッジも削除
+    setEdges((prev) =>
+      prev.filter((e) => e.source !== id && e.target !== id)
+    );
     // console.log("[Link Canvas] ウィンドウ削除:", id);
+  }, []);
+
+  const handleEdgeClick = React.useCallback((edgeId: string) => {
+    console.log("[Link Canvas] エッジクリック:", edgeId);
+    // エッジクリック時の処理（例：エッジの削除、情報表示など）
+  }, []);
+
+  const handleEdgeHover = React.useCallback((edgeId: string | null) => {
+    // エッジホバー時の処理（必要に応じて実装）
   }, []);
 
   // postMessageリスナーのセットアップ
@@ -204,6 +219,67 @@ function App() {
             }
             return updated;
           });
+
+          // 依存関係の自動検出とエッジ作成
+          // 新しいウィンドウが追加された場合、既存のウィンドウとの依存関係を検出
+          setEdges((prevEdges) => {
+            const newEdges: EdgeData[] = [...prevEdges];
+            const allWindows = windows;
+
+            // import文から依存関係を検出
+            const importRegex =
+              /import\s+.*\s+from\s+['"]([^'"]+)['"]/g;
+            let importMatch;
+
+            while (
+              (importMatch = importRegex.exec(fileMsg.content)) !== null
+            ) {
+              const importPath = importMatch[1];
+              console.log(
+                "[Link Canvas] import検出:",
+                importPath,
+                "from",
+                fileMsg.fileName
+              );
+
+              // importパスに基づいて対象ウィンドウを検索
+              // 簡易実装：ファイル名の一部が一致するウィンドウを検索
+              const targetWindow = allWindows.find((w) => {
+                const baseName = importPath.split("/").pop()?.replace(/\..*$/, "");
+                return (
+                  baseName &&
+                  w.fileName.toLowerCase().includes(baseName.toLowerCase())
+                );
+              });
+
+              if (targetWindow) {
+                const edgeId = generateEdgeId(windowId, targetWindow.id);
+                // 既存のエッジがない場合のみ追加
+                if (!newEdges.some((e) => e.id === edgeId)) {
+                  newEdges.push({
+                    id: edgeId,
+                    source: windowId,
+                    target: targetWindow.id,
+                    sourceHandle: "right",
+                    targetHandle: "left",
+                    style: {
+                      color: "#888",
+                      width: 2,
+                      dashed: false,
+                    },
+                  });
+                  console.log(
+                    "[Link Canvas] エッジ作成:",
+                    fileMsg.fileName,
+                    "→",
+                    targetWindow.fileName
+                  );
+                }
+              }
+            }
+
+            return newEdges;
+          });
         } else if (message.type === "zoomIn" || message.type === "zoomOut") {
           const zoomMsg = message as ZoomMessage;
           const zoomDelta = 0.1;
@@ -244,6 +320,7 @@ function App() {
     <div style={{ width: "100vw", height: "100vh", overflow: "hidden" }}>
       <InfiniteCanvas
         windows={windows}
+        edges={edges}
         zoom={zoom}
         pan={pan}
         onZoomChange={handleZoomChange}
@@ -251,6 +328,8 @@ function App() {
         onWindowMove={handleWindowMove}
         onWindowResize={handleWindowResize}
         onWindowClose={handleWindowClose}
+        onEdgeClick={handleEdgeClick}
+        onEdgeHover={handleEdgeHover}
       />
     </div>
   );
