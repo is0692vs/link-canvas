@@ -51,11 +51,11 @@ Link Canvasは、VSCode設定ファイル（settings.json）を通じて、テ�
 ウィンドウの枠線の色
 
 - **型**: `string` (CSSカラー値)
-- **デフォルト**: `"#cccccc"`
+- **デフォルト**: `"#666666"`
 
 ```json
 {
-  "linkCanvas.window.borderColor": "#cccccc"
+  "linkCanvas.window.borderColor": "#666666"
 }
 ```
 
@@ -163,7 +163,7 @@ Link Canvasは、VSCode設定ファイル（settings.json）を通じて、テ�
 - グリッド線: `rgba(255, 255, 255, 0.05)`
 - ウィンドウ背景: `#252526`
 - タイトルバー: `#2d2d30`
-- 枠線: `#3c3c3c`
+- 枠線: `#666666`（濃い灰色）
 - 影: `rgba(0, 0, 0, 0.5)`
 
 ### ライトテーマ
@@ -179,7 +179,7 @@ Link Canvasは、VSCode設定ファイル（settings.json）を通じて、テ�
 - グリッド線: `rgba(0, 0, 0, 0.05)`
 - ウィンドウ背景: `#ffffff`
 - タイトルバー: `#f0f0f0`
-- 枠線: `#cccccc`
+- 枠線: `#888888`（ミディアムグレー）
 - 影: `rgba(0, 0, 0, 0.15)`
 
 ### カスタムテーマ
