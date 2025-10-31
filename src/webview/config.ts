@@ -112,8 +112,8 @@ export function applyConfigToCSS(config: LinkCanvasConfig): void {
   }
 
   // 背景とグリッド（テーマプリセット優先、カスタムの場合は設定値を使用）
-  const backgroundColor = themePreset?.customTheme?.backgroundColor || config.customTheme.backgroundColor;
-  const gridColor = themePreset?.customTheme?.gridColor || config.customTheme.gridColor;
+  const backgroundColor = themePreset?.customTheme?.backgroundColor ?? config.customTheme.backgroundColor;
+  const gridColor = themePreset?.customTheme?.gridColor ?? config.customTheme.gridColor;
 
   root.style.setProperty('--lc-background-color', backgroundColor);
   root.style.setProperty('--lc-grid-color', gridColor);
