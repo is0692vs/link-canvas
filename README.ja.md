@@ -60,7 +60,7 @@ Link Canvasは、VSCode設定ファイル（settings.json）でテーマやウ�
 ```json
 {
   "linkCanvas.theme": "dark",
-  "linkCanvas.window.borderColor": "#3c3c3c",
+  "linkCanvas.window.borderColor": "#666666",
   "linkCanvas.window.borderRadius": 8,
   "linkCanvas.font.size": 14
 }
