@@ -82,6 +82,20 @@ export const DARK_THEME_PRESET: Partial<LinkCanvasConfig> = {
 };
 
 /**
+ * オブジェクトのプロパティをCSS変数として設定するヘルパー関数
+ */
+function setWindowStyleProperties(root: HTMLElement, properties: Record<string, string | number>): void {
+  Object.entries(properties).forEach(([key, value]) => {
+    const cssVar = `--lc-window-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
+    if (typeof value === 'number') {
+      root.style.setProperty(cssVar, `${value}px`);
+    } else {
+      root.style.setProperty(cssVar, value);
+    }
+  });
+}
+
+/**
  * 設定をCSS変数に適用する
  */
 export function applyConfigToCSS(config: LinkCanvasConfig): void {
@@ -89,32 +103,24 @@ export function applyConfigToCSS(config: LinkCanvasConfig): void {
 
   console.log('[Link Canvas] 設定をCSS変数に適用:', config);
 
-  // テーマに応じた背景とグリッド色を設定
-  let backgroundColor: string;
-  let gridColor: string;
-
+  // テーマプリセットを取得（ライト/ダークの場合）
+  let themePreset: Partial<LinkCanvasConfig> | null = null;
   if (config.theme === 'light') {
-    backgroundColor = LIGHT_THEME_PRESET.customTheme!.backgroundColor;
-    gridColor = LIGHT_THEME_PRESET.customTheme!.gridColor;
+    themePreset = LIGHT_THEME_PRESET;
   } else if (config.theme === 'dark') {
-    backgroundColor = DARK_THEME_PRESET.customTheme!.backgroundColor;
-    gridColor = DARK_THEME_PRESET.customTheme!.gridColor;
-  } else {
-    backgroundColor = config.customTheme.backgroundColor;
-    gridColor = config.customTheme.gridColor;
+    themePreset = DARK_THEME_PRESET;
   }
 
-  // 背景とグリッド
+  // 背景とグリッド（テーマプリセット優先、カスタムの場合は設定値を使用）
+  const backgroundColor = themePreset?.customTheme?.backgroundColor || config.customTheme.backgroundColor;
+  const gridColor = themePreset?.customTheme?.gridColor || config.customTheme.gridColor;
+
   root.style.setProperty('--lc-background-color', backgroundColor);
   root.style.setProperty('--lc-grid-color', gridColor);
 
-  // ウィンドウスタイル
-  root.style.setProperty('--lc-window-border-color', config.window.borderColor);
-  root.style.setProperty('--lc-window-border-width', `${config.window.borderWidth}px`);
-  root.style.setProperty('--lc-window-border-radius', `${config.window.borderRadius}px`);
-  root.style.setProperty('--lc-window-background-color', config.window.backgroundColor);
-  root.style.setProperty('--lc-window-titlebar-color', config.window.titleBarColor);
-  root.style.setProperty('--lc-window-shadow-color', config.window.shadowColor);
+  // ウィンドウスタイル（テーマプリセット優先、その後カスタム設定で上書き可能）
+  const windowStyle = themePreset?.window || config.window;
+  setWindowStyleProperties(root, windowStyle);
 
   // フォント
   if (config.font.family) {
@@ -123,33 +129,12 @@ export function applyConfigToCSS(config: LinkCanvasConfig): void {
     root.style.setProperty('--lc-font-family', 'var(--vscode-font-family)');
   }
   root.style.setProperty('--lc-font-size', `${config.font.size}px`);
-
-  // テーマに応じてウィンドウスタイルを上書き
-  if (config.theme === 'light') {
-    Object.entries(LIGHT_THEME_PRESET.window!).forEach(([key, value]) => {
-      const cssVar = `--lc-window-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
-      if (typeof value === 'number') {
-        root.style.setProperty(cssVar, `${value}px`);
-      } else {
-        root.style.setProperty(cssVar, value);
-      }
-    });
-  } else if (config.theme === 'dark') {
-    Object.entries(DARK_THEME_PRESET.window!).forEach(([key, value]) => {
-      const cssVar = `--lc-window-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
-      if (typeof value === 'number') {
-        root.style.setProperty(cssVar, `${value}px`);
-      } else {
-        root.style.setProperty(cssVar, value);
-      }
-    });
-  }
 }
 
 /**
  * メッセージから設定を解析する
  */
-export function parseConfigFromMessage(config: any): LinkCanvasConfig {
+export function parseConfigFromMessage(config: Partial<LinkCanvasConfig>): LinkCanvasConfig {
   return {
     theme: config.theme || DEFAULT_CONFIG.theme,
     customTheme: {

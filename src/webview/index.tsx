@@ -5,7 +5,7 @@ import type { CodeWindowData } from "./components/CodeWindow";
 import type { EdgeData } from "./types/EdgeData";
 import { generateWindowId, generateEdgeId } from "./utils";
 import type { HighlightRange } from "./types";
-import { applyConfigToCSS, parseConfigFromMessage, DEFAULT_CONFIG } from "./config";
+import { applyConfigToCSS, parseConfigFromMessage, DEFAULT_CONFIG, type LinkCanvasConfig } from "./config";
 
 interface FileMessage {
   type: string;
@@ -25,7 +25,7 @@ interface ZoomMessage {
 
 interface ConfigMessage {
   type: "updateConfig";
-  config: any;
+  config: Partial<LinkCanvasConfig>;
 }
 
 function App() {
