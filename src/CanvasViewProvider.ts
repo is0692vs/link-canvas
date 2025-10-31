@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { ConfigManager } from './ConfigManager';
 
 // 依存関係の種類
 type RelationshipType = 'definition' | 'reference' | 'import' | null;
@@ -25,6 +26,7 @@ type WebviewMessage = DefinitionMessage | ReferencesMessage;
 
 export class CanvasViewProvider {
     private panel: vscode.WebviewPanel | undefined;
+    private configChangeListener: vscode.Disposable | undefined;
 
     constructor(private readonly extensionUri: vscode.Uri) { }
 
@@ -81,6 +83,19 @@ export class CanvasViewProvider {
             this.panel.onDidDispose(() => {
                 console.log('[Link Canvas] Webview Panel閉じられた');
                 this.panel = undefined;
+                // 設定変更リスナーをクリーンアップ
+                if (this.configChangeListener) {
+                    this.configChangeListener.dispose();
+                    this.configChangeListener = undefined;
+                }
+            });
+
+            // 初期設定を送信
+            this.sendConfig();
+
+            // 設定変更リスナーを登録
+            this.configChangeListener = ConfigManager.onConfigChange(() => {
+                this.sendConfig();
             });
         } else {
             console.log('[Link Canvas] 既存のWebview Panelを再利用');
@@ -102,6 +117,23 @@ export class CanvasViewProvider {
         console.log('[Link Canvas] ズームコマンド送信:', command);
         this.panel.webview.postMessage({
             type: command,
+        });
+    }
+
+    /**
+     * 現在の設定をWebviewに送信
+     */
+    private sendConfig(): void {
+        if (!this.panel) {
+            return;
+        }
+
+        const config = ConfigManager.getConfig();
+        console.log('[Link Canvas] 設定をWebviewに送信:', config);
+
+        this.panel.webview.postMessage({
+            type: 'updateConfig',
+            config: config,
         });
     }
 
