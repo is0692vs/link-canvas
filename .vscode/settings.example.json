@@ -1,0 +1,13 @@
+{
+  "linkCanvas.theme": "dark",
+  "linkCanvas.customTheme.backgroundColor": "#1e1e1e",
+  "linkCanvas.customTheme.gridColor": "rgba(255, 255, 255, 0.05)",
+  "linkCanvas.window.borderColor": "#3c3c3c",
+  "linkCanvas.window.borderWidth": 1,
+  "linkCanvas.window.borderRadius": 8,
+  "linkCanvas.window.backgroundColor": "#252526",
+  "linkCanvas.window.titleBarColor": "#2d2d30",
+  "linkCanvas.window.shadowColor": "rgba(0, 0, 0, 0.5)",
+  "linkCanvas.font.family": "",
+  "linkCanvas.font.size": 14
+}
