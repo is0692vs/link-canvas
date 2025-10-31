@@ -32,12 +32,12 @@ export const DEFAULT_CONFIG: LinkCanvasConfig = {
     gridColor: 'rgba(255, 255, 255, 0.05)',
   },
   window: {
-    borderColor: '#cccccc',
+    borderColor: '#444444',
     borderWidth: 1,
     borderRadius: 8,
-    backgroundColor: '#ffffff',
-    titleBarColor: '#f0f0f0',
-    shadowColor: 'rgba(0, 0, 0, 0.15)',
+    backgroundColor: '#23272e',
+    titleBarColor: '#1e1e1e',
+    shadowColor: 'rgba(0, 0, 0, 0.7)',
   },
   font: {
     family: '',
