@@ -115,7 +115,7 @@
         },
         "linkCanvas.window.borderColor": {
           "type": "string",
-          "default": "#cccccc",
+          "default": "#666666",
           "description": "ウィンドウの枠線の色"
         },
         "linkCanvas.window.borderWidth": {

@@ -62,7 +62,7 @@ Link Canvas allows you to customize themes, window styles, and fonts via VSCode 
 ```json
 {
   "linkCanvas.theme": "dark",
-  "linkCanvas.window.borderColor": "#3c3c3c",
+  "linkCanvas.window.borderColor": "#666666",
   "linkCanvas.window.borderRadius": 8,
   "linkCanvas.font.size": 14
 }
